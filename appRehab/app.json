@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Apptivate",
+    "slug": "apptivate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/apptivateLogo.png",
+    "splash": {
+      "image": "./src/assets/images/apptivateLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.appRehab.apptivate",
+      "buildNumber": "1.0.0",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.appRehab.apptivate",
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "pan",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/apptivateLogo.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./src/assets/images/apptivateLogo.png"
+    },
+    "description": ""
+  }
+}
