@@ -21,6 +21,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function UpdateCompanionInfo(props) {
   const [data, setdata] = useState({
@@ -157,7 +158,7 @@ function UpdateCompanionInfo(props) {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);
   } else {
     return (
       <View style={styles.container}>

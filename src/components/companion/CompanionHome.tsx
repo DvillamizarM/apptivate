@@ -29,6 +29,7 @@ import User_o from "react-native-vector-icons/FontAwesome";
 import Download from "react-native-vector-icons/Ionicons";
 
 import Settings from "react-native-vector-icons/Ionicons";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const CompanionHome = (props) => {
   const [patientInformation, setPatientInformation]: any = useState({});
@@ -144,7 +145,7 @@ const CompanionHome = (props) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
   } else {
     if (patientInformation.uid) {
       console.log(

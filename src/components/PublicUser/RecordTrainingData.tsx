@@ -4,17 +4,25 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Image,
   Alert,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
+import { Slider } from "react-native-range-slider-expo";
+import StepIndicator from "react-native-step-indicator";
+import RadioButton from "expo-radio-button";
+
+import Add from "react-native-vector-icons/Ionicons";
+
+import Arrow from "react-native-vector-icons/MaterialIcons";
 
 import Check from "react-native-vector-icons/EvilIcons";
+import LightBulb from "react-native-vector-icons/FontAwesome";
 
 // redux
 
@@ -22,18 +30,18 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
-import * as MailComposer from "expo-mail-composer";
+import ChargeScreen from "../Simple/ChargeScreen";
 
-const MedicalData = ({ props }) => {
+const RecordTrainingData = (props) => {
+  console.log("Las props que llegan son", props);
   const [data, setData] = useState({
-    perceivedForce: "Seleccionar",
-    size: "Seleccionar",
-    weight: "Seleccionar",
-    amputationLevel: "Seleccionar",
-    amputationPhase: "Seleccionar",
-    trainingPhase: "",
+    perceivedForce: "",
+    size: "",
+    weight: "",
     age: "",
     evolutionTime: "",
+    amputationLevel: "",
+    amputationPhase: "",
     medicineList: [],
     conditionList: [],
     medicine: "",
@@ -41,8 +49,32 @@ const MedicalData = ({ props }) => {
     corporalMass: 0,
   });
 
+  const [perceivedVal, setPerceivedVal] = useState(0);
+  const [current, setCurrent] = useState("");
+  const [current1, setCurrent1] = useState("");
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("Las props que llegan son", props);
+
+    firebase.db
+      .collection("users")
+      .doc(props.user.uid)
+      .get()
+      .then((user_db: any) => {
+        setData({ ...user_db.data().medical });
+        setCurrent(user_db.data().medical.amputationLevel);
+        setCurrent1(user_db.data().medical.amputationPhase);
+        console.log("asdfasdfasdfasdfasdfasdfasdf", user_db.data().medical);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log("El error es ", e);
+      });
+  }, []);
+
   const saveMedicalData = async () => {
-    console.log("Se guardaran los datos medicos");
     await firebase.db
       .collection("users")
       .doc(props.user.uid)
@@ -55,17 +87,9 @@ const MedicalData = ({ props }) => {
           evolutionTime: data.evolutionTime,
           amputationLevel: data.amputationLevel,
           amputationPhase: data.amputationPhase,
-          medicineList: data.medicineList,
-          conditionList: data.conditionList,
-          //   corporalMass: parseInt(data.weight) / parseInt(data.size),
+          corporalMass: parseInt(data.weight) / parseInt(data.size),
         },
         // "Inicial","Intermedia","Avanzada"
-        control: {
-          trainingPhase: "Inicial",
-          activeWeek: "week1",
-          activeDay: 0,
-          record: [],
-        },
       })
       .then((e) => {
         props.setUserMedical({
@@ -77,196 +101,363 @@ const MedicalData = ({ props }) => {
             evolutionTime: data.evolutionTime,
             amputationLevel: data.amputationLevel,
             amputationPhase: data.amputationPhase,
-            medicineList: data.medicineList,
-            conditionList: data.conditionList,
             corporalMass: parseInt(data.weight) / parseInt(data.size),
           },
-          control: {
-            trainingPhase: "Inicial",
-            activeWeek: "week1",
-            activeDay: 0,
-            record: [],
-          },
+        });
+        Alert.alert("Se actualizaron los datos médicos");
+        props.props.navigation.navigate("CustomizeRoutine", {
+          btnText: "Continuar",
         });
       });
-    props.navigation.navigate("Home");
   };
 
-  let arraySize: any[] = ["Seleccionar"];
-  for (let index = 130; index < 250; index++) {
-    arraySize.push(index);
-  }
-
-  let arrayWeight: any[] = ["Seleccionar"];
-  for (let index = 40; index < 300; index++) {
-    arrayWeight.push(index);
-  }
-
-  //   let arrayAge: any[] = ["Seleccionar"];
-  //   for (let index = 14; index < 100; index++) {
-  //     arrayAge.push(index);
-  //   }
-
-  return (
-    <View style={styles.containerMedicalData}>
-      <View style={styles.containerTextHeader}>
-        <Text style={styles.textHeader}>Datos Médicos</Text>
-        <Text style={{}}>
-          Estos datos son necesarios para poder personalizar su rutina de
-          ejercicios
-        </Text>
-      </View>
-
-      <View style={styles.timeContainer}>
-        <Text style={styles.textInput}>Estatura (CM)</Text>
-        <Picker
-          selectedValue={data.size + ""}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setData({ ...data, size: itemValue })
-          }
+  if (loading) {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" , marginTop:"5%"}}><ChargeScreen/></View>);
+  } else {
+    return (
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
         >
-          {arraySize.map((element, index) => {
-            return (
-              <Picker.Item
-                key={"m" + index}
-                label={element + ""}
-                value={element + ""}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-
-      <View style={styles.timeContainer}>
-        <Text style={styles.textInput}>Peso (KG)</Text>
-        <Picker
-          selectedValue={data.weight + ""}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setData({ ...data, weight: itemValue })
-          }
-        >
-          {arrayWeight.map((element, index) => {
-            return (
-              <Picker.Item
-                key={"s" + index}
-                label={element + ""}
-                value={element + ""}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-
-      <View style={styles.containerInput}>
-        <Text style={{}}>Nivel de Amputación</Text>
-
-        <View style={styles.repetitionInputContainer}>
-          <Picker
-            selectedValue={data.amputationLevel + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) =>
-              setData({ ...data, amputationLevel: itemValue })
-            }
+          <View
+            style={{
+              height: "10%",
+              width: "80%",
+              marginLeft:"10%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            {[
-              "Seleccionar",
-              "Transtibial",
-              "Transfemoral",
-              "Desarticulación de rodilla",
-            ].map((element, index) => {
-              return (
-                <Picker.Item
-                  key={"p" + index}
-                  label={element + ""}
-                  value={element + ""}
+            <Text style={{ fontWeight: "bold", fontSize: vmin(5) }}>
+              Datos Médicos
+            </Text>
+            <Text
+              style={{ fontSize: vmin(4), flexWrap: "wrap", textAlign: "left" }}
+            >
+              Por favor ingrese sus datos médicos para aplicar restricciones de
+              seguridad e iniciar la rutina.
+            </Text>
+          </View>
+          <View style={{ height: "90%" }}>
+            <View
+              style={[
+                updateMedicalDataStyles.containerInput,
+                { marginTop: "3%" },
+              ]}
+            >
+              <View style={styles.sliderTitle}>
+                <Text style={{}}>Estatura (CM)</Text>
+                <View style={styles.resultSlider}>
+                  <Text style={{}}>Valor: {data.size}</Text>
+                </View>
+              </View>
+
+              <View style={styles.sliderContainer}>
+                <Slider
+                  min={120}
+                  max={250}
+                  step={1}
+                  valueOnChange={(value) => {
+                    setData({ ...data, size: value + "" });
+                  }}
+                  initialValue={parseInt(data.size)}
+                  knobColor="#6979F8"
+                  valueLabelsBackgroundColor="rgba(65,65,65)"
+                  inRangeBarColor="rgba(65,65,65, 0.7)"
+                  outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
                 />
-              );
-            })}
-          </Picker>
-        </View>
-      </View>
+              </View>
+            </View>
 
-      <View style={styles.containerInput}>
-        <Text style={{}}>Fase de rehabilitación</Text>
+            <View style={updateMedicalDataStyles.containerInput}>
+              <View style={styles.sliderTitle}>
+                <Text style={{}}>Peso (KG)</Text>
+                <View style={styles.resultSlider}>
+                  <Text style={{}}>Valor: {data.weight}</Text>
+                </View>
+              </View>
+              <View style={styles.sliderContainer}>
+                <Slider
+                  min={20}
+                  max={300}
+                  step={1}
+                  valueOnChange={(value) => {
+                    setData({ ...data, weight: value + "" });
+                  }}
+                  initialValue={parseInt(data.weight)}
+                  knobColor="#6979F8"
+                  valueLabelsBackgroundColor="rgba(65,65,65)"
+                  inRangeBarColor="rgba(65,65,65, 0.7)"
+                  outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
+                />
+              </View>
+            </View>
 
-        <View style={styles.repetitionInputContainer}>
-          <Picker
-            selectedValue={data.amputationPhase + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) =>
-              setData({ ...data, amputationPhase: itemValue })
-            }
-          >
-            {["Seleccionar", "Preprotésico", "Protésico"].map(
-              (element, index) => {
-                return (
-                  <Picker.Item
-                    key={"p" + index}
-                    label={element + ""}
-                    value={element + ""}
+            <View style={updateMedicalDataStyles.containerInput}>
+              <View style={styles.sliderTitle}>
+                <Text style={{}}>Edad</Text>
+                <View style={styles.resultSlider}>
+                  <Text style={{}}>Valor: {data.age}</Text>
+                </View>
+              </View>
+              <View style={styles.sliderContainer}>
+                <Slider
+                  min={10}
+                  max={100}
+                  step={1}
+                  valueOnChange={(value) => {
+                    setData({ ...data, age: value + "" });
+                  }}
+                  initialValue={parseInt(data.age)}
+                  knobColor="#6979F8"
+                  valueLabelsBackgroundColor="rgba(65,65,65)"
+                  inRangeBarColor="rgba(65,65,65, 0.7)"
+                  outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
+                />
+              </View>
+            </View>
+
+            <View style={updateMedicalDataStyles.containerInput}>
+              <View style={styles.sliderTitle}>
+                <Text style={{}}>Tiempo con la lesión (Meses)</Text>
+                <View style={styles.resultSlider}>
+                  <Text style={{}}>Valor: {data.evolutionTime}</Text>
+                </View>
+              </View>
+              <View style={styles.sliderContainer}>
+                <Slider
+                  min={1}
+                  max={100}
+                  step={1}
+                  valueOnChange={(value) => {
+                    setData({ ...data, evolutionTime: value + "" });
+                  }}
+                  initialValue={parseInt(data.evolutionTime)}
+                  knobColor="#6979F8"
+                  valueLabelsBackgroundColor="rgba(65,65,65)"
+                  inRangeBarColor="rgba(65,65,65, 0.7)"
+                  outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
+                />
+              </View>
+            </View>
+            <View style={updateMedicalDataStyles.containerInput}>
+              <View style={styles.sliderTitle}>
+                <TouchableOpacity
+                  style={{
+                    borderColor: "rgba(255, 231, 35,1)",
+                    paddingBottom: "1%",
+                    borderBottomWidth: vmin(0.8),
+                    height: "100%",
+                    marginBottom: "4%",
+                    width: "55%",
+                    flexDirection: "row",
+                  }}
+                  onPress={() => {
+                    Alert.alert(
+                      "Esfuerzo Percibido",
+                      "Es una forma de clasificar la intensidad de las actividades físicas a través de las propias sensaciones que siente el individuo que realiza la actividad en cuestión. Para medir su esfuerzo percibido siéntese y levántese de una silla 10 veces y califique como se siente al finalizar. "
+                    );
+                  }}
+                >
+                  <Text style={{}}>Esfuerzo Percibido</Text>
+
+                  <LightBulb
+                    name="lightbulb-o"
+                    size={vmin(6)}
+                    color="rgba(255, 231, 35,1)"
                   />
-                );
-              }
-            )}
-          </Picker>
-        </View>
-      </View>
-
-      <View style={styles.containerInput}>
-        <Text style={{}}>Esfuerzo Percibido</Text>
-
-        <View style={styles.repetitionInputContainer}>
-          <Picker
-            selectedValue={data.perceivedForce + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) =>
-              setData({ ...data, perceivedForce: itemValue })
-            }
-          >
-            {[
-              "Seleccionar",
-              "Excesivamente Liviano",
-              "Liviano",
-              "Ni liviano ni pesado",
-              "Pesado",
-              "Excesivamente Pesado",
-            ].map((element, index) => {
-              return (
-                <Picker.Item
-                  key={"p" + index}
-                  label={element + ""}
-                  value={element + ""}
+                  {/* <FontAwesomeIcon icon="fa-solid fa-lightbulb" /> */}
+                </TouchableOpacity>
+                <View style={styles.resultSlider}>
+                  <Text style={{}}>Valor: {perceivedVal}</Text>
+                </View>
+              </View>
+              <View style={styles.sliderContainer}>
+                <Slider
+                  min={1}
+                  max={5}
+                  step={1}
+                  valueOnChange={(value) => {
+                    let stirngVal = "Liviano";
+                    setPerceivedVal(value);
+                    switch (value) {
+                      case 1:
+                        stirngVal = "Excesivamente Liviano";
+                        break;
+                      case 2:
+                        stirngVal = "Liviano";
+                        break;
+                      case 3:
+                        stirngVal = "Ni liviano ni pesado";
+                        break;
+                      case 4:
+                        stirngVal = "Pesado";
+                        break;
+                      case 5:
+                        stirngVal = "Excesivamente Pesado";
+                        break;
+                      default:
+                        stirngVal = "Liviano";
+                        break;
+                    }
+                    setData({ ...data, perceivedForce: stirngVal });
+                  }}
+                  initialValue={
+                    data.perceivedForce == "Excesivamente Liviano"
+                      ? 1
+                      : data.perceivedForce == "Liviano"
+                      ? 2
+                      : data.perceivedForce == "Ni liviano ni pesado"
+                      ? 3
+                      : data.perceivedForce == "Pesado"
+                      ? 4
+                      : 5
+                  }
+                  knobColor="#6979F8"
+                  valueLabelsBackgroundColor="rgba(65,65,65)"
+                  inRangeBarColor="rgba(65,65,65, 0.7)"
+                  outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
                 />
-              );
-            })}
-          </Picker>
-        </View>
+              </View>
+            </View>
+            <View
+              style={[
+                updateMedicalDataStyles.containerInput,
+                { height: "23%", marginBottom: "5%" },
+              ]}
+            >
+              <Text style={{}}>Nivel de Amputación</Text>
+
+              <View style={styles.radioOptions}>
+                <View style={{ width: "30%" }}>
+                  <Image
+                    source={require("../../assets/images/transfemoral.jpg")}
+                    style={styles.imageContainer}
+                  />
+                  <RadioButton
+                    value="Transfemoral"
+                    containerStyle={{ flexDirection: "column-reverse" }}
+                    selected={current}
+                    onSelected={(value) => {
+                      setCurrent(value),
+                        setData({ ...data, amputationLevel: value });
+                    }}
+                    radioBackground="#6979F8"
+                  >
+                    <Text style={{ textAlign: "center" }}>
+                      {"\n"}Transfemoral{"\n"}
+                    </Text>
+                  </RadioButton>
+                </View>
+                <View style={{ width: "30%", flexDirection: "column" }}>
+                  <Image
+                    source={require("../../assets/images/rodilla.jpg")}
+                    style={styles.imageContainer}
+                  />
+                  <RadioButton
+                    value="Desarticulación de rodilla"
+                    containerStyle={{ flexDirection: "column-reverse" }}
+                    selected={current}
+                    onSelected={(value) => {
+                      setCurrent(value),
+                        setData({ ...data, amputationLevel: value });
+                    }}
+                    radioBackground="#6979F8"
+                  >
+                    <Text style={{ flexWrap: "wrap", textAlign: "center" }}>
+                      Desarticulación de rodilla
+                    </Text>
+                  </RadioButton>
+                </View>
+                <View style={{ width: "30%", flexDirection: "column" }}>
+                  <Image
+                    source={require("../../assets/images/transtibial.jpg")}
+                    style={styles.imageContainer}
+                  />
+                  <RadioButton
+                    value="Transtibial"
+                    containerStyle={{ flexDirection: "column-reverse" }}
+                    selected={current}
+                    onSelected={(value) => {
+                      setCurrent(value),
+                        setData({ ...data, amputationLevel: value });
+                    }}
+                    radioBackground="#6979F8"
+                  >
+                    <Text style={{ textAlign: "center" }}>
+                      {"\n"}Transtibial {"\n"}
+                    </Text>
+                  </RadioButton>
+                </View>
+              </View>
+            </View>
+
+            <View
+              style={[
+                updateMedicalDataStyles.containerInput,
+                { height: "18%", marginBottom: "5%" },
+              ]}
+            >
+              <Text style={{}}>Fase de rehabilitación</Text>
+              <View style={styles.radioOptions}>
+                <View style={{ width: "30%" }}>
+                  <Image
+                    source={require("../../assets/images/transfemoral.jpg")}
+                    style={styles.imageContainer}
+                  />
+                  <RadioButton
+                    value="Preprotésico"
+                    containerStyle={{ flexDirection: "column-reverse" }}
+                    selected={current1}
+                    onSelected={(value) => {
+                      setCurrent1(value),
+                        setData({ ...data, amputationPhase: value });
+                    }}
+                    radioBackground="#6979F8"
+                  >
+                    <Text style={{ textAlign: "center" }}>Preprotésico</Text>
+                  </RadioButton>
+                </View>
+                <View style={{ width: "30%", flexDirection: "column" }}>
+                  <Image
+                    source={require("../../assets/images/rodilla.jpg")}
+                    style={styles.imageContainer}
+                  />
+                  <RadioButton
+                    value="Protésico"
+                    containerStyle={{ flexDirection: "column-reverse" }}
+                    selected={current1}
+                    onSelected={(value) => {
+                      setCurrent1(value),
+                        setData({ ...data, amputationPhase: value });
+                    }}
+                    radioBackground="#6979F8"
+                  >
+                    <Text style={{ flexWrap: "wrap", textAlign: "center" }}>
+                      Protésico
+                    </Text>
+                  </RadioButton>
+                </View>
+              </View>
+            </View>
+            <View
+              // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
+            >
+              <TouchableOpacity
+                style={updateMedicalDataStyles.button}
+                onPress={() => saveMedicalData()}
+              >
+                <Text style={{ color: "white" }}>Actualizar Datos Médicos</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{padding:50}}/>
+          </View>
+        </ScrollView>
+        
       </View>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          if (Object.values(data).includes("Seleccionar")) {
-            Alert.alert("Por favor seleccione todos los campos");
-          } else {
-            saveMedicalData();
-          }
-        }}
-      >
-        <Text style={{ color: "white" }}>Guardar Datos Médicos</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-const RecordTrainingData = (props) => {
-  return (
-    <View style={styles.screenContainer}>
-      <MedicalData props={props} />
-    </View>
-  );
+    );
+  }
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
@@ -279,48 +470,72 @@ const MapStateToProps = (store: MyTypes.ReducerState) => {
 const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
   setUser: (val) => dispatch(actionsUser.SET_USER(val)),
   setUserMedical: (val) => dispatch(actionsUser.UPDATE_USER_MEDICAL(val)),
+  setUserCompanion: (val) => dispatch(actionsUser.UPDATE_USER_COMPANION(val)),
   setUserRole: (val) => dispatch(actionsUser.UPDATE_USER_ROLE(val)),
-  updateStatus: (val) => dispatch(actionsUser.UPDATE_STATUS(val)),
 });
 export default connect(MapStateToProps, MapDispatchToProps)(RecordTrainingData);
 
 const styles = StyleSheet.create({
-  screenContainer: { width: "100%", height: "100%", backgroundColor: "white" },
-
-  containerSteps: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    height: "12%",
-    justifyContent: "center",
-  },
-  containerCard: {
-    height: "88%",
-    width: "100%",
-    // backgroundColor: "yellow",
-  },
-
-  containerMedicalData: {
+  container: {
     width: "100%",
     height: "100%",
+    // backgroundColor: "black",
+  },
+  sliderContainer: {
+    height: vmin(20),
+    width: "100%",
+    marginLeft: "2%",
+    marginTop: vmin(2),
+    marginBottom: "8%",
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: "salmon",
+  },
+  imageContainer: {
+    width: "100%",
+    height: vmin(30),
+    resizeMode: "contain",
+  },
+
+  scroll: {
+    height: "100%",
+    width: "100%",
+  },
+  scrollContent: {
+    paddingBottom: 30,
+    flexGrow:1
+  },
+  radioOptions: {
+    flexDirection: "row",
     justifyContent: "space-evenly",
   },
-
-  rowText_button: {
-    width: "100%",
-    flexDirection: "row",
+  resultSlider: {
+    width: "30%",
+    height: "100%",
+    backgroundColor: "rgba(105, 121, 248, 0.5)",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: vmin(1),
   },
+  sliderTitle: {
+    height: "25%",
+    width: "90%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+});
 
+const updateMedicalDataStyles = StyleSheet.create({
+  screenContainer: { width: "100%", height: "100%", backgroundColor: "white" },
   containerInput: {
-    height: vmin(14),
+    height: "10%",
     width: "90%",
     marginLeft: "5%",
     marginRight: "5%",
     marginTop: vmin(1),
-    marginBottom: vmin(1),
+    marginBottom: "0%",
     justifyContent: "space-evenly",
+    alignItems: "center",
     // backgroundColor: "green",
   },
   input: {
@@ -364,20 +579,23 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     width: "90%",
-    height: "10%",
+    height: "18%",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: "5%",
     marginRight: "5%",
-    marginTop: vmin(10),
+    marginBottom: "10%",
   },
 
   repetitionInputContainer: {
     height: "50%",
     width: "100%",
+    marginTop: "2%",
     borderColor: "rgba(228, 228, 228, 0.6)",
     borderWidth: 1,
     borderRadius: 5,
+    // backgroundColor: "salmon",
   },
 
   groupPickerContainer: {
@@ -401,7 +619,7 @@ const styles = StyleSheet.create({
 
   containerFlexRow: {
     width: "100%",
-    height: vmin(8),
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
@@ -417,15 +635,6 @@ const styles = StyleSheet.create({
 
   containerTextHeader: {
     alignItems: "center",
-    width: "90%",
-    height: "10%",
-    marginLeft: "5%",
-  },
-
-  containerTextHeader2: {
-    alignItems: "center",
-    height: "30%",
-    marginTop: "5%",
     width: "100%",
   },
   textHeader: {

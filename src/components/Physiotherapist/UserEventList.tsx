@@ -4,7 +4,6 @@ import {
   View,
   StyleSheet,
   Text,
-  Picker,
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -19,6 +18,7 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import { ScrollView } from "react-native-gesture-handler";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const renderReport = (report, props) => {
   console.log("Las props que llegan son :", report, " y ademas:", props);
@@ -71,6 +71,7 @@ const renderReport = (report, props) => {
 
 const UserEventList = (props) => {
   const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   console.log("event list----",props.navigation.state.params.patientId);
 
   const getReports = async () => {
@@ -93,12 +94,17 @@ const UserEventList = (props) => {
     console.log("Los ejercicios son", reportsProcessed);
 
     setReports(reportsProcessed);
+    setLoading(false);
   };
 
   useEffect(() => {
     getReports();
   }, []);
-  if(reports.length===0){
+  
+  if (loading) {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
+  }
+  else if(reports.length===0){
     return (
       <View style={styles.container}>
         <Text

@@ -5,12 +5,11 @@ import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import { actionsNotifications } from "../../redux/actions/actionsNotifications";
 import firebase from "../../../database/firebase";
-
+import Picker from "../Simple/Picker";
 import {
   View,
   Text,
   StyleSheet,
-  Picker,
   Alert,
   TouchableOpacity,
   TextInput,
@@ -21,10 +20,12 @@ import * as Notifications from "expo-notifications";
 import { Slider } from "react-native-range-slider-expo";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
 import LightBulb from "react-native-vector-icons/FontAwesome";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function EndRoutine(props) {
   //
   const [selectedValue, setSelectedValue] = useState("80");
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = React.useState({
     endRoutine: "Seleccionar",
     why: "",
@@ -32,11 +33,13 @@ function EndRoutine(props) {
     percivedEffort: props.user.information.medical.perceivedForce,
   });
 
-  
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
-    return () => backHandler.remove()
-  }, [])
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     let end = props.navigation.state.params.routineIsNotOver;
@@ -92,6 +95,7 @@ function EndRoutine(props) {
     if (!props.connection) {
       props.saveEndRoutine(form);
       props.navigation.navigate("ProfileScreen");
+      setLoading(false);
     } else {
       await firebase.db
         .collection("users")
@@ -119,6 +123,7 @@ function EndRoutine(props) {
         await updateControl(idRecord);
       }
       props.navigation.navigate("ProfileScreen");
+      setLoading(false);
     }
   };
 
@@ -197,8 +202,7 @@ function EndRoutine(props) {
             activeWeek: new_activeWeek,
             record: old_record,
           });
-          console.warn("new active week---", new_activeWeek)
-          
+          console.warn("new active week---", new_activeWeek);
         });
 
       // Cuando se termina la semana 10 el contador aumneta y queda "week11" esto siginifica que acabo el protocolo
@@ -252,58 +256,61 @@ function EndRoutine(props) {
 
   const askIfCompleted = () => {
     let routineIsNotOver = props.navigation.state.params.routineIsNotOver;
-
-    return (
-      <View style={styles.repetitionInputContainer}>
-        <Picker
-          selectedValue={!routineIsNotOver ? form.endRoutine : "No"}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) => {
-            console.warn("itenn====", itemValue);
-            setForm({ ...form, endRoutine: itemValue });
+    console.warn("routine is not over---", routineIsNotOver)
+    if (loading) {
+      return (
+        <View
+          style={{
+            backgroundColor: "#ffffff",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+            marginTop: "5%",
           }}
-          enabled={!routineIsNotOver}
         >
-          {["Seleccionar", "Si", "No"].map((element, index) => {
-            return (
-              <Picker.Item
-                key={"val_" + index}
-                label={element + ""}
-                value={element + ""}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-    );
+          <ChargeScreen />
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.repetitionInputContainer}>
+          <Picker
+            width={"100%"}
+            height={40}
+            placeholder={"Seleccionar"}
+            setData={(itemValue, itemIndex) => {
+              console.warn("itenn====", itemValue);
+              setForm({ ...form, endRoutine: itemValue });
+            }}
+            initialIndex={!routineIsNotOver ? 1 : 2}
+            list={["Seleccionar", "Si", "No"]}
+            disabled={routineIsNotOver}
+          />
+        
+        </View>
+      );
+    }
   };
 
   const questionWhy = () => {
     return (
       <View style={styles.repetitionInputContainer}>
         <Picker
-          selectedValue={form.why}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setForm({ ...form, why: itemValue })
-          }
-        >
-          {[
+          width={"100%"}
+          height={40}
+          placeholder={"Seleccionar"}
+          setData={(itemValue, itemIndex) => setForm({ ...form, why: itemValue })}
+          initialIndex={form.why}
+          list={[
             "Seleccionar",
             "No entendí",
             "Estaba muy complicado",
+            "No entiendo como usar la app",
             "No me alcanzó el tiempo",
+            "Están muy avanzados",
             "Esto era una prueba",
-          ].map((element, index) => {
-            return (
-              <Picker.Item
-                key={"p_a" + index}
-                label={element + ""}
-                value={element}
-              />
-            );
-          })}
-        </Picker>
+          ]}
+        />
       </View>
     );
   };
@@ -405,7 +412,8 @@ function EndRoutine(props) {
         <View style={styles.containerInput}>
           <Text style={{}}>Comentario</Text>
           <TextInput
-            style={[styles.repetitionInputContainer, { height: "80%" }]}
+          multiline={true}
+            style={[styles.repetitionInputContainer, {marginTop:"4%", height: "80%" ,  borderWidth: 1, flexWrap:"wrap"}]}
             onChangeText={(value) => setForm({ ...form, commentary: value })}
             value={form.commentary}
           />
@@ -416,6 +424,7 @@ function EndRoutine(props) {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
+            setLoading(true);
             saveFormEndRoutine();
             if (props.user.information.control.activeWeek !== "week11") {
               scheduleActivityControl();
@@ -537,8 +546,9 @@ const styles = StyleSheet.create({
   repetitionInputContainer: {
     height: "35%",
     width: "100%",
+    marginBottom:"5%",
     borderColor: "rgba(228, 228, 228, 0.6)",
-    borderWidth: 1,
+   // borderWidth: 1,
     borderRadius: 5,
   },
 

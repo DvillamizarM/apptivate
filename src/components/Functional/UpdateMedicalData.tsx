@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
@@ -17,7 +16,7 @@ import firebase from "../../../database/firebase";
 import { Slider } from "react-native-range-slider-expo";
 import StepIndicator from "react-native-step-indicator";
 import RadioButton from "expo-radio-button";
-
+import Picker from "../Simple/Picker";
 import Add from "react-native-vector-icons/Ionicons";
 
 import Arrow from "react-native-vector-icons/MaterialIcons";
@@ -31,6 +30,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const UpdateMedicalData = (props) => {
   console.log("Las props que llegan son", props);
@@ -42,36 +42,38 @@ const UpdateMedicalData = (props) => {
     evolutionTime: "",
     amputationLevel: "",
     amputationPhase: "",
-    medicineList: [],
-    conditionList: [],
-    medicine: "",
-    condition: "",
+    trainingPhase: "",
     corporalMass: 0,
   });
 
   const [perceivedVal, setPerceivedVal] = useState(0);
   const [current, setCurrent] = useState("");
   const [current1, setCurrent1] = useState("");
+  const [rehabPhase, setRehabPhase] = useState("");
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Las props que llegan son", props);
-
-    firebase.db
-      .collection("users")
-      .doc(props.user.uid)
-      .get()
-      .then((user_db: any) => {
-        setData({ ...user_db.data().medical });
-        setCurrent(user_db.data().medical.amputationLevel);
-        setCurrent1(user_db.data().medical.amputationPhase);
-        console.log("asdfasdfasdfasdfasdfasdfasdf", user_db.data().medical);
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.log("El error es ", e);
-      });
+    console.warn("Las props que llegan son", props.user.information.medical);
+    setData(props.user.information.medical)
+    setCurrent(props.user.information.medical.amputationLevel);
+    setCurrent1(props.user.information.medical.amputationPhase);
+    setLoading(false);
+    // firebase.db
+    //   .collection("users")
+    //   .doc(props.user.uid)
+    //   .get()
+    //   .then((user_db: any) => {
+    //     setData({ ...user_db.data().medical });
+    //     setCurrent(user_db.data().medical.amputationLevel);
+    //     setCurrent1(user_db.data().medical.amputationPhase);
+    //     setRehabPhase(user_db.data().control.trainingPhase)
+    //     console.warn("asdfasdfasdfasdfasdfasdfasdf", user_db.data().control.trainingPhase);
+    //     setLoading(false);
+    //   })
+    //   .catch((e) => {
+    //     console.log("El error es ", e);
+    //   });
   }, []);
 
   const saveMedicalData = async () => {
@@ -87,7 +89,8 @@ const UpdateMedicalData = (props) => {
           evolutionTime: data.evolutionTime,
           amputationLevel: data.amputationLevel,
           amputationPhase: data.amputationPhase,
-          corporalMass: parseInt(data.weight) / parseInt(data.size),
+          corporalMass:
+            (parseInt(data.weight) / Math.pow(parseInt(data.size), 2)) * 100,
         },
         // "Inicial","Intermedia","Avanzada"
       })
@@ -104,7 +107,7 @@ const UpdateMedicalData = (props) => {
             corporalMass: parseInt(data.weight) / parseInt(data.size),
           },
         });
-        Alert.alert("Se actualizaron los datos médicos");
+        setLoading(false);
       });
   };
 
@@ -123,7 +126,11 @@ const UpdateMedicalData = (props) => {
     arrayAge.push(index);
   }
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (
+      <View style={{ justifyContent: "center", marginTop: "5%" }}>
+        <ChargeScreen />
+      </View>
+    );
   } else if (false) {
     return (
       <View style={styles.container}>
@@ -171,25 +178,6 @@ const UpdateMedicalData = (props) => {
                 outOfRangeBarColor="rgba(228, 228, 228, 0.5)"
               />
             </View>
-            {/* <View style={updateMedicalDataStyles.repetitionInputContainer}>
-            <Picker
-              selectedValue={data.size + ""}
-              style={{ height: "100%", width: "100%" }}
-              onValueChange={(itemValue, itemIndex) =>
-                setData({ ...data, size: itemValue })
-              }
-            >
-              {arraySize.map((element, index) => {
-                return (
-                  <Picker.Item
-                    key={"m" + index}
-                    label={element + ""}
-                    value={element + ""}
-                  />
-                );
-              })}
-            </Picker>
-          </View> */}
           </View>
 
           <View style={updateMedicalDataStyles.containerInput}>
@@ -264,7 +252,7 @@ const UpdateMedicalData = (props) => {
             </View>
           </View>
           <View style={updateMedicalDataStyles.containerInput}>
-            <View style={styles.sliderTitle}>
+            <View style={[styles.sliderTitle, { height: "24%" }]}>
               <TouchableOpacity
                 style={{
                   borderColor: "rgba(255, 231, 35,1)",
@@ -346,7 +334,7 @@ const UpdateMedicalData = (props) => {
           <View
             style={[
               updateMedicalDataStyles.containerInput,
-              { height: "16%", marginBottom: "5%" },
+              { height: "23%", marginBottom: "2%" },
             ]}
           >
             <Text style={{}}>Nivel de Amputación</Text>
@@ -418,7 +406,7 @@ const UpdateMedicalData = (props) => {
           <View
             style={[
               updateMedicalDataStyles.containerInput,
-              { height: "13%", marginBottom: "5%" },
+              { height: "16%", marginBottom: "5%" },
             ]}
           >
             <Text style={{}}>Fase de rehabilitación</Text>
@@ -463,10 +451,37 @@ const UpdateMedicalData = (props) => {
               </View>
             </View>
           </View>
-          <View style={{ height: "12%", width: "100%", marginBottom: "100%" }}>
+          <View
+            style={[
+              styles.containerInput,
+              { height: "8%", alignItems: "flex-start" },
+            ]}
+          >
+            <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
+              Etapa de Rehabilitación
+            </Text>
+            <View style={[styles.repetitionInputContainer, { borderWidth: 0 }]}>
+              <Picker
+                width={"100%"}
+                height={40}
+                placeholder={"Seleccionar"}
+                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
+                  setData({ ...data, trainingPhase: itemValue }) }
+                }
+                initialValue={props.user.information.control.trainingPhase}
+                list={["Seleccionar", "Inicial", "Intermedia", "Avanzada"]}
+              />
+            </View>
+          </View>
+          <View
+          // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
+          >
             <TouchableOpacity
               style={updateMedicalDataStyles.button}
-              onPress={() => saveMedicalData()}
+              onPress={() => {
+                setLoading(true);
+                saveMedicalData();
+              }}
             >
               <Text style={{ color: "white" }}>Actualizar Datos Médicos</Text>
             </TouchableOpacity>
@@ -499,16 +514,6 @@ const styles = StyleSheet.create({
     height: "100%",
     // backgroundColor: "black",
   },
-  sliderContainer: {
-    height: vmin(16),
-    width: "100%",
-    marginLeft: "2%",
-    marginTop: vmin(2),
-    marginBottom: "8%",
-    alignItems: "center",
-    justifyContent: "center",
-    // backgroundColor: "salmon",
-  },
   imageContainer: {
     width: "100%",
     height: vmin(30),
@@ -518,6 +523,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
   },
+  sliderContainer: {
+    height: vmin(20),
+    width: "100%",
+    marginLeft: "2%",
+    marginTop: vmin(2),
+    marginBottom: "8%",
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: "salmon",
+  },
+  
+  containerInput: {
+    height: "10%",
+    width: "90%",
+    marginLeft: "5%",
+    marginRight: "5%",
+    marginTop: vmin(1),
+    marginBottom: "0%",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    // backgroundColor: "green",
+  },
+  
+  repetitionInputContainer: {
+    height: "30%",
+    width: "100%",
+    borderColor: "rgba(228, 228, 228, 0.6)",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+
   resultSlider: {
     width: "30%",
     height: "100%",
@@ -570,7 +606,7 @@ const updateMedicalDataStyles = StyleSheet.create({
     marginTop: vmin(1),
     marginBottom: "0%",
     justifyContent: "space-evenly",
-    alignItems:"center"
+    alignItems: "center",
     // backgroundColor: "green",
   },
   input: {
@@ -614,7 +650,7 @@ const updateMedicalDataStyles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     width: "90%",
-    height: "30%",
+    height: "18%",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -651,158 +687,4 @@ const updateMedicalDataStyles = StyleSheet.create({
     marginRight: "15%",
     width: "80%",
   },
-
-  containerFlexRow: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-  },
-
-  headerInput: {
-    width: "100%",
-    textAlign: "left",
-    fontSize: vmin(4),
-    fontWeight: "bold",
-    left: vmin(1.5),
-  },
-
-  containerTextHeader: {
-    alignItems: "center",
-    width: "100%",
-  },
-  textHeader: {
-    fontWeight: "bold",
-    fontSize: vmin(5),
-    textAlign: "center",
-  },
 });
-
-/* <View style={updateMedicalDataStyles.containerList}>
-        <Text style={{}}>Lista de Medicamentos</Text>
-        <View style={updateMedicalDataStyles.rowText_button}>
-          <TextInput
-            style={[
-              updateMedicalDataStyles.input,
-              { width: "90%", height: vmin(12) },
-            ]}
-            onChangeText={(value) => {
-              setData({ ...data, medicine: value });
-            }}
-            value={data.medicine}
-            placeholder={"Medicamentos.. "}
-          />
-          <TouchableOpacity
-            style={{
-              width: "10%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={() => {
-              let oldList: string[] = JSON.parse(
-                JSON.stringify(data.medicineList)
-              );
-              oldList.push(data.medicine);
-              setData({
-                ...data,
-                medicineList: oldList,
-                medicine: "",
-              });
-            }}
-          >
-            <Add name="add" size={vmin(8)} color="rgba(153,153,153,1)" />
-          </TouchableOpacity>
-        </View>
-
-        <View
-          style={
-            data.medicineList.length > 0
-              ? updateMedicalDataStyles.listItemsContainer
-              : {}
-          }
-        >
-          {data.medicineList.map((e, i) => {
-            return (
-              <View
-                key={i + "ml"}
-                style={updateMedicalDataStyles.containerFlexRow}
-              >
-                <View style={{ width: "20%" }}>
-                  <Arrow
-                    name="arrow-right"
-                    size={vmin(5)}
-                    color="rgba(153,153,153,1)"
-                  />
-                </View>
-                <Text style={{ width: "80%" }}> {e} </Text>
-              </View>
-            );
-          })}
-        </View>
-      </View> */
-
-/* contenedor para las condiciones */
-
-/* <View style={updateMedicalDataStyles.containerList}>
-        <Text style={{}}>Lista de Condiciones Médicas</Text>
-        <View style={updateMedicalDataStyles.rowText_button}>
-          <TextInput
-            style={[
-              updateMedicalDataStyles.input,
-              { width: "90%", height: vmin(12) },
-            ]}
-            onChangeText={(value) => {
-              setData({ ...data, condition: value });
-            }}
-            value={data.condition}
-            placeholder={"Condiciones Médicas ..."}
-          />
-          <TouchableOpacity
-            style={{
-              width: "10%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={() => {
-              let oldList: string[] = JSON.parse(
-                JSON.stringify(data.conditionList)
-              );
-              oldList.push(data.condition);
-              setData({
-                ...data,
-                conditionList: oldList,
-                condition: "",
-              });
-            }}
-          >
-            <Add name="add" size={vmin(8)} color="rgba(153,153,153,1)" />
-          </TouchableOpacity>
-        </View>
-
-        <View
-          style={
-            data.conditionList.length > 0
-              ? updateMedicalDataStyles.listItemsContainer
-              : {}
-          }
-        >
-          {data.conditionList.map((e, i) => {
-            return (
-              <View
-                key={i + "ml"}
-                style={updateMedicalDataStyles.containerFlexRow}
-              >
-                <View style={{ width: "20%" }}>
-                  <Arrow
-                    name="arrow-right"
-                    size={vmin(5)}
-                    color="rgba(153,153,153,1)"
-                  />
-                </View>
-                <Text style={{ width: "80%" }}> {e} </Text>
-              </View>
-            );
-          })}
-        </View>
-      </View> */

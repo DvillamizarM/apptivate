@@ -105,13 +105,13 @@ const stack = createStackNavigator(
     Login: {
       screen: (navigation: any) => <Login {...navigation} />,
       navigationOptions: () => ({
-        title: `Apptivate`,
-        headerLeft: () => (
-          <View style={{ width: "100%"}}>
-            <Logo/>
-          </View>
-        ),
-        headerShown: true,
+        // title: `Apptivate`,
+        // headerLeft: () => (
+        //   <View style={{ width: "100%"}}>
+        //     <Logo/>
+        //   </View>
+        // ),
+        headerShown: false,
       }),
     },
 
@@ -325,7 +325,7 @@ const stack = createStackNavigator(
     RecordTrainingData: {
       screen: (navigation: any) => <RecordTrainingData {...navigation} />,
       navigationOptions: () => ({
-        title: `RecordTrainingData`,
+        title: `Datos adicionales`,
         headerShown: true,
       }),
     },
@@ -333,7 +333,7 @@ const stack = createStackNavigator(
     ManageUserData: {
       screen: (navigation: any) => <ManageUserData {...navigation} />,
       navigationOptions: () => ({
-        title: `ManageUserData`,
+        title: `Administrar Rol`,
         headerShown: true,
       }),
     },

@@ -3,14 +3,13 @@ import {
   View,
   StyleSheet,
   Text,
-  Picker,
   Image,
   Alert,
   TouchableOpacity,
   Switch,
 } from "react-native";
 import yup from "yup";
-
+import Picker from "../Simple/Picker";
 var { vmin } = require("react-native-expo-viewport-units");
 
 // redux
@@ -108,12 +107,16 @@ const ScheduleRoutines = (props) => {
         };
       }
     });
+    console.warn("valid----", validAux)
     return validAux;
   };
   let filledSchedule = fillValidObject();
   useEffect(() => {
+    console.warn("use effect -----")
     setValidObject(filledSchedule);
+    console.warn("ampmnkeffect-=---",validObject["ampm" + 3])
   }, []);
+  useEffect(()=>{},[validObject])
   const toggleKeepProgramming = () => {
     const [isEnabled, setIsEnabled] = useState(
       props.scheduledRoutines[0].persist
@@ -369,161 +372,132 @@ const ScheduleRoutines = (props) => {
               justifyContent: "center",
             }}
           >
-            {/* <View style={OverviewExerciseStyles.sectionLeft}>
-              <View style={OverviewExerciseStyles.imageContainer}>
-                <Image
-                  source={{ uri: img }}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    resizeMode: "cover",
-                    borderRadius: 13,
-                  }}
-                />
-              </View>
-              <View style={OverviewExerciseStyles.containerTexts}>
-                <Text style={OverviewExerciseStyles.title}>{day}</Text>
-                <Text style={OverviewExerciseStyles.subtitle}>{"30 min"}</Text>
-              </View>
-            </View> */}
-            
             <View style={OverviewExerciseStyles.sectionRight}>
-              {/* picker de dia hora y referenci,a */}
-              
               <View style={pickerStyles.containerInput}>
                 <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Día {index}
-            </Text>
-                <Text style={{}}>Día de la semana</Text>
-
-                <View style={pickerStyles.repetitionInputContainer}>
-                  <Picker
-                    selectedValue={realDay(validObject["day" + index])}
-                    style={{ height: "100%", width: "100%" }}
-                    onValueChange={
-                      (itemValue, itemIndex) => {
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  Día {index+1}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "90%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "30%",
+                    marginBottom:"3%",
+                  }}
+                >
+                  <Text style={{ marginRight: "3%", width:"15%" }}>Día</Text>
+                  <View style={pickerStyles.repetitionInputContainer}>
+                    <Picker
+                      width={"100%"}
+                      height={40}
+                      placeholder={"Seleccionar"}
+                      setData={(itemValue, itemIndex) => {
                         props.scheduledRoutines[0].exerciseList[index].weekDay;
                         props.setWeekDay({
                           index: index,
-                          weekDay: itemIndex - 1,
+                          weekDay: itemIndex,
                         });
                         setValidObject({
                           ...validObject,
-                          [dayId]: itemIndex - 1,
+                          [dayId]: itemIndex,
                         });
-                      }
-                      // setData({ ...data, amputationLevel: itemValue })
-                    }
-                  >
-                    {[
-                      "Seleccionar",
-                      "Domingo",
-                      "Lunes",
-                      "Martes",
-                      "Miercoles",
-                      "Jueves",
-                      "Viernes",
-                      "Sabado",
-                    ].map((element, index) => {
-                      return (
-                        <Picker.Item
-                          key={"p" + index}
-                          label={element + ""}
-                          value={element + ""}
-                        />
-                      );
-                    })}
-                  </Picker>
+                        console.warn("picker on set====", validObject["day" + index])
+                      }}
+                      initialIndex = {props.scheduledRoutines[0].exerciseList[index].weekDay}
+                      list={[
+                        "Seleccionar",
+                        "Domingo",
+                        "Lunes",
+                        "Martes",
+                        "Miercoles",
+                        "Jueves",
+                        "Viernes",
+                        "Sabado",
+                      ]}
+                    />
+                  </View>
                 </View>
-              </View>
-              <View style={pickerStyles.groupPickerContainer}>
-                <View style={pickerStyles.timeContainer}>
-                  <Text style={pickerStyles.textInput}>Hora</Text>
-                  <Picker
-                    selectedValue={validObject["hour" + index]}
-                    style={{ height: "100%", width: "100%" }}
-                    onValueChange={
-                      (itemValue, itemIndex) => {
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "90%",
+                    marginTop:"5%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "30%",
+                  }}
+                >
+                  <Text style={{ marginRight: "3%", width:"15%" }}>Hora</Text>
+                  {/* <View style={pickerStyles.repetitionInputContainer}> */}
+                    <Picker
+                      width={"40%"}
+                      height={40}
+                      placeholder={"--"}
+                      setData={(itemValue, itemIndex) => {
                         props.setHour({ index: index, hour: itemValue });
                         setValidObject({ ...validObject, [hourId]: itemValue });
+                        console.warn("time----",props.scheduledRoutines[0].exerciseList[index])
                         //validObject["hour" + index] = itemIndex;
                       }
 
                       // setData({ ...data, size: itemValue })
-                    }
-                  >
-                    {[
-                      "--",
-                      "00:00",
-                      "00:30",
-                      "01:00",
-                      "01:30",
-                      "02:00",
-                      "02:30",
-                      "03:00",
-                      "03:30",
-                      "04:00",
-                      "04:30",
-                      "05:00",
-                      "05:30",
-                      "06:00",
-                      "06:30",
-                      "07:00",
-                      "07:30",
-                      "08:00",
-                      "08:30",
-                      "09:00",
-                      "09:30",
-                      "10:00",
-                      "10:30",
-                      "11:00",
-                      "11:30",
-                      "12:00",
-                      "12:30",
-                    ].map((element, index) => {
-                      return (
-                        <Picker.Item
-                          key={"m" + index}
-                          label={element + ""}
-                          value={element + ""}
-                        />
-                      );
-                    })}
-                  </Picker>
-                </View>
-
-                <View style={pickerStyles.timeContainer}>
-                  <Text style={pickerStyles.textInput}>Lapso</Text>
-                  <Picker
-                    selectedValue={validObject["ampm" + index]}
-                    style={{ height: "100%", width: "100%" }}
-                    onValueChange={
-                      (itemValue, itemIndex) => {
+                      }
+                      initialValue= {props.scheduledRoutines[0].exerciseList[index].hour}
+                      list={[
+                        "--",
+                        "00:00",
+                        "00:30",
+                        "01:00",
+                        "01:30",
+                        "02:00",
+                        "02:30",
+                        "03:00",
+                        "03:30",
+                        "04:00",
+                        "04:30",
+                        "05:00",
+                        "05:30",
+                        "06:00",
+                        "06:30",
+                        "07:00",
+                        "07:30",
+                        "08:00",
+                        "08:30",
+                        "09:00",
+                        "09:30",
+                        "10:00",
+                        "10:30",
+                        "11:00",
+                        "11:30",
+                        "12:00",
+                        "12:30",
+                      ]}
+                    />
+                    <Picker
+                      width={"40%"}
+                      height={40}
+                      placeholder={"--"}
+                      setData={(itemValue, itemIndex) => {
+                        console.warn("setDat-----", itemValue)
                         props.setAmPm({ index: index, ampm: itemValue });
                         setValidObject({ ...validObject, [ampmId]: itemValue });
                         //validObject["ampm" + index] = itemIndex;
-                      }
+                      console.warn("ampmn-=---",validObject["ampm" + index])
                       // setData({ ...data, weight: itemValue })
-                    }
-                  >
-                    {["--", "AM", "PM"].map((element, index) => {
-                      return (
-                        <Picker.Item
-                          key={"s" + index}
-                          label={element + ""}
-                          value={element + ""}
-                        />
-                      );
-                    })}
-                  </Picker>
+                      }}
+                      initialValue={props.scheduledRoutines[0].exerciseList[index].ampm}
+                      list={["--", "AM", "PM"]}
+                    />
+                  {/* </View> */}
                 </View>
               </View>
-
-              {/* finaliza picker */}
+              
             </View>
           </View>
         );
@@ -799,19 +773,21 @@ const pickerStyles = StyleSheet.create({
     textAlign: "center",
   },
   containerInput: {
-    height: "60%",
-    width: "90%",
+    height: "70%",
+    width: "100%",
     marginLeft: "5%",
     marginRight: "5%",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
+    alignItems: "center",
     //backgroundColor: "yellow",
   },
   repetitionInputContainer: {
-    height: "45%",
-    width: "100%",
+    height: "120%",
+    width: "80%",
     borderColor: "rgba(228, 228, 228, 0.6)",
-    borderWidth: 1,
+    //  borderWidth: 1,
     borderRadius: 5,
+    //   backgroundColor:"blue"
   },
 });
 

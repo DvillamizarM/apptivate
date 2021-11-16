@@ -28,6 +28,7 @@ import { actionsDownload } from "../../redux/actions/actionsDownload";
 import * as FileSystem from "expo-file-system";
 
 import NavigateNext from "react-native-vector-icons/MaterialIcons";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const ExerciseRoutine = (props) => {
   const [information, setInformation] = useState([]);
@@ -232,7 +233,7 @@ const ExerciseRoutine = (props) => {
 
   useEffect(() => {
     let mounted = true;
-    // console.warn("in useEffect----", props.connection)
+     console.warn("in useEffect----", mounted)
     if(mounted){
        getExercises();
     }return () => {mounted = false;}
@@ -539,7 +540,7 @@ const ExerciseRoutine = (props) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{justifyContent:"center",height:"100%", marginTop:"5%"}}><ChargeScreen/></View>);
   } else if (information.length !== 0) {
     return (
       <View style={styles.container}>

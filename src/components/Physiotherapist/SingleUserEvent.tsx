@@ -9,7 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   TouchableOpacity,
   TextInput,
   Linking,

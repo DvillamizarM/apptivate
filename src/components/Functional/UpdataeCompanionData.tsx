@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   TextInput,
   Alert,
   TouchableOpacity,
@@ -19,6 +18,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const UpdataeCompanionData = (props) => {
   const [data, setdata] = useState({
@@ -56,7 +56,7 @@ const UpdataeCompanionData = (props) => {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{justifyContent:"center", marginTop:"5%"}}><ChargeScreen/></View>);
   } else {
     return (
       <View
@@ -137,6 +137,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: vmin(1),
+  },
+  container: {
+    width: "100%",
+    height: "100%",
+    // backgroundColor: "black",
   },
 
   containerInput: {

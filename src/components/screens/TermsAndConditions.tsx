@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Picker,
   ActivityIndicator,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");

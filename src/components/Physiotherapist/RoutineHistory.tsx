@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Text,
-  Picker,
   Image,
   TouchableOpacity,
   ActivityIndicator,
@@ -20,10 +19,11 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import { ScrollView } from "react-native-gesture-handler";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const RoutineHistory = ({ props }) => {
   const { userInformation } = props.props;
-console.log("record---", userInformation.record)
+  console.log("record---", userInformation.record);
   const renderPhases = () => {
     const { record } = userInformation;
     let keyPhases = Object.keys(record);
@@ -179,7 +179,7 @@ console.log("record---", userInformation.record)
                   </View>
 
                   <View style={attempsStyles.column2}>
-                    <Text style={[attempsStyles.title2, {flexWrap: "wrap"}]}>
+                    <Text style={[attempsStyles.title2, { flexWrap: "wrap" }]}>
                       {attemp.commentary}
                     </Text>
                   </View>
@@ -195,8 +195,19 @@ console.log("record---", userInformation.record)
   };
 
   if (userInformation.loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />
-  }else if(Object.keys(userInformation.record).length===0){
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
+  } else if (Object.keys(userInformation.record).length === 0) {
     return (
       <View style={styles.container}>
         <Text

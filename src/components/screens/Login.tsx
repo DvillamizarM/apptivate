@@ -10,120 +10,201 @@ import {
   ActivityIndicator,
   Alert,
   BackHandler,
+  Image,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 import Password from "../Simple/PasswordTextField";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 export default function Login(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const logIn = () => {
     firebase.auth
       .signInWithEmailAndPassword(email, password)
       .then(() => {
         props.navigation.navigate("Home");
+        setLoading(false);
       })
       .catch((error) => {
         if (error.code === "auth/invalid-email") {
           Alert.alert("Correo Inválido");
+          setLoading(false);
         }
         Alert.alert("Usuario no encontrado.");
+        setLoading(false);
       });
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
-    return () => backHandler.remove()
-  }, [])
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
 
-  return (
-    <KeyboardAwareScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{ flexGrow: 1 }}
-      extraHeight={128}
-      enableOnAndroid
-    >
-      <View style={[styles.container, { minHeight: "90%" }]}>
-        <View style={styles.header}>
-          <Text style={styles.textHeader}>Inicio de Sesión</Text>
-          <Text>
-            Por favor ingrese su correo y contraseña para acceder a la
-            plataforma.
-          </Text>
-        </View>
-        <View style={styles.configurationContainer}>
-          <TextInput
-            style={[styles.repetitionInputContainer]}
-            onChangeText={(value) => {
-              setEmail(value);
-            }}
-            value={email}
-            keyboardType={"email-address"}
-            placeholder={"test@ejemplo.com"}
-          />
-
-          <Password
-            style={{ width: "90%" }}
-            label={"Contraseña"}
-            onChange={(value) => {
-              setPassword(value);
-            }}
-            width={"90%"}
-            height={40}
-            value={password}
-          />
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              logIn();
-            }}
-          >
-            <Text style={{ color: "white" }}>Ingresar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { marginTop: "0%", backgroundColor: "rgba(225, 126, 62,1)" },
-            ]}
-            onPress={() => {
-              props.navigation.navigate("TermsAndConditions");
-            }}
-          >
-            <Text style={{ color: "white" }}>Crear nuevo usuario</Text>
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <View style={styles.containText}>
-              <Text> Olvidaste tu contraseña? </Text>
+  if (loading) {
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
+  } else {
+    return (
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        extraHeight={128}
+        enableOnAndroid
+      >
+        <View style={[styles.container, { minHeight: "90%", paddingTop: 100 }]}>
+          <View style={styles.header}>
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: "5%",
+              }}
+            >
               <Text
-                style={styles.textToNavigate}
-                onPress={() => {
-                  AsyncStorage.clear(),
-                    props.navigation.navigate("RestorePassword");
+                style={{
+                  textAlign: "center",
+                  fontSize: vmin(12),
+                  color: "rgba(153, 153, 153, 1)",
+                  margin: "3%",
                 }}
               >
-                Recuperar cuenta.
+                APPTIVATE
               </Text>
+              <View
+                style={{
+                  height: 150,
+                  width: 150,
+                  // backgroundColor:"green",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {/* <View style={{marginBottom:"3%", marginLeft:"4%"}}> */}
+                <Image
+                  source={require("../../assets/images/apptivateLogo.png")}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: 40,
+                  }}
+                />
+                {/* </View> */}
+              </View>
+            </View>
+
+            {/* <Text style={styles.textHeader}>Inicio de Sesión</Text> */}
+            {/* <Text style={{textAlign:"justify", color:"rgba(153, 153, 153, 1)"}}>
+              Por favor ingrese su correo y contraseña para acceder a la
+              plataforma. Si es su primera vez por favor cree un nuevo usuario.
+            </Text> */}
+          </View>
+          <View style={styles.configurationContainer}>
+            <TextInput
+              style={[
+                styles.repetitionInputContainer,
+                { marginBottom: "0%", marginTop: "10%" },
+              ]}
+              onChangeText={(value) => {
+                setEmail(value);
+              }}
+              value={email}
+              keyboardType={"email-address"}
+              placeholder={"jose@gmail.com"}
+            />
+
+            <Password
+              style={{ width: "90%" }}
+              label={"Contraseña"}
+              onChange={(value) => {
+                setPassword(value);
+              }}
+              width={"90%"}
+              height={40}
+              value={password}
+            />
+            <View
+              style={{
+                height: "30%",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setLoading(true);
+                  logIn();
+                }}
+              >
+                <Text style={{ color: "white" }}>Ingresar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  {
+                    marginTop: "0%",
+                    marginBottom: "0%",
+                    backgroundColor: "rgba(225, 126, 62,1)",
+                  },
+                ]}
+                onPress={() => {
+                  props.navigation.navigate("TermsAndConditions");
+                }}
+              >
+                <Text style={{ color: "white" }}>Crear nuevo usuario</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.footer}>
+              <View style={styles.containText}>
+                <Text> Olvidaste tu contraseña? </Text>
+                <Text
+                  style={styles.textToNavigate}
+                  onPress={() => {
+                    //  AsyncStorage.clear(),
+                    props.navigation.navigate("RestorePassword");
+                  }}
+                >
+                  Recuperar cuenta.
+                </Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
-  );
+      </KeyboardAwareScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   header: {
     height: "20%",
-    width: "80%",
+    width: "100%",
     justifyContent: "center",
-    //   alignItems: "center",
-    marginLeft: "5%",
-    marginRight: "5%",
+    alignItems: "center",
+    marginBottom: "5%",
+    // marginLeft: "5%",
+    // marginRight: "5%",
   },
   textHeader: {
     fontSize: vmin(8),
@@ -156,17 +237,18 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#6979F8",
-    marginTop: "2%",
-    width: "90%",
-    height: "8%",
+    // marginTop: "2%",
+    width: "80%",
+    height: "32%",
+    marginBottom: "3%",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 10,
   },
   configurationContainer: {
     // backgroundColor: "peru",
     width: "100%",
-    height: "80%",
+    height: "85%",
 
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -189,7 +271,7 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
     justifyContent: "space-evenly",
-    height: "30%",
+    height: "20%",
   },
   containText: {
     flexDirection: "row",

@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Text,
-  Picker,
   Image,
   TouchableOpacity,
   ActivityIndicator,
@@ -20,6 +19,7 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import { ScrollView } from "react-native-gesture-handler";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const PatientHistory = ( props ) => {
   console.warn("props history----", props)
@@ -196,7 +196,7 @@ console.log("record---", userInformation.record)
   };
 
   if (userInformation.loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);
   }else if(Object.keys(userInformation.record).length===0){
     return (
       <View style={styles.container}>

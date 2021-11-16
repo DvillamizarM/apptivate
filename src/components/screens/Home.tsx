@@ -59,6 +59,7 @@ import {
   useTourGuideController, // hook to start, etc.
 } from "rn-tourguide";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 interface Props {
   setConnection: (value: any) => any;
@@ -202,6 +203,10 @@ class HomeScreen extends React.Component<Props> {
   }
 
   shouldComponentUpdate(){
+    if(this.props.user.information.companionEmail!==""){
+      console.warn("in should update if")
+      return true
+    }
     console.warn("should update------", this.state.mounted)
     return this.state.mounted;
   }
@@ -530,8 +535,18 @@ class HomeScreen extends React.Component<Props> {
   };
 
   render() {
+    console.warn("compaino emali.....", this.props.user.information.companionEmail, "-----param----",this.props.navigation.state.params)
     if (this.state.initializing)
-      return <ActivityIndicator size="large" color="#00ff00" />;
+    return ( <View
+      style={{
+        backgroundColor: "#ffffff",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <ChargeScreen />
+    </View>);
     else if (
       typeof this.props.user.information == "undefined" ||
       typeof this.props.user.information.personal.name == "undefined"
@@ -609,10 +624,10 @@ class HomeScreen extends React.Component<Props> {
           </View> */}
           <View style={styles.body}>
             {this.props.user.information &&
-            this.props.user.information.role == "paciente" &&
-            this.props.user.information.medical &&
-            this.props.user.information.medical.perceivedForce == ""
-              ? this.patientRegisterBody()
+            this.props.user.information.role === "paciente" &&
+            this.props.user.information.medical && 
+            this.props.user.information.companionEmail === ""
+              ?  this.patientRegisterBody() 
               : this.userBody()}
           </View>
 

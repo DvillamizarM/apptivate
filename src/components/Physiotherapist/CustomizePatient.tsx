@@ -4,11 +4,11 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   Alert,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import Picker from "../Simple/Picker";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 
@@ -17,6 +17,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function CustomizePatient({ props }) {
   const { userInformation } = props.props;
@@ -31,6 +32,7 @@ console.warn("props protocolo customize", props);
   });
   const [seconds, setSeconds] = React.useState(0);
   const [minutes, setMinutes] = React.useState(0);
+  const [time, setTime] = React.useState("");
   const [loading, setLoading] = React.useState(true);
 
   const values = [
@@ -158,8 +160,14 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
       imcCategory: imc.category,
       perceivedForce: user.medical.perceivedForce,
     });
+    let sec = "";
+    user.configuration.restTimeSec === 0
+      ? (sec = 0 + "" + user.configuration.restTimeSec)
+      : (sec = user.configuration.restTimeSec);
+
     setSeconds(user.configuration.restTimeSec);
     setMinutes(user.configuration.restTimeMin);
+    setTime(user.configuration.restTimeMin + ":" + sec);
     setLoading(false);
 
     console.log("LLLLLLLLLLLLLLLLLLLos resultados son:", imc, perceivedEffort, {
@@ -190,78 +198,22 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
         });
   };
 
-  const repetitionSelector = () => {
-    return (
-      <View style={styles.repetitionInputContainer}>
-        <Picker
-          selectedValue={selectedValue.repetitionAmount + ""}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setSelectedValue({ ...selectedValue, repetitionAmount: itemValue })
-          }
-        >
-          {selectedValue.range.map((element, index) => {
-            return (
-              <Picker.Item
-                key={"p" + index}
-                label={element + "%"}
-                value={element + ""}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-    );
+  const pull_repData = (data) => {
+    
+    setSelectedValue({ ...selectedValue, repetitionAmount: data })
+    console.warn("rep data pulled==========", data); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
   };
 
-  const timeSelector = () => {
-    return (
-      <View style={styles.timeInputContainer}>
-        <View style={styles.timeContainer}>
-          <Text style={styles.textInput}>Minutos</Text>
-          <Picker
-            selectedValue={minutes + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) => setMinutes(itemValue)}
-          >
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((element, index) => {
-              return (
-                <Picker.Item
-                  key={"m" + index}
-                  label={element + ""}
-                  value={element + ""}
-                />
-              );
-            })}
-          </Picker>
-        </View>
-
-        <View style={styles.timeContainer}>
-          <Text style={styles.textInput}>Segundos</Text>
-          <Picker
-            selectedValue={seconds + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) => setSeconds(itemValue)}
-          >
-            {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(
-              (element, index) => {
-                return (
-                  <Picker.Item
-                    key={"s" + index}
-                    label={element + ""}
-                    value={element + ""}
-                  />
-                );
-              }
-            )}
-          </Picker>
-        </View>
-      </View>
-    );
+  const pull_timeData = (data) => {
+    console.warn("time data pulled==========", data); //
+    setTime(data);
+    let timeSelected = data.split(":");
+    setMinutes(parseInt(timeSelected[0]));
+    setSeconds(parseInt(timeSelected[1]));
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
   } else {
     return (
       <View style={styles.container}>
@@ -274,23 +226,38 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
         </View>
         <View style={styles.configurationContainer}>
           <View style={styles.containerPercentajes}>
-            <Text style={{ fontWeight: "bold" }}>
-              Min {selectedValue.min}% - Max. {selectedValue.max}%
-            </Text>
 
             <Text>Config. Actual {selectedValue.repetitionAmount}%</Text>
           </View>
 
           <View style={styles.containerInput}>
             <Text style={{}}>Repeticiones </Text>
-            {repetitionSelector()}
+            <Picker
+              width={"100%"}
+              setData={pull_repData}
+              placeholder={"Seleccionar"}
+              height={40}
+              initialValue={selectedValue.repetitionAmount}
+              list={selectedValue.range}
+              percentajes={true}
+            />
+            {/* {repetitionSelector()} */}
           </View>
 
           <View style={styles.containerInput}>
             <Text style={{}}>Tiempo de Reposo entre series</Text>
-            {timeSelector()}
+            <Picker
+              width={"100%"}
+              height={40}
+              placeholder={"00:00"}
+              setData={pull_timeData}
+              initialValue={time}
+              list={["0:00", "0:30", "1:00", "1:30", "2:00"]}
+            />
+            {/* {unifiedTimeSlector()} */}
           </View>
         </View>
+
 
         <View style={styles.containerButton}>
           <TouchableOpacity

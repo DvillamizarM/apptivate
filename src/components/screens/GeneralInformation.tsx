@@ -27,6 +27,7 @@ import {
 import firebase from "../../../database/firebase";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const GeneralInformation = (props) => {
   const [information, setInformation] = useState([]);
@@ -417,7 +418,7 @@ const GeneralInformation = (props) => {
         </View>
       );
     } else {
-      return <ActivityIndicator size="large" color="#00ff00" />;
+      return (<View style={{justifyContent:"center", height:"100%",marginTop:"5%"}}><ChargeScreen/></View>);
     }
   } else {
     console.warn("props====", props);
@@ -426,15 +427,16 @@ const GeneralInformation = (props) => {
     let level = "";
     props.props.navigation.getParam("amputationLevel") !== undefined
       ? (level = props.props.navigation.getParam("amputationLevel"))
-      : (level = props.user.information.medical.amputationLevel);
-    console.warn(
-      "params---------",
-      props.props.navigation.getParam("amputationLevel")
-    );
-    console.warn(
-      "user info---------",
-      props.user.information.medical.amputationLevel
-    );
+      :  props.user.information.medical.amputationLevel !== undefined ? (level = props.user.information.medical.amputationLevel)
+      : level = "";
+    // console.warn(
+    //   "params---------",
+    //   props.props.navigation.getParam("amputationLevel")
+    // );
+    // console.warn(
+    //   "user info---------",
+    //   props.user.information.medical.amputationLevel
+    // );
     let leakedInformation = information[CurrentInformation].content.filter(
       (element) => {
         console.warn("element----", element);

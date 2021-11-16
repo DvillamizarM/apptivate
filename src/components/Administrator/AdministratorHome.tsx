@@ -21,6 +21,7 @@ var { vmin } = require("react-native-expo-viewport-units");
 // iconos
 
 import Settings from "react-native-vector-icons/Ionicons";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const CompanionHome = (props) => {
   const [users, setUsers] = useState([]);
@@ -151,9 +152,10 @@ const CompanionHome = (props) => {
     );
   };
 
+ 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
-  } else {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);
+  }else{
     return (
       <View style={styles.container}>
         <View style={styles.header}>

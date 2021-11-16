@@ -13,6 +13,7 @@ export enum actionTypes {
   UPDATE_USER_MEDICAL = "UPDATE_USER_MEDICAL",
   UPDATE_USER_COMPANION = "UPDATE_USER_COMPANION",
   UPDATE_USER_ROLE = "UPDATE_USER_ROLE",
+  UPDATE_USER_CONFIGURATION = "UPDATE_USER_CONFIGURATION",
   UPDATE_USER_CONTROL = "UPDATE_USER_CONTROL",
   UPDATE_STATUS = "UPDATE_STATUS",
   // SET_PERSONAL
@@ -32,6 +33,7 @@ export const actionsUser = {
   UPDATE_USER_COMPANION: (value) =>
     action(actionTypes.UPDATE_USER_COMPANION, value),
   UPDATE_USER_ROLE: (value) => action(actionTypes.UPDATE_USER_ROLE, value),
+  UPDATE_USER_CONFIGURATION: (value) => action(actionTypes.UPDATE_USER_CONFIGURATION, value),
   UPDATE_USER_CONTROL: (value) =>
     action(actionTypes.UPDATE_USER_CONTROL, value),
   UPDATE_STATUS: (value) => action(actionTypes.UPDATE_STATUS, value),

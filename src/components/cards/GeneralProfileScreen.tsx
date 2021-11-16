@@ -1,5 +1,12 @@
 import React, { Component, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 
 var { vmin } = require("react-native-expo-viewport-units");
 import {
@@ -20,6 +27,7 @@ import firebase from "../../../database/firebase";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const GeneralProfileScreen = (props) => {
+  const [initializing, setInitializing] = useState(false);
   let trainingPhase = "";
   let activeWeek = "";
   let activeDay = 0;
@@ -124,9 +132,15 @@ const GeneralProfileScreen = (props) => {
     return record;
   };
 
-  (props.props.user.information.role === "paciente" || props.props.user.information.role === "") ? (width = "42%") : (width = "84%");
+  props.props.user.information.role === "paciente" ||
+  props.props.user.information.role === ""
+    ? (width = "42%")
+    : (width = "84%");
   //console.log("rolee====",props.props)
-  if (props.props.user.information.role === "paciente" || props.props.user.information.role === "") {
+  if (
+    props.props.user.information.role === "paciente" ||
+    props.props.user.information.role === ""
+  ) {
     trainingPhase = props.props.user.information.control.trainingPhase;
     activeWeek = props.props.user.information.control.activeWeek;
     activeDay = props.props.user.information.control.activeDay;
@@ -152,11 +166,11 @@ const GeneralProfileScreen = (props) => {
     var activeDayPercentage = activeDay * 20;
     console.warn("day---", activeDay);
     var trainingPhasePercentage =
-      trainingPhase == "Inicial"
+      trainingPhase === "Inicial"
         ? 0
-        : trainingPhase == "Intermedio"
+        : trainingPhase === "Intermedio"
         ? 30
-        : trainingPhase == "Avanzada"
+        : trainingPhase === "Avanzada"
         ? 70
         : 100;
   }
@@ -182,7 +196,7 @@ const GeneralProfileScreen = (props) => {
       props.props.navigation.navigate("CustomizeRoutine", {
         btnText: "Continuar",
       });
-    } else if (props.props.user.information.role == "") {
+    } else if (props.props.user.information.role === "") {
       validateExistenceOfData();
     } else {
       console.log(
@@ -196,8 +210,8 @@ const GeneralProfileScreen = (props) => {
 
   const validateExistenceOfData = () => {
     if (
-      props.props.user.information.medical.size == "" ||
-      props.props.user.information.medical.perceivedForce == ""
+      props.props.user.information.medical.size === "" ||
+      props.props.user.information.medical.perceivedForce === ""
     ) {
       props.props.navigation.navigate("RecordTrainingData");
     } else {
@@ -206,251 +220,296 @@ const GeneralProfileScreen = (props) => {
       });
     }
   };
-
-  return (
-    <View style={styles.container}>
-      {(props.props.user.information.role === "paciente" || props.props.user.information.role === "") &&
-      props.props.user.information.control.activeWeek !== "week11" ? (
-        <View style={styles.rowButtons}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "rgba(225, 126, 62,1)" }]}
-            onPress={() => {
-              console.warn("legnth----", props.donwloaded);
-              if (props.connection || props.donwloaded.length === 4) {
-                validateStartData();
-              } else {
-                Alert.alert(
-                  "Error",
-                  "No se puede iniciar la rutina porque no hay conexión a internet. Para hacer la rutina sin internet por favor descargue todos los ejercicios del catálogo y vuelva a intentar."
-                );
-              }
-            }}
-          >
-            <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-              Iniciar Rutina
-            </Text>
-          </TouchableOpacity>
-          {props.connection && props.props.user.information.role === "paciente" ? (
-            <TouchableOpacity
-              onPress={() => props.props.navigation.navigate("ReportEvent")}
-              style={[
-                styles.button,
-                {
-                  width: width,
-                  backgroundColor: "white",
-                  borderColor: "#6979F8",
-                  borderWidth: vmin(0.3),
-                },
-              ]}
-            >
-              <ScalableText style={{ color: "#6979F8", fontWeight: "bold" }}>
-                Reportar Incidente
-              </ScalableText>
-            </TouchableOpacity>
-          ) : (
-            console.log("no")
-          )}
-        </View>
-      ) : (
-        <View></View>
-      )}
-
-      {props.props.user.information.control.activeWeek == "week11" ? (
+  if (initializing)
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <View
           style={{
-            width: "100%",
-            height: "10%",
-            marginTop: "0%",
-            justifyContent: "space-evenly",
+            width: "80%",
+            height: "30%",
+            justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor: "rgba(225, 126, 62,1)",
-                marginBottom: "8%",
-                width: "90%",
-              },
-            ]}
-            onPress={() => {
-              props.props.navigation.navigate("SatisfactionSurvey");
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: vmin(8),
+              color: "rgba(153, 153, 153, 1)",
+              marginTop: "5%",
             }}
           >
-            <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
-              Responder cuestionario de satisfacción
-            </Text>
-          </TouchableOpacity>
-          {props.connection && props.props.user.information.role === "paciente" ? (
+            Cargando
+          </Text>
+          <ActivityIndicator size="large" color="#6979f8" />
+        </View>
+      </View>
+    );
+  else {
+    return (
+      <View style={styles.container}>
+        {(props.props.user.information.role === "paciente" ||
+          props.props.user.information.role === "") &&
+        props.props.user.information.control.activeWeek !== "week11" ? (
+          <View style={styles.rowButtons}>
             <TouchableOpacity
-              onPress={() => props.props.navigation.navigate("ReportEvent")}
+              style={[
+                styles.button,
+                { backgroundColor: "rgba(225, 126, 62,1)" },
+              ]}
+              onPress={() => {
+                console.warn("legnth----", props.donwloaded);
+                if (props.connection || props.donwloaded.length === 4) {
+                  validateStartData();
+                } else {
+                  Alert.alert(
+                    "Error",
+                    "No se puede iniciar la rutina porque no hay conexión a internet. Para hacer la rutina sin internet por favor descargue todos los ejercicios del catálogo y vuelva a intentar."
+                  );
+                }
+              }}
+            >
+              <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
+                Iniciar Rutina
+              </Text>
+            </TouchableOpacity>
+            {props.connection &&
+            props.props.user.information.role === "paciente" ? (
+              <TouchableOpacity
+                onPress={() => props.props.navigation.navigate("ReportEvent")}
+                style={[
+                  styles.button,
+                  {
+                    width: width,
+                    backgroundColor: "white",
+                    borderColor: "#6979F8",
+                    borderWidth: vmin(0.3),
+                  },
+                ]}
+              >
+                <ScalableText style={{ color: "#6979F8", fontWeight: "bold" }}>
+                  Reportar Incidente
+                </ScalableText>
+              </TouchableOpacity>
+            ) : (
+              console.log("no")
+            )}
+          </View>
+        ) : (
+          <View></View>
+        )}
+
+        {props.props.user.information.control.activeWeek == "week11" ? (
+          <View
+            style={{
+              width: "100%",
+              height: "10%",
+              marginTop: "0%",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
               style={[
                 styles.button,
                 {
+                  backgroundColor: "rgba(225, 126, 62,1)",
+                  marginBottom: "8%",
                   width: "90%",
-                  backgroundColor: "white",
-                  borderColor: "#6979F8",
-                  borderWidth: vmin(0.3),
                 },
               ]}
+              onPress={() => {
+                props.props.navigation.navigate("SatisfactionSurvey");
+              }}
             >
-              <Text style={{ color: "#6979F8", fontWeight: "bold" }}>
-                Reportar Incidente
+              <Text style={{ color: "#ffffff", fontWeight: "bold" }}>
+                Responder cuestionario de satisfacción
               </Text>
             </TouchableOpacity>
-          ) : (
-            <View></View>
-          )}
-        </View>
-      ) : (
-        <View></View>
-      )}
+            {props.connection &&
+            props.props.user.information.role === "paciente" ? (
+              <TouchableOpacity
+                onPress={() => props.props.navigation.navigate("ReportEvent")}
+                style={[
+                  styles.button,
+                  {
+                    width: "90%",
+                    backgroundColor: "white",
+                    borderColor: "#6979F8",
+                    borderWidth: vmin(0.3),
+                  },
+                ]}
+              >
+                <Text style={{ color: "#6979F8", fontWeight: "bold" }}>
+                  Reportar Incidente
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View></View>
+            )}
+          </View>
+        ) : (
+          <View></View>
+        )}
 
-      <TouchableOpacity
-        onPress={async () => {
-          const myPromise = new Promise((resolve, reject) => {
-            resolve(getInformation());
-          });
-
-          myPromise.then(() => {
-            console.warn("usring---", info);
-
-            props.props.navigation.navigate("RoutineHistory", {
-              userInformation: info,
+        <TouchableOpacity
+          onPress={async () => {
+            setInitializing(true);
+            const myPromise = new Promise((resolve, reject) => {
+              resolve(getInformation());
             });
-          });
-        }}
-        style={styles.progressContainer}
-      >
-        <Text
-          style={{
-            fontSize: vmin(5),
-            fontWeight: "bold",
-            width: "100%",
-            textAlign: "center",
+
+            myPromise.then(() => {
+              console.warn("usring---", info);
+
+              props.props.navigation.navigate("RoutineHistory", {
+                userInformation: info,
+              });
+              setInitializing(false);
+            });
           }}
+          style={styles.progressContainer}
         >
-          Control
-        </Text>
-        <Text
-          style={{
-            fontSize: vmin(3),
-            width: "80%",
-            textAlign: "center",
-            marginBottom: "2%",
-          }}
-        >
-          Los porcentajas se calculan automáticamente con base a su progreso en
-          el plan.
-        </Text>
-        <View style={styles.progressSection}>
-          <View style={styles.progressSection_texts}>
-            <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
-              Plan de Ejercicios
-            </Text>
-            <Text
-              style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
-            >
-              Fase {trainingPhase}
-            </Text>
-          </View>
-          <View style={styles.progressSection_circle}>
-            <AnimatedCircularProgress
-              size={vmin(23)}
-              width={vmin(2)}
-              fill={trainingPhasePercentage}
-              tintColor="#6979F8"
-              backgroundColor="rgba(228, 228, 228, 1)"
-              rotation={0}
-            >
-              {(fill) => <Text>{trainingPhasePercentage}%</Text>}
-            </AnimatedCircularProgress>
-          </View>
-        </View>
-        <View style={styles.progressSection}>
-          <View style={styles.progressSection_texts}>
-            <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
-              Semana del Plan
-            </Text>
-            <Text
-              style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
-            >
-              Semana {(activeWeekPercentage + 10) / 10} de 10
-            </Text>
-          </View>
-          <View style={styles.progressSection_circle}>
-            <AnimatedCircularProgress
-              size={vmin(23)}
-              width={vmin(2)}
-              fill={activeWeekPercentage}
-              tintColor="#6979F8"
-              backgroundColor="rgba(228, 228, 228, 1)"
-              rotation={0}
-            >
-              {(fill) => <Text>{activeWeekPercentage}%</Text>}
-            </AnimatedCircularProgress>
-          </View>
-        </View>
-        {props.props.user.information.control.activeWeek !== "week11" ? (
+          <Text
+            style={{
+              fontSize: vmin(5),
+              fontWeight: "bold",
+              width: "100%",
+              textAlign: "center",
+            }}
+          >
+            Control
+          </Text>
+          <Text
+            style={{
+              fontSize: vmin(3),
+              width: "80%",
+              textAlign: "center",
+              marginBottom: "2%",
+            }}
+          >
+            Los porcentajas se calculan automáticamente con base a su progreso
+            en el plan.
+          </Text>
           <View style={styles.progressSection}>
             <View style={styles.progressSection_texts}>
               <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
-                Dia de la Semana
+                Plan de Ejercicios
               </Text>
               <Text
                 style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
               >
-                Dia {(activeDayPercentage + 20) / 20} de 5
+                Fase {trainingPhase}
               </Text>
             </View>
             <View style={styles.progressSection_circle}>
               <AnimatedCircularProgress
                 size={vmin(23)}
                 width={vmin(2)}
-                fill={activeDayPercentage}
+                fill={trainingPhasePercentage}
                 tintColor="#6979F8"
                 backgroundColor="rgba(228, 228, 228, 1)"
                 rotation={0}
               >
-                {(fill) => <Text>{activeDayPercentage}%</Text>}
+                {(fill) => <Text>{trainingPhasePercentage}%</Text>}
               </AnimatedCircularProgress>
             </View>
           </View>
-        ) : (
-          console.warn("nohtihn")
-        )}
-      </TouchableOpacity>
+          <View style={styles.progressSection}>
+            <View style={styles.progressSection_texts}>
+              <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
+                Semana del Plan
+              </Text>
+              <Text
+                style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
+              >
+                Semana {(activeWeekPercentage + 10) / 10} de 10
+              </Text>
+            </View>
+            <View style={styles.progressSection_circle}>
+              <AnimatedCircularProgress
+                size={vmin(23)}
+                width={vmin(2)}
+                fill={activeWeekPercentage}
+                tintColor="#6979F8"
+                backgroundColor="rgba(228, 228, 228, 1)"
+                rotation={0}
+              >
+                {(fill) => <Text>{activeWeekPercentage}%</Text>}
+              </AnimatedCircularProgress>
+            </View>
+          </View>
+          {props.props.user.information.control.activeWeek !== "week11" ? (
+            <View style={styles.progressSection}>
+              <View style={styles.progressSection_texts}>
+                <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
+                  Dia de la Semana
+                </Text>
+                <Text
+                  style={{
+                    fontSize: vmin(3.5),
+                    color: "rgba(153, 153, 153, 1)",
+                  }}
+                >
+                  Dia {(activeDayPercentage + 20) / 20} de 5
+                </Text>
+              </View>
+              <View style={styles.progressSection_circle}>
+                <AnimatedCircularProgress
+                  size={vmin(23)}
+                  width={vmin(2)}
+                  fill={activeDayPercentage}
+                  tintColor="#6979F8"
+                  backgroundColor="rgba(228, 228, 228, 1)"
+                  rotation={0}
+                >
+                  {(fill) => <Text>{activeDayPercentage}%</Text>}
+                </AnimatedCircularProgress>
+              </View>
+            </View>
+          ) : (
+            console.warn("nohtihn")
+          )}
+        </TouchableOpacity>
 
-      {(props.props.user.information.role === "paciente" || props.props.user.information.role === "") &&
-      props.props.user.information.control.activeWeek !== "week11" ? (
-        <View style={styles.footerButtons}>
-          <TouchableOpacity
-            style={styles.button2}
-            onPress={() => props.props.navigation.navigate("ScheduleRoutines")}
-          >
-            <ScalableText style={{ color: "white", fontWeight: "bold" }}>
-              Configurar alarmas de la rutina semanal
-            </ScalableText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button2}
-            onPress={() =>
-              props.props.navigation.navigate("CustomizeRoutine", {
-                btnText: "Guardar",
-              })
-            }
-          >
-            <ScalableText style={{ color: "white", fontWeight: "bold" }}>
-              Editar intensidad y tiempo de reposo
-            </ScalableText>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        console.log("gfd")
-      )}
-    </View>
-  );
+        {(props.props.user.information.role === "paciente" ||
+          props.props.user.information.role === "") &&
+        props.props.user.information.control.activeWeek !== "week11" ? (
+          <View style={styles.footerButtons}>
+            <TouchableOpacity
+              style={styles.button2}
+              onPress={() =>
+                props.props.navigation.navigate("ScheduleRoutines")
+              }
+            >
+              <ScalableText style={{ color: "white", fontWeight: "bold" }}>
+                Configurar alarmas de la rutina semanal
+              </ScalableText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button2}
+              onPress={() =>
+                props.props.navigation.navigate("CustomizeRoutine", {
+                  btnText: "Guardar",
+                })
+              }
+            >
+              <ScalableText style={{ color: "white", fontWeight: "bold" }}>
+                Editar intensidad y tiempo de reposo
+              </ScalableText>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          console.log("gfd")
+        )}
+      </View>
+    );
+  }
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
@@ -474,6 +533,8 @@ const styles = StyleSheet.create({
   container: {
     maxWidth: wp("100%"),
     maxHeight: hp("100%"),
+    height: "100%",
+    width: "100%",
     justifyContent: "space-evenly",
     alignItems: "center",
     backgroundColor: "white",

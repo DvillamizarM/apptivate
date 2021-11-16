@@ -24,10 +24,22 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import { ScrollView } from "react-native-gesture-handler";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const medicalInformation = (userInformation) => {
   if (userInformation.loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     let data = userInformation.medical;
     let data1 = userInformation.control;
@@ -125,7 +137,19 @@ const medicalInformation = (userInformation) => {
 
 const personalInformation = (userInformation) => {
   if (userInformation.loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+          marginTop: "5%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     let companionEmail = userInformation.companionEmail;
     let data = userInformation.personal;
@@ -219,8 +243,8 @@ const UserInformation = ({ props: props2 }) => {
           onPress={() => {
             if (navigationPosition - 1 >= 0) {
               setnavigationPosition(navigationPosition - 1);
-            }else if (navigationPosition===0){
-              setnavigationPosition(1)
+            } else if (navigationPosition === 0) {
+              setnavigationPosition(1);
             }
           }}
           style={navigationButtonStyles.sideButton}
@@ -241,8 +265,8 @@ const UserInformation = ({ props: props2 }) => {
           onPress={() => {
             if (navigationPosition + 1 < navigationTitles.length) {
               setnavigationPosition(navigationPosition + 1);
-            }else if(navigationPosition === 1){
-              setnavigationPosition(0)
+            } else if (navigationPosition === 1) {
+              setnavigationPosition(0);
             }
           }}
         >
@@ -270,7 +294,7 @@ const UserInformation = ({ props: props2 }) => {
       <View style={styles.header}>{NavigationButton()}</View>
 
       <ScrollView style={styles.body}>
-        {navigationPosition === 0 
+        {navigationPosition === 0
           ? personalInformation(userInformation)
           : medicalInformation(userInformation)}
       </ScrollView>

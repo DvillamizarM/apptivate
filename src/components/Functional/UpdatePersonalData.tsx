@@ -22,6 +22,7 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import UpdateMedicalData from "../Functional/UpdateMedicalData";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function UpdatePersonalData(props) {
   const [data, setdata] = useState({
@@ -155,10 +156,11 @@ function UpdatePersonalData(props) {
       .catch((e) => {
         console.log("El error es ", e);
       });
+      setLoading(false);
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (<View style={{justifyContent:"center", marginTop:"5%"}}><ChargeScreen/></View>);
   } else {
     return (
       <View style={styles.container}>
@@ -254,9 +256,11 @@ function UpdatePersonalData(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+
               schema
                 .validate(data)
                 .then(() => {
+                  setLoading(true);
                   update();
                 })
                 .catch(function (err) {

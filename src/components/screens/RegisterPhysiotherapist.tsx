@@ -13,12 +13,15 @@ var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 import * as yup from "yup";
 import Password from "../Simple/PasswordTextField";
+import ChargeScreen from "../Simple/ChargeScreen";
+import Picker from "../Simple/Picker";
 
 export default function RegisterPhysiotherapist(props) {
   const [data, setdata] = useState({
     email: "",
     password: "",
     name: "",
+    genero:"",
     id: "",
     phone: "",
   });
@@ -27,6 +30,7 @@ export default function RegisterPhysiotherapist(props) {
     password1: "",
     password2: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const schema = yup.object().shape({
     email: yup
@@ -70,6 +74,7 @@ export default function RegisterPhysiotherapist(props) {
             personal: {
               name: data.name,
               phone: data.phone,
+              genero:data.genero,
               email: data.email,
               id: data.id,
             },
@@ -77,6 +82,7 @@ export default function RegisterPhysiotherapist(props) {
             role: "",
           });
         props.navigation.navigate("Home");
+        setLoading(false);
       })
       .catch((error) => {
         if (error.code === "auth/email-already-in-use") {
@@ -86,9 +92,13 @@ export default function RegisterPhysiotherapist(props) {
           Alert.alert("Correo inválido!");
         }
         console.error(error);
+        setLoading(false);
       });
   };
 
+  if (loading) {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" , marginTop:"5%"}}><ChargeScreen/></View>);
+  }else{
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -148,6 +158,23 @@ export default function RegisterPhysiotherapist(props) {
               placeholder={"Número telefónico celular"}
             />
           </View>
+       
+          <View style={styles.containerInput}>
+          <Text style={styles.headerInput}>Sexo</Text>
+
+          <View style={[styles.repetitionInputContainer, {borderWidth:0}]}>
+          <Picker
+                width={"100%"}
+                height={40}
+                placeholder={"Seleccionar"}
+                setData={(itemValue, itemIndex) =>{
+                setdata({ ...data, genero: itemValue.toString() })}
+                }
+                initialValue={"Seleccionar"}
+                list={["Seleccionar", "Femenino", "Masculino"]}
+              />
+          </View>
+        </View>
 
           <View style={styles.containerInput}>
           <Text style={styles.headerInput}>Contraseña</Text>
@@ -206,10 +233,12 @@ export default function RegisterPhysiotherapist(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+
               if(passwords.password1 == passwords.password2){
                 schema
                 .validate(data)
                 .then(() => {
+                  setLoading(true);
                   signIn();
                 })
                 .catch(function (err) {
@@ -227,7 +256,8 @@ export default function RegisterPhysiotherapist(props) {
         </View>
       </ScrollView>
     </View>
-  );
+  ); 
+  }
 }
 
 const styles = StyleSheet.create({
@@ -286,5 +316,12 @@ const styles = StyleSheet.create({
   scroll: {
     height: "90%",
     width: "100%",
+  },
+  repetitionInputContainer: {
+    height: "50%",
+    width: "100%",
+    borderColor: "rgba(228, 228, 228, 0.6)",
+    borderWidth: 1,
+    borderRadius: 5,
   },
 });

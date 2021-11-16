@@ -22,6 +22,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import Logowhatsapp from "react-native-vector-icons/Ionicons";
 import Bell from "react-native-vector-icons/FontAwesome";
 import RoutineHistory from "./RoutineHistory";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const renderUser = (user, props) => {
   let trainingPhase = user.control.trainingPhase;
@@ -183,6 +184,7 @@ const renderUser = (user, props) => {
 const HomePhysiotherapist = (props) => {
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
   // const logOut = async () => {
   //   // props.navigation.navigate("Login");
   //   // await firebase.auth.signOut();
@@ -228,11 +230,14 @@ const HomePhysiotherapist = (props) => {
     console.log("Los ejercicios son", exercisesProcessed);
 
     setUsers(exercisesProcessed);
+    setLoading(false);
   };
   useEffect(() => {
     getUsers();
   }, []);
-
+  if (loading) {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
+  } else {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -282,6 +287,7 @@ const HomePhysiotherapist = (props) => {
       </View>
     </View>
   );
+          }
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {

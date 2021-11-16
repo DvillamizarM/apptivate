@@ -9,7 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   Alert,
   ScrollView,
   TouchableOpacity,
@@ -18,6 +17,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Slider } from "react-native-range-slider-expo";
+import ChargeScreen from "../Simple/ChargeScreen";
 var { vmin } = require("react-native-expo-viewport-units");
 
 function ReportEvent(props) {
@@ -29,6 +29,7 @@ function ReportEvent(props) {
     degreeOfPain: "Seleccionar",
     creationTime: new Date().getTime(),
   });
+  const [loading, setLoading] = useState(false);
   const [tokens, setTokens]: any = useState({});
 
   const getReceiverTokens = async () => {
@@ -94,6 +95,7 @@ function ReportEvent(props) {
       idRecord = res.id;
       console.log("El id es ", idRecord);
       props.navigation.navigate("Home");
+      setLoading(false);
       // await updateControl(idRecord);
     }
   };
@@ -159,7 +161,9 @@ function ReportEvent(props) {
   useEffect(() => {
     getReceiverTokens();
   }, []);
-
+  if (loading) {
+    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" , marginTop:"5%"}}><ChargeScreen/></View>);
+  } else{
   return (
     
       <View style={styles.container}>
@@ -245,6 +249,7 @@ function ReportEvent(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+              setLoading(true);
               saveFormReportEvent().then(() => {
                 sendPushNotification(tokens.values[0]);
                 sendPushNotification(tokens.values[1]);
@@ -258,6 +263,7 @@ function ReportEvent(props) {
     </ScrollView>
       </View>
   );
+          }
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {

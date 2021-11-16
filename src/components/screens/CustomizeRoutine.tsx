@@ -4,12 +4,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   Alert,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { State } from "react-native-gesture-handler";
+//import { Picker } from "@react-native-picker/picker";
+import Picker from "../Simple/Picker";
 var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 import {
@@ -22,6 +23,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function CustomizeRoutine(props) {
   const [selectedValue, setSelectedValue] = useState({
@@ -34,6 +36,7 @@ function CustomizeRoutine(props) {
   });
   const [seconds, setSeconds] = React.useState(0);
   const [minutes, setMinutes] = React.useState(0);
+  const [time, setTime] = React.useState("");
   const [loading, setLoading] = React.useState(true);
 
   const values = [
@@ -133,15 +136,19 @@ function CustomizeRoutine(props) {
       user.medical.perceivedForce
     );
 
-    let minimunAverage =(imc.min + perceivedEffort.min) / 2;
+    let minimunAverage = (imc.min + perceivedEffort.min) / 2;
     let maximunAverage = (imc.max + perceivedEffort.max) / 2;
 
-    minimunAverage % 10 == 5 ? minimunAverage -= 5 : minimunAverage = minimunAverage;
-    maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
+    minimunAverage % 10 == 5
+      ? (minimunAverage -= 5)
+      : (minimunAverage = minimunAverage);
+    maximunAverage % 10 == 5
+      ? (maximunAverage -= 5)
+      : (maximunAverage = maximunAverage);
     let range: any = ["Seleccionar"];
 
-    for (let index = minimunAverage; index <= maximunAverage; index+=10) {
-        range.push(index);
+    for (let index = minimunAverage; index <= maximunAverage; index += 10) {
+      range.push(index);
     }
     console.log("category----", imc.category);
     setSelectedValue({
@@ -152,8 +159,15 @@ function CustomizeRoutine(props) {
       imcCategory: imc.category,
       perceivedForce: user.medical.perceivedForce,
     });
+    let sec = "";
+    user.configuration.restTimeSec === 0
+      ? (sec = 0 + "" + user.configuration.restTimeSec)
+      : (sec = user.configuration.restTimeSec);
+
     setSeconds(user.configuration.restTimeSec);
     setMinutes(user.configuration.restTimeMin);
+    console.warn("setting time--", user.configuration.restTimeMin + ":" + sec);
+    setTime(user.configuration.restTimeMin + ":" + sec);
     setLoading(false);
 
     console.log("LLLLLLLLLLLLLLLLLLLos resultados son:", imc, perceivedEffort, {
@@ -163,11 +177,26 @@ function CustomizeRoutine(props) {
     });
   };
 
+
   const titleText = (user) => {
     if (user.information.role == "paciente") {
       return "";
     }
   };
+  const pull_repData = (data) => {
+    
+    setSelectedValue({ ...selectedValue, repetitionAmount: data })
+    console.warn("rep data pulled==========", data); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
+  };
+
+  const pull_timeData = (data) => {
+    console.warn("time data pulled==========", data); //
+    setTime(data);
+    let timeSelected = data.split(":");
+    setMinutes(parseInt(timeSelected[0]));
+    setSeconds(parseInt(timeSelected[1]));
+  };
+
   useEffect(() => {
     if (props.connection) {
       firebase.db
@@ -184,21 +213,28 @@ function CustomizeRoutine(props) {
       calculatePercentajes(props.user.information);
       setLoading(false);
     }
+    console.warn("time----", time);
   }, []);
 
   useEffect(() => {
+    let sec = "";
+    props.configuration.restTimeSec === 0
+      ? (sec = 0 + "" + props.configuration.restTimeSec)
+      : (sec = props.configuration.restTimeSec);
+    props.configuration.restTimeMin + ":" + sec;
+    props.configuration.restTimeSec === 0
+      ? (sec = 0 + "" + props.configuration.restTimeSec)
+      : (sec = props.configuration.restTimeSec);
     if (props.navigation.state.params.btnText == "Continuar") {
       Alert.alert(
-        "Antes de comenzar la rutina: ",
+        "Antes de comenzar: ",
         "¿Quiere configurar la intensidad de repeticiones o tiempo de reposo? \n\nActualmente la configuración es: \nIntensidad - " +
-          props.user.information.configuration.repetitionAmount +
-          "% \nTiempo de reposo - " +
-          props.user.information.configuration.restTimeMin +
-          ":" +
-          props.user.information.configuration.restTimeSec,
+          props.configuration.repetitionAmount +
+          "% \nReposo - " +
+          time,
         [
           {
-            text: "Editar intensidad de repeticiones y tiempo de reposo ",
+            text: "Editar intensidad y reposo ",
             onPress: () => {},
           },
           {
@@ -224,6 +260,7 @@ function CustomizeRoutine(props) {
 
   const updateConfig = async () => {
     if (props.connection) {
+      console.warn("inside updateconfig");
       await firebase.db
         .collection("users")
         .doc(firebase.auth.currentUser?.uid)
@@ -233,6 +270,13 @@ function CustomizeRoutine(props) {
             restTimeMin: minutes,
             restTimeSec: seconds,
           },
+        })
+        .then(() => {
+          props.updateConfiguration({
+            repetitionAmount: selectedValue.repetitionAmount,
+            restTimeMin: minutes,
+            restTimeSec: seconds,
+          });
         });
     } else {
     }
@@ -243,84 +287,19 @@ function CustomizeRoutine(props) {
         restTimeSec: seconds,
       });
     } else {
+      setLoading(false);
       props.navigation.navigate("ProfileScreen");
     }
   };
 
-  const repetitionSelector = () => {
-    return (
-      <View style={styles.repetitionInputContainer}>
-        <Picker
-          selectedValue={selectedValue.repetitionAmount + ""}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setSelectedValue({ ...selectedValue, repetitionAmount: itemValue })
-          }
-        >
-          {selectedValue.range.map((element, index) => {
-            let val = "";
-            element != "Seleccionar" ? val = element+"%" : val = element
-            return (
-              <Picker.Item
-                key={"p" + index}
-                label={val}
-                value={element + ""}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-    );
-  };
-
-  const timeSelector = () => {
-    return (
-      <View style={styles.timeInputContainer}>
-        <View style={styles.timeContainer}>
-          <Text style={styles.textInput}>Minutos</Text>
-          <Picker
-            selectedValue={minutes + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) => setMinutes(itemValue)}
-          >
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((element, index) => {
-              return (
-                <Picker.Item
-                  key={"m" + index}
-                  label={element + ""}
-                  value={element + ""}
-                />
-              );
-            })}
-          </Picker>
-        </View>
-
-        <View style={styles.timeContainer}>
-          <Text style={styles.textInput}>Segundos</Text>
-          <Picker
-            selectedValue={seconds + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) => setSeconds(itemValue)}
-          >
-            {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(
-              (element, index) => {
-                return (
-                  <Picker.Item
-                    key={"s" + index}
-                    label={element + ""}
-                    value={element + ""}
-                  />
-                );
-              }
-            )}
-          </Picker>
-        </View>
-      </View>
-    );
-  };
-
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (
+      <View
+        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
@@ -333,21 +312,35 @@ function CustomizeRoutine(props) {
         </View>
         <View style={styles.configurationContainer}>
           <View style={styles.containerPercentajes}>
-            {/* <Text style={{ fontWeight: "bold" }}>
-              Min {selectedValue.min}% - Max. {selectedValue.max}%
-            </Text> */}
 
             <Text>Config. Actual {selectedValue.repetitionAmount}%</Text>
           </View>
 
           <View style={styles.containerInput}>
             <Text style={{}}>Repeticiones </Text>
-            {repetitionSelector()}
+            <Picker
+              width={"100%"}
+              setData={pull_repData}
+              placeholder={"Seleccionar"}
+              height={40}
+              initialValue={selectedValue.repetitionAmount}
+              list={selectedValue.range}
+              percentajes={true}
+            />
+            {/* {repetitionSelector()} */}
           </View>
 
           <View style={styles.containerInput}>
             <Text style={{}}>Tiempo de Reposo entre series</Text>
-            {timeSelector()}
+            <Picker
+              width={"100%"}
+              height={40}
+              placeholder={"00:00"}
+              setData={pull_timeData}
+              initialValue={time}
+              list={["0:00", "0:30", "1:00", "1:30", "2:00"]}
+            />
+            {/* {unifiedTimeSlector()} */}
           </View>
         </View>
 
@@ -355,6 +348,7 @@ function CustomizeRoutine(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+              setLoading(true);
               console.warn("reps----", selectedValue.repetitionAmount);
               if (
                 selectedValue.repetitionAmount &&
@@ -379,14 +373,18 @@ function CustomizeRoutine(props) {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
+  console.warn("configu---", store.User.user.information.configuration);
   return {
     user: store.User.user,
     connection: store.User.connection,
+    configuration: store.User.user.information.configuration,
   };
 };
 
 const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
   setUser: (val) => dispatch(actionsUser.SET_USER(val)),
+  updateConfiguration: (val) =>
+    dispatch(actionsUser.UPDATE_USER_CONFIGURATION(val)),
 });
 export default connect(MapStateToProps, MapDispatchToProps)(CustomizeRoutine);
 
@@ -415,7 +413,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "peru",
     width: "100%",
     height: "60%",
-    borderBottomWidth: 1,
+    //borderBottomWidth: 1,
     borderBottomColor: "#151522",
     alignItems: "center",
 
@@ -463,8 +461,9 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     margin: vmin(2),
-    width: "100%",
+    width: "80%",
     height: "100%",
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
   },

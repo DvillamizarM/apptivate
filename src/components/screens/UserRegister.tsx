@@ -9,12 +9,13 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Picker,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
+import Picker from "../Simple/Picker";
 import Password from "../Simple/PasswordTextField";
 import * as yup from "yup";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function UserRegister(props) {
   const [data, setdata] = useState({
@@ -136,8 +137,9 @@ function UserRegister(props) {
         console.error(error);
       });
   };
-  if (loading) return <ActivityIndicator size="large" color="#00ff00" />;
-  return (
+  if (loading){
+  return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);}
+  else{return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.textHeader}>
@@ -201,26 +203,17 @@ function UserRegister(props) {
         <View style={styles.containerInput}>
           <Text style={styles.headerInput}>Sexo</Text>
 
-          <View style={styles.repetitionInputContainer}>
-            <Picker
-              selectedValue={data.gender + ""}
-              style={{ height: "100%", width: "100%" }}
-              onValueChange={(itemValue, itemIndex) =>
-                setdata({ ...data, gender: itemValue })
-              }
-            >
-              {["Seleccionar", "Femenino", "Masculino"].map(
-                (element, index) => {
-                  return (
-                    <Picker.Item
-                      key={"p" + index}
-                      label={element + ""}
-                      value={element + ""}
-                    />
-                  );
+          <View style={[styles.repetitionInputContainer, {borderWidth:0}]}>
+          <Picker
+                width={"100%"}
+                height={40}
+                placeholder={"Seleccionar"}
+                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
+                setdata({ ...data, gender: itemValue })}
                 }
-              )}
-            </Picker>
+                initialValue={"Seleccionar"}
+                list={["Seleccionar", "Femenino", "Masculino"]}
+              />
           </View>
         </View>
 
@@ -278,7 +271,7 @@ function UserRegister(props) {
         </TouchableOpacity>
       </ScrollView>
     </View>
-  );
+  );}
 }
 export default UserRegister;
 

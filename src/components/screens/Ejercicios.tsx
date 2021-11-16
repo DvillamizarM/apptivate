@@ -23,6 +23,7 @@ var { vmin } = require("react-native-expo-viewport-units");
 import StepIndicator from "react-native-step-indicator";
 import firebase from "../../../database/firebase";
 import Logo from "../Simple/Logo";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 class Ejercicios extends React.Component<Props> {
   constructor(props) {
@@ -48,6 +49,7 @@ handleBackButton() {
   // var messageRef = db.collection('rooms').doc('roomA')
   // .collection('messages').doc('message1');
   getExercise = async (phase) => {
+    console.warn("props-----", this.props)
     this.setState({ loading: true });
     let exercises = [];
     let setup = {};
@@ -325,7 +327,7 @@ handleBackButton() {
       this.state.exercises[this.state.currentExercise] == undefined ||
       this.state.loading
     ) {
-      return <ActivityIndicator size="large" color="#00ff00" />;
+      return  (<View style={{justifyContent:"center",height:"100%", marginTop:"5%"}}><ChargeScreen/></View>);
     } else {
       console.log("changnee----", Object.values(this.state.exercises));
       return (

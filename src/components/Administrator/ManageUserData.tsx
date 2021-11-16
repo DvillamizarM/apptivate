@@ -4,11 +4,11 @@ import {
   View,
   Text,
   StyleSheet,
-  Picker,
   Alert,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import Picker from "../Simple/Picker";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 
@@ -17,6 +17,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 function ManageUserData(props) {
   const { UserProps, getUsers } = props.navigation.state.params;
@@ -69,7 +70,7 @@ function ManageUserData(props) {
   };
 
   const getReceiverTokens = async () => {
-    console.log(
+    console.warn(
       "user props",
       UserProps.personal.email,
       "    ",
@@ -185,28 +186,21 @@ function ManageUserData(props) {
     return (
       <View style={styles.repetitionInputContainer}>
         <Picker
-          selectedValue={selectedValue.roleValue + ""}
-          style={{ height: "100%", width: "100%" }}
-          onValueChange={(itemValue, itemIndex) =>
-            setSelectedValue({ ...selectedValue, roleValue: itemValue })
-          }
-        >
-          {[
-            "Usuario público",
-            "Paciente",
-            "Fisioterapeuta",
-            "Administrador",
-            "Acompañante",
-          ].map((element, index) => {
-            return (
-              <Picker.Item
-                key={"p" + index}
-                label={element + ""}
-                value={element + ""}
+                width={"100%"}
+                height={40}
+                placeholder={"Seleccionar"}
+                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
+                setSelectedValue({ ...selectedValue, roleValue: itemValue })}
+                }
+                initialValue={selectedValue.roleValue}
+                list={[
+                  "Usuario público",
+                  "Paciente",
+                  "Fisioterapeuta",
+                  "Administrador",
+                  "Acompañante",
+                ]}
               />
-            );
-          })}
-        </Picker>
       </View>
     );
   };
@@ -220,30 +214,34 @@ function ManageUserData(props) {
       return (
         <View style={styles.repetitionInputContainer}>
           <Picker
-            selectedValue={selectedValue.physioValue + ""}
-            style={{ height: "100%", width: "100%" }}
-            onValueChange={(itemValue, itemIndex) =>
-              setSelectedValue({ ...selectedValue, physioValue: itemValue })
-            }
-          >
-            {temp.map((element, index) => {
-              // console.log(element);
-              return (
-                <Picker.Item
-                  key={"p" + index}
-                  label={element + ""}
-                  value={element + ""}
-                />
-              );
-            })}
-          </Picker>
+                width={"100%"}
+                height={40}
+                placeholder={"Seleccionar"}
+                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
+                setSelectedValue({ ...selectedValue, physioValue: itemValue })}
+                }
+                initialValue={selectedValue.physioValue}
+                list={temp}
+              />
+          
         </View>
       );
     }
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
@@ -268,22 +266,24 @@ function ManageUserData(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+              setLoading(true);
               updateConfig().then(async function () {
                 console.log("update config then");
                 if (selectedValue.roleValue == "Paciente") {
-                  const token = await getReceiverTokens()
+                  const token = await getReceiverTokens();
                   //tokens.then(function () {
-                    // console.log("reciever then", tokens);
-                    // if (tokens.values !== undefined) {
-                    //   console.log("get tokens if--", tokens.values);
-                    //   tokens.values.forEach((element) => {
-                    //     sendPushNotification(element);
-                    //   });
-                    // }
+                  // console.log("reciever then", tokens);
+                  // if (tokens.values !== undefined) {
+                  //   console.log("get tokens if--", tokens.values);
+                  //   tokens.values.forEach((element) => {
+                  //     sendPushNotification(element);
+                  //   });
+                  // }
                   //});
                 }
                 getUsers();
                 props.navigation.navigate("Home");
+              setLoading(false);
               });
             }}
           >
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
 
   timeContainer: {
     borderColor: "rgba(228, 228, 228, 0.6)",
-    borderWidth: 1,
+  //  borderWidth: 1,
     borderRadius: 5,
     height: "100%",
     width: "45%",
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     height: "50%",
     width: "100%",
     borderColor: "rgba(228, 228, 228, 0.6)",
-    borderWidth: 1,
+  //  borderWidth: 1,
     borderRadius: 5,
   },
 

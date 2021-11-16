@@ -37,26 +37,32 @@ function Repository(props) {
     { key: "second", title: "Restricciones" },
     { key: "third", title: "Rutina de Ejercicios" },
   ]);
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case "first":
+        return <GeneralInformation props={props} />;
+      case "second":
+        return <Limiting props={props} />;
+      case "third":
+        return <ExerciseRoutine props={props} />;
+      default:
+        return null;
+    }
+  };
 
-  const renderScene = SceneMap({
-    first: () => FirstRoute(props),
-    second: () => SecondRoute(props),
-    third: () => ThirdRoute(props),
-  });
-
-  React.useEffect(()=>{
-  // console.warn("repo useeffect-?!!!-");
+  React.useEffect(() => {
+    // console.warn("repo useeffect-?!!!-");
     props.setRepoIndex(index);
     //setActivation
-
-  },[index, props.showTour1, props.showTour2, props.showTour3])
- // console.warn("repo ====", props.repoIndex)
+  }, [index, props.showTour1, props.showTour2, props.showTour3]);
+  // console.warn("repo ====", props.repoIndex)
   return (
     <TabView
       navigationState={{ index, routes }}
-      swipeEnabled={false}
+      swipeEnabled={true}
       renderScene={renderScene}
       onIndexChange={setIndex}
+      lazy={true}
       initialLayout={{ width: layout.width, height: layout.height }}
       // style={{ backgroundColor: "red", height: 20 }}
       renderTabBar={(props) => (
