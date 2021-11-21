@@ -273,11 +273,20 @@ const GeneralInformation = (props) => {
       paddingBottom: 15,
     };
 
-    description.shift();
+    description.length > 1 ? description.shift() : "";
+
     return (
       <View key={"general" + index} style={styles.cardInformation}>
         <Text style={{ fontWeight: "bold" }}>{element.title}</Text>
 
+          {element.multimedia != "" && (
+            <View style={styles.containerImage}>
+              <Image
+                source={{ uri: element.multimedia }}
+                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+              />
+            </View>
+          )}
         <View style={styles.containerDescription}>
           {description.map((text, key_index) => {
             return (
@@ -290,14 +299,6 @@ const GeneralInformation = (props) => {
             );
           })}
         </View>
-        {element.multimedia != "" && (
-          <View style={styles.containerImage}>
-            <Image
-              source={{ uri: element.multimedia }}
-              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
-          </View>
-        )}
         <TourGuideZone
           zone={3}
           text={
@@ -418,17 +419,24 @@ const GeneralInformation = (props) => {
         </View>
       );
     } else {
-      return (<View style={{justifyContent:"center", height:"100%",marginTop:"5%"}}><ChargeScreen/></View>);
+      return (
+        <View
+          style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+        >
+          <ChargeScreen />
+        </View>
+      );
     }
   } else {
-    console.warn("props====", props);
-    console.warn("current inf-----", information[CurrentInformation]);
+    // console.warn("props====", props);
+    // console.warn("current inf-----", information[CurrentInformation]);
 
     let level = "";
     props.props.navigation.getParam("amputationLevel") !== undefined
       ? (level = props.props.navigation.getParam("amputationLevel"))
-      :  props.user.information.medical.amputationLevel !== undefined ? (level = props.user.information.medical.amputationLevel)
-      : level = "";
+      : props.user.information.medical.amputationLevel !== undefined
+      ? (level = props.user.information.medical.amputationLevel)
+      : (level = "");
     // console.warn(
     //   "params---------",
     //   props.props.navigation.getParam("amputationLevel")
@@ -439,15 +447,15 @@ const GeneralInformation = (props) => {
     // );
     let leakedInformation = information[CurrentInformation].content.filter(
       (element) => {
-        console.warn("element----", element);
-        console.warn("level-----", level);
+        // console.warn("element----", element);
+        // console.warn("level-----", level);
         if (level === "") {
           //no amputation level specified
           console.warn("general info return element else");
           return element;
         } else {
           //amputation level registered
-          console.warn("in if -------", level);
+          //  console.warn("in if -------", level);
           if (
             element.amputationLevel === "" ||
             element.amputationLevel === level
@@ -628,7 +636,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     borderColor: "rgba(21, 21, 34, 1)",
     borderBottomWidth: vmin(0.4),
-    padding: "10%",
+    paddingLeft: "10%",
+    paddingRight: "10%",
+    paddingBottom: "5%",
+    marginBottom: "10%",
   },
 
   downloadButton: {
@@ -641,12 +652,12 @@ const styles = StyleSheet.create({
   containerDescription: {
     marginTop: vmin(3),
     fontSize: vmin(1),
-    marginBottom: vmin(5),
+    marginBottom: vmin(2),
   },
 
   containerImage: {
     width: "100%",
     flexDirection: "row",
-    height: vmin(30),
+    height: vmin(70),
   },
 });

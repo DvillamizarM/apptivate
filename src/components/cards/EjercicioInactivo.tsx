@@ -9,6 +9,7 @@ import {
   Button,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from "react-native";
 import { connect } from "react-redux";
 
@@ -181,12 +182,12 @@ class EjercicioInactivo extends React.Component<Props> {
   }
 
   componentDidMount = async () => {
-    console.warn("exercisie----", this.props.exercise);
+    //console.warn("exercisie----", this.props.exercise);
     if (this.props.exercise) {
-      console.log(this.props.setup, "SETUP");
+     // console.log(this.props.setup, "SETUP");
       // SI tiene setup
       if (Object.values(this.props.setup).length > 0) {
-        console.log(this.props.setup.restTimeSec, "didmount inactivo");
+      //  console.log(this.props.setup.restTimeSec, "didmount inactivo");
         this.setState({
           series: this.props.setup.series,
           repetitions: this.props.setup.repetitions,
@@ -194,7 +195,7 @@ class EjercicioInactivo extends React.Component<Props> {
           setSec: this.props.setup.restTimeSec,
         });
       } else {
-        console.warn("inactivo didmount-----else");
+      //  console.warn("inactivo didmount-----else");
         this.setState({
           series: null,
           repetitions: null,
@@ -203,25 +204,27 @@ class EjercicioInactivo extends React.Component<Props> {
         });
       }
 
-      console.log("Las nuevas props de ejercicos son :", this.props.exercise);
+     // console.log("Las nuevas props de ejercicos son :", this.props.exercise);
 
       const res = this.props.exercise;
 
-      console.log("--*inactivo*--->", res);
+     // console.log("--*inactivo*--->", res);
 
-        let materialList = ""
-        res.materials ? materialList = res.materials : materialList = "";
-        
-        let activeTimeAux: any = 0;
-        res.activeTime ? activeTimeAux = res.activeTime : activeTimeAux = null;
-        
-        this.setState({
-          description: res.description,
-          gif: res.gif,
-          voz: res.voz,
-          activeTime: activeTimeAux,
-          materials: materialList,
-        });
+      let materialList = "";
+      res.materials ? (materialList = res.materials) : (materialList = "");
+
+      let activeTimeAux: any = 0;
+      res.activeTime
+        ? (activeTimeAux = res.activeTime)
+        : (activeTimeAux = null);
+
+      this.setState({
+        description: res.description,
+        gif: res.gif,
+        voz: res.voz,
+        activeTime: activeTimeAux,
+        materials: materialList,
+      });
     } else {
       //  console.log(this.props.exercise, "------- UNDEFINED ----------");
     }
@@ -273,7 +276,6 @@ class EjercicioInactivo extends React.Component<Props> {
             <Text style={styles.textHeaderExercise}>
               Ejercicio {this.props.indicator}
             </Text>
-            
           </View>
 
           <View
@@ -314,8 +316,8 @@ class EjercicioInactivo extends React.Component<Props> {
               }}
             >
               Para iniciar el tiempo activo de clic en el botón azul con el
-              chulito.
-              Realice los ejercicios acorde a sus capacidades y con su acompañante presente.
+              chulito. Realice los ejercicios acorde a sus capacidades y con su
+              acompañante presente.
             </Text>
           )}
         </View>
@@ -327,13 +329,14 @@ class EjercicioInactivo extends React.Component<Props> {
                 "Series",
                 "Agrupan cierto número de repeticiones separadas por un tiempo de reposo."
               );
-            }}>
+            }}
+          >
             <View style={styles.iconContainer}>
               <Check name="check-square-o" size={vmin(9)} color="#999999" />
             </View>
 
             <View style={styles.textContainer}>
-              <Text style={{fontSize:vmin(3.6)}}>Serie</Text>
+              <Text style={{ fontSize: vmin(3.6) }}>Serie</Text>
               <Text style={{}}>
                 {this.state.series
                   ? this.state.serieActual + " de " + this.state.series
@@ -373,7 +376,13 @@ class EjercicioInactivo extends React.Component<Props> {
             </View>
 
             <View style={styles.textContainer}>
-              <Text style={{ width: "100%", textAlign: "center", fontSize:  vmin(3.3)}}>
+              <Text
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: vmin(3.3),
+                }}
+              >
                 {this.state.timerType == "" ? "Tiempo" : this.state.timerType}
               </Text>
               <Text style={{}}>{this.state.timer}</Text>
@@ -395,41 +404,37 @@ class EjercicioInactivo extends React.Component<Props> {
         </View>
 
         <View style={styles.indicatorTextContainer}>
-          <Text
-            style={{
-              fontSize: vmin(4),
-              borderBottomWidth:0.3,
-              marginBottom:"2%",
-              paddingBottom:5
-            }}
-          >
-           Descripción: {this.state.description}
-          </Text>
-          {
-            this.state.materials != "" ? (<Text
-            style={{
-              fontSize: vmin(4),
-            }}
-          >
-            Materiales: {this.state.materials}
-          </Text>) : (console.log("nothing"))
-          }
-          
-        </View>
-        
-
-        {/* <View style={styles.footerSection}>
-          <Text style={styles.textActiveTime}>Tiempo Activo</Text>
-          <View style={styles.greenSection}>
+          <ScrollView style= {{height:"100%"}}>
             <Text
               style={{
-                color: "white",
+                fontSize: vmin(4),
+                marginBottom: "2%",
+                padding: 5,
+                backgroundColor: "rgba(105,121,248,0.2)",
+                borderRadius: 10,
               }}
             >
-              2:30
+              <Text style={{ fontWeight: "bold" }}>Descripción: </Text>{" "}
+              {this.state.description}
             </Text>
-          </View>
-        </View> */}
+            {this.state.materials != "" ? (
+              <Text
+                style={{
+                  fontSize: vmin(4),
+                  padding: 7,
+                  backgroundColor: "rgba(105,121,248,0.2)",
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>Materiales: </Text>{" "}
+                {this.state.materials}
+              </Text>
+            ) : (
+              console.log("nothing")
+            )}
+             <View style={{ height: 25 }} />
+          </ScrollView>
+        </View>
       </View>
     );
   }
@@ -446,7 +451,7 @@ const styles = StyleSheet.create({
   containerCard: {
     width: "100%",
     height: "100%",
-    alignItems:"center"
+    alignItems: "center",
     //  backgroundColor: "salmon"
   },
   containerHeaderCard: {
@@ -498,12 +503,14 @@ const styles = StyleSheet.create({
     // backgroundColor: "pink",
   },
   indicatorTextContainer: {
-    backgroundColor: "rgba(105,121,248,0.2)",
-    height: "15%",
-    width: "90%",
+    // backgroundColor: "rgba(105,121,248,0.2)",
+    flex: 1,
+    height: "23%",
+    width: "100%",
     padding: vmin(3),
-    borderRadius:10,
-    marginTop: "2%"
+    borderRadius: 10,
+    justifyContent:"space-evenly",
+    marginTop: "2%",
   },
   // footerSection: {
   //   backgroundColor: "black",

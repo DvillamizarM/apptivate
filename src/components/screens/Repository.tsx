@@ -59,7 +59,7 @@ function Repository(props) {
   return (
     <TabView
       navigationState={{ index, routes }}
-      swipeEnabled={true}
+      swipeEnabled={false}
       renderScene={renderScene}
       onIndexChange={setIndex}
       lazy={true}

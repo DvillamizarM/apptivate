@@ -31,105 +31,108 @@ class Ejercicios extends React.Component<Props> {
   }
   state = {
     currentPosition: 0,
+    routineIDs: [],
     exercises: [],
+    defaultSetups: {},
+    values: [],
     setup: {},
     currentExercise: 0,
     loading: false,
   };
 
-componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-}
+  componentWillUnmount() {
+    BackHandler.removeEventListener("hardwareBackPress", this.handleBackButton);
+  }
 
-handleBackButton() {
-    ToastAndroid.show('Estás en una rutina por favor utiliza el botón rojo de Abandonar Rutina si quieres salir.', ToastAndroid.SHORT);
+  handleBackButton() {
+    ToastAndroid.show(
+      "Estás en una rutina por favor utiliza el botón rojo de Abandonar Rutina si quieres salir.",
+      ToastAndroid.SHORT
+    );
     return true;
-}
+  }
 
-  // var messageRef = db.collection('rooms').doc('roomA')
-  // .collection('messages').doc('message1');
-  getExercise = async (phase) => {
-    console.warn("props-----", this.props)
-    this.setState({ loading: true });
-    let exercises = [];
-    let setup = {};
-    let dbRef: any = "";
-    let doc = "";
-    let exerciseList = [];
-    let protocolType = this.props.user.information.medical.amputationLevel;
-    protocolType == "Preprotésico"
-      ? (protocolType = "preprotesico")
-      : (protocolType = "protesico");
-    switch (phase) {
-      case 0:
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("basic")
-          .doc("warmup");
-        doc = await dbRef.get();
-        exerciseList = doc.data();
-        break;
-      case 1:
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("basic")
-          .doc("stretch");
-        doc = await dbRef.get();
-        exerciseList = doc.data();
-        break;
-      case 2:
-        //setup
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("week1")
-          .doc("setup");
-        doc = await dbRef.get();
-        setup = doc.data();
-        //exercise
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("week1")
-          .doc("active");
-        doc = await dbRef.get();
-        exerciseList = doc.data();
-        break;
+  getRoutineList = async () => {
+    let values: any = [];
+    const userActiveWeek = this.props.user.information.control.activeWeek;
+    const activeWeek = parseInt(userActiveWeek.replace(/\D/g, "")) + 2;
+    await firebase.db
+      .collection("protocol")
+      .doc("protesico")
+      .get()
+      .then(async (element: any) => {
+        if (element.data() !== undefined) {
+          const promises = Object.values(element.data()).map(
+            (element: any, index) => {
+              if (
+                element.order === 1 ||
+                element.order === 2 ||
+                element.order === activeWeek ||
+                element.order === 13
+              ) {
+                let listInfo: any =  {
+                  idsList: element.refs,
+                  setupsList: element.setup,
+                  order: element.order,
+                };
+                values.push(listInfo);
+                if (values.length === 4) {
+                  values.sort(
+                    (a, b) => parseFloat(a.order) - parseFloat(b.order)
+                    );
+                    console.log("values====r---",values);
+                  return values;
+                }
+              }
+            }
+          );
+          let finished: Object = await Promise.all(promises);
 
-      case 3:
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("basic")
-          .doc("stretch");
-        doc = await dbRef.get();
-        exerciseList = doc.data();
-        break;
+          finished = Object.values(finished).filter(function (element) {
+            return element !== undefined;
+          });
 
-      case 4:
-        dbRef = firebase.db
-          .collection("protocol")
-          .doc(protocolType)
-          .collection("basic")
-          .doc("cooldown");
-        doc = await dbRef.get();
-        exerciseList = doc.data();
-        break;
-    }
+          console.log("finished routine----", finished[0]);
+          
+          this.setState({
+            values: finished[0]
+          });
+          //get first routine phase exercise list... 
+          let info: any = [];
+          const position = this.state.currentPosition === 4 ? 3 : this.state.currentPosition
+          const promises2 = finished[0][position].idsList.map(async (ref, index) => {
+            await ref.get().then((res) => {
+              info.push(res.data());
+            });
+            return info;
+          });
+          const finished2: Object = await Promise.all(promises2);
+          console.log("phase list---", finished2);
+          this.setState({
+            exercises: finished2[0],
+            setup: this.updateSetup(finished[0][position].setupsList),
+            loading: false,
+          });
+        }
+      });
+  };
 
-    console.log("exercises son >>>>>>>>>", Object.values(exerciseList));
-
-    let exerciseVales = Object.values(exerciseList);
-
-    let result = await this.basicPhaseExercises(exerciseVales);
-
-    console.warn("Los ejercicios esperados son: ", result);
-
+  getPhaseList = async (phase) => {
+    let info: any = [];
+    phase === 3 ? phase = 1 : phase === 4 ? phase = 3 : phase = phase ;
+    console.warn("phase number--- ", phase)
+    const promises = this.state.values[phase].idsList.map(async (ref, index) => {
+      console.log("in promise mapp---", this.state.values[phase])
+      await ref.get().then((res) => {
+        info.push(res.data());
+      });
+      return info;
+    });
+    const finished: Object = await Promise.all(promises);
+    console.log("phase list---", finished);
     this.setState({
-      exercises: result,
-      setup: this.updateSetup(setup),
+      exercises: finished[0],
+      setup: this.updateSetup(this.state.values[phase].setupsList),
       loading: false,
     });
   };
@@ -169,19 +172,6 @@ handleBackButton() {
             }
             exerciseList.push(temp);
           });
-          //   exerciseList = {
-          //     routinePhase: current.data.routinePhase,
-          //     gif: current.gif,
-          //     description: current.data.description,
-          //     voz: current.data.voz,
-          //     activeTime: current.data.activeTime
-          // }
-          //  exerciseList=exerciseCollection;
-          // exerciseCollection.map((exercise, index)=>{
-          //   if(index===day){
-          //     exerciseList = exercise
-          //   }
-          // })
         }
       });
 
@@ -193,23 +183,12 @@ handleBackButton() {
       });
     }
   };
-  basicPhaseExercises = async (exercises) => {
-    const promises = exercises.map(async (Item) => {
-      const numItem = await Item.get();
-      return numItem;
-    });
-
-    return new Promise(async (resolve, reject) => {
-      const numItems = await Promise.all(promises);
-      resolve(numItems.map((e) => e.data()));
-    });
-  };
 
   updateSetup(setup) {
     const { repetitionAmount, restTimeMin, restTimeSec } =
       this.props.navigation.state.params;
     let newSetup = {};
-    let aux = parseInt(setup.repetitions);
+    let aux = parseInt(setup.repeticiones);
     if (aux) {
       console.log("if------", repetitionAmount);
       newSetup.repetitions = Math.round((repetitionAmount / 100) * aux);
@@ -221,24 +200,21 @@ handleBackButton() {
     newSetup.restTimeMin = restTimeMin;
     newSetup.restTimeSec = restTimeSec;
     newSetup.series = setup.series;
-    console.log(
-      "setup---",
-      setup.repetitions,
-      "  |||| newSetup rep--- ",
-      newSetup.repetitions
-    );
+    // console.log(
+    //   "setup---",
+    //   setup.repetitions,
+    //   "  |||| newSetup rep--- ",
+    //   newSetup.repetitions
+    // );
     return newSetup;
   }
 
   componentDidMount = () => {
-    
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-    console.warn("conectiononoo====", this.props.connection);
+    BackHandler.addEventListener("hardwareBackPress", this.handleBackButton);
     if (this.props.connection) {
-      console.warn("if---- didmount");
-      this.getExercise(this.state.currentPosition);
+      console.warn("did mount routine list");
+      this.getRoutineList();
     } else {
-      console.warn("else---- didmount");
       this.getExerciseOffline(this.state.currentPosition);
     }
   };
@@ -253,9 +229,12 @@ handleBackButton() {
 
   changeCurrentPhase = () => {
     if (this.state.currentPosition > 4) {
-      this.props.navigation.navigate("EndRoutine", { props: this.props, routineIsNotOver: false, });
+      this.props.navigation.navigate("EndRoutine", {
+        props: this.props,
+        routineIsNotOver: false,
+      });
     } else {
-      if (this.state.currentPosition + 1 == 5) {
+      if (this.state.currentPosition + 1 === 5) {
         this.props.navigation.navigate("EndRoutine", {
           routineIsNotOver: false,
         });
@@ -267,8 +246,9 @@ handleBackButton() {
         currentExercise: 0,
         loading: false,
       });
+      console.log("position  +1---", this.state.currentPosition + 1);
       this.props.connection
-        ? this.getExercise(this.state.currentPosition + 1)
+        ? this.getPhaseList(this.state.currentPosition + 1)
         : this.getExerciseOffline(this.state.currentPosition + 1);
     }
   };
@@ -286,7 +266,6 @@ handleBackButton() {
         {
           text: "Cancelar Rutina",
           onPress: () => {
-            
             this.props.navigation.navigate("EndRoutine", {
               routineIsNotOver: true,
             });
@@ -327,9 +306,15 @@ handleBackButton() {
       this.state.exercises[this.state.currentExercise] == undefined ||
       this.state.loading
     ) {
-      return  (<View style={{justifyContent:"center",height:"100%", marginTop:"5%"}}><ChargeScreen/></View>);
+      return (
+        <View
+          style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+        >
+          <ChargeScreen />
+        </View>
+      );
     } else {
-      console.log("changnee----", Object.values(this.state.exercises));
+      // console.log("changnee----", Object.values(this.state.exercises));
       return (
         <View
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
@@ -348,19 +333,23 @@ handleBackButton() {
               borderBottomWidth: 1,
             }}
           >
-          <Logo/>
+            <Logo />
             <Text
               style={{
                 marginLeft: "5%",
-                fontSize:vmin(5),
+                fontSize: vmin(5),
                 fontWeight: "bold",
               }}
             >
               Rutina
             </Text>
             <TouchableOpacity
-              style={[styles.button2,{
-                marginLeft: "20%",}]}
+              style={[
+                styles.button2,
+                {
+                  marginLeft: "20%",
+                },
+              ]}
               onPress={() => {
                 //this.confirmationFinishRoutine();
                 Alert.alert(
@@ -398,10 +387,6 @@ handleBackButton() {
               </View>
 
               <View style={styles.containerCard}>
-                {console.warn(
-                  "sfdfg",
-                  this.state.exercises[this.state.currentExercise]
-                )}
                 <EjercicioInactivo
                   key={"ejercicio" + this.state.currentExercise}
                   indicator={`${this.state.currentExercise + 1} de ${
@@ -421,8 +406,8 @@ handleBackButton() {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("exercise [rpos======= ", store.DownloadReducer.ExerciseRoutine);
-  console.warn("user [rpos======= ", store.User.user);
+  // console.warn("exercise [rpos======= ", store.DownloadReducer.ExerciseRoutine);
+  // console.warn("user [rpos======= ", store.User.user);
   return {
     user: store.User.user,
     connection: store.User.connection,

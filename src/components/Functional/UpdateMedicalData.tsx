@@ -55,7 +55,7 @@ const UpdateMedicalData = (props) => {
 
   useEffect(() => {
     console.warn("Las props que llegan son", props.user.information.medical);
-    setData(props.user.information.medical)
+    setData(props.user.information.medical);
     setCurrent(props.user.information.medical.amputationLevel);
     setCurrent1(props.user.information.medical.amputationPhase);
     setLoading(false);
@@ -77,6 +77,8 @@ const UpdateMedicalData = (props) => {
   }, []);
 
   const saveMedicalData = async () => {
+  
+
     await firebase.db
       .collection("users")
       .doc(props.user.uid)
@@ -149,7 +151,12 @@ const UpdateMedicalData = (props) => {
   } else {
     return (
       <View style={{ flex: 1 }}>
-        <View style={updateMedicalDataStyles.containerMedicalData}>
+        <View
+          style={[
+            updateMedicalDataStyles.containerMedicalData,
+            { marginBottom: "30%" },
+          ]}
+        >
           <View
             style={[
               updateMedicalDataStyles.containerInput,
@@ -334,7 +341,7 @@ const UpdateMedicalData = (props) => {
           <View
             style={[
               updateMedicalDataStyles.containerInput,
-              { height: "23%", marginBottom: "2%" },
+              { height: "18%", marginBottom: "2%" },
             ]}
           >
             <Text style={{}}>Nivel de Amputación</Text>
@@ -342,7 +349,7 @@ const UpdateMedicalData = (props) => {
             <View style={styles.radioOptions}>
               <View style={{ width: "30%" }}>
                 <Image
-                  source={require("../../assets/images/transfemoral.jpg")}
+                  source={require("../../assets/images/transfemoral.png")}
                   style={styles.imageContainer}
                 />
                 <RadioButton
@@ -362,7 +369,7 @@ const UpdateMedicalData = (props) => {
               </View>
               <View style={{ width: "30%", flexDirection: "column" }}>
                 <Image
-                  source={require("../../assets/images/rodilla.jpg")}
+                  source={require("../../assets/images/desarticulacion.png")}
                   style={styles.imageContainer}
                 />
                 <RadioButton
@@ -382,7 +389,7 @@ const UpdateMedicalData = (props) => {
               </View>
               <View style={{ width: "30%", flexDirection: "column" }}>
                 <Image
-                  source={require("../../assets/images/transtibial.jpg")}
+                  source={require("../../assets/images/transtibial.png")}
                   style={styles.imageContainer}
                 />
                 <RadioButton
@@ -406,14 +413,14 @@ const UpdateMedicalData = (props) => {
           <View
             style={[
               updateMedicalDataStyles.containerInput,
-              { height: "16%", marginBottom: "5%" },
+              { height: "14%", marginBottom: "5%" },
             ]}
           >
             <Text style={{}}>Fase de rehabilitación</Text>
             <View style={styles.radioOptions}>
               <View style={{ width: "30%" }}>
                 <Image
-                  source={require("../../assets/images/transfemoral.jpg")}
+                  source={require("../../assets/images/desarticulacion.png")}
                   style={styles.imageContainer}
                 />
                 <RadioButton
@@ -431,7 +438,7 @@ const UpdateMedicalData = (props) => {
               </View>
               <View style={{ width: "30%", flexDirection: "column" }}>
                 <Image
-                  source={require("../../assets/images/rodilla.jpg")}
+                  source={require("../../assets/images/protesis.png")}
                   style={styles.imageContainer}
                 />
                 <RadioButton
@@ -451,7 +458,7 @@ const UpdateMedicalData = (props) => {
               </View>
             </View>
           </View>
-          <View
+          {/* <View
             style={[
               styles.containerInput,
               { height: "8%", alignItems: "flex-start" },
@@ -468,16 +475,16 @@ const UpdateMedicalData = (props) => {
                 setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
                   setData({ ...data, trainingPhase: itemValue }) }
                 }
-                initialValue={props.user.information.control.trainingPhase}
+                initialValue={props.user.information.control.trainingPhase ? props.user.information.control.trainingPhase : "Seleccionar"}
                 list={["Seleccionar", "Inicial", "Intermedia", "Avanzada"]}
               />
             </View>
-          </View>
+          </View> */}
           <View
           // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
           >
             <TouchableOpacity
-              style={updateMedicalDataStyles.button}
+              style={[updateMedicalDataStyles.button]}
               onPress={() => {
                 setLoading(true);
                 saveMedicalData();
@@ -487,7 +494,7 @@ const UpdateMedicalData = (props) => {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{ height: 54 }} />
+        <View style={{ height: 104 }} />
       </View>
     );
   }
@@ -533,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     // backgroundColor: "salmon",
   },
-  
+
   containerInput: {
     height: "10%",
     width: "90%",
@@ -545,7 +552,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // backgroundColor: "green",
   },
-  
+
   repetitionInputContainer: {
     height: "30%",
     width: "100%",

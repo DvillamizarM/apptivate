@@ -420,7 +420,7 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
         <View style={styles.radioOptions}>
           <View style={{ width: "30%" }}>
             <Image
-              source={require("../../assets/images/transfemoral.jpg")}
+              source={require("../../assets/images/transfemoral.png")}
               style={styles.imageContainer}
             />
             <RadioButton
@@ -439,7 +439,7 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
           </View>
           <View style={{ width: "30%", flexDirection: "column" }}>
             <Image
-              source={require("../../assets/images/rodilla.jpg")}
+              source={require("../../assets/images/desarticulacion.png")}
               style={styles.imageContainer}
             />
             <RadioButton
@@ -458,7 +458,7 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
           </View>
           <View style={{ width: "30%", flexDirection: "column" }}>
             <Image
-              source={require("../../assets/images/transtibial.jpg")}
+              source={require("../../assets/images/transtibial.png")}
               style={styles.imageContainer}
             />
             <RadioButton
@@ -486,7 +486,7 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
         <View style={styles.radioOptions}>
           <View style={{ width: "30%" }}>
             <Image
-              source={require("../../assets/images/transfemoral.jpg")}
+              source={require("../../assets/images/desarticulacion.png")}
               style={styles.imageContainer}
             />
             <RadioButton
@@ -504,7 +504,7 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
           </View>
           <View style={{ width: "30%", flexDirection: "column" }}>
             <Image
-              source={require("../../assets/images/rodilla.jpg")}
+              source={require("../../assets/images/protesis.png")}
               style={styles.imageContainer}
             />
             <RadioButton

@@ -9,7 +9,7 @@
       "icon": "./src/assets/images/apptivateLogo-modified.png"
     },
     "splash": {
-      "image": "./src/assets/images/apptivateLogo.png",
+      "image": "./src/assets/images/apptivateLogoSplash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

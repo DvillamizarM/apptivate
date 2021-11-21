@@ -79,7 +79,7 @@ class HomeScreen extends React.Component<Props> {
     publicUser: null,
     initializing: true,
     mounted: true,
-    unsubscribe: ()=>{},
+    unsubscribe: () => {},
   };
   checkNetInfo = () => {
     NetInfo.fetch().then((state) => {
@@ -168,8 +168,7 @@ class HomeScreen extends React.Component<Props> {
       .then(() => Alert.alert("success"));
   }
   componentDidMount = () => {
-    
-    console.warn("mounted value------", this.state.mounted)
+   // console.warn("mounted value------", this.state.mounted);
     try {
       //this.checkAsync();
       //console.warn("exercise Props++++++", this.props.ExerciseRoutine)
@@ -178,38 +177,39 @@ class HomeScreen extends React.Component<Props> {
       }
       this.checkNetInfo();
       //  console.warn("repo-----", this.props.repoIndex)
-     if(this.state.mounted){
-      console.warn("in is moutned mount-----", this.props)
-       var temp = firebase.auth.onAuthStateChanged(this.onAuthStateChanged);
-       
-       
-     }
+      if (this.state.mounted) {
+      //  console.warn("in is moutned mount-----", this.props);
+        var temp = firebase.auth.onAuthStateChanged(this.onAuthStateChanged);
+      }
     } catch (error) {
       console.warn("Home Error ---", error);
-    }console.warn("mounted value b4 return------", this.state.mounted)
+    }
+  //  console.warn("mounted value b4 return------", this.state.mounted);
     //  return () => {
-       
+
     //  }
-    //  mounted = false, 
+    //  mounted = false,
     //   console.warn("mounted value return------", mounted)};
   };
 
-  componentDidUpdate(){
-    if(!this.state.initializing){
-      let tempMounted = true;
-      this.props.user.information.role==="" ? tempMounted = false :  tempMounted = true;
-     // this.setState({ mounted: tempMounted})
-       }
-  }
+  // componentDidUpdate() {
+  //   if (!this.state.initializing) {
+  //     let tempMounted = true;
+  //     // this.props.user.information.role === ""
+  //     //   ? (tempMounted = false)
+  //     //   : (tempMounted = true);
+  //     // this.setState({ mounted: tempMounted})
+  //   }
+  // }
 
-  shouldComponentUpdate(){
-    if(this.props.user.information.companionEmail!==""){
-      console.warn("in should update if")
-      return true
-    }
-    console.warn("should update------", this.state.mounted)
-    return this.state.mounted;
-  }
+  // shouldComponentUpdate() {
+  //   // if (this.props.user.information.companionEmail !== "") {
+  //   //  // console.warn("in should update if");
+  //   //   return true;
+  //   // }
+  //  // console.warn("should update------", this.state.mounted);
+  //   return this.state.mounted;
+  // }
 
   // componentWillUnmount= () =>{
   //   this.state.unsubscribe()
@@ -232,7 +232,10 @@ class HomeScreen extends React.Component<Props> {
             user2["uid"] = user.uid;
             user2["email"] = user.email;
             user2["information"] = data;
-            console.log("userr role in authstatechange----", user2.information.role);
+            console.log(
+              "userr role in authstatechange----",
+              user2.information.role
+            );
             this.props.setUser(user2);
             const r = JSON.stringify(user2["information"]);
           })
@@ -535,18 +538,20 @@ class HomeScreen extends React.Component<Props> {
   };
 
   render() {
-    console.warn("compaino emali.....", this.props.user.information.companionEmail, "-----param----",this.props.navigation.state.params)
+    
     if (this.state.initializing)
-    return ( <View
-      style={{
-        backgroundColor: "#ffffff",
-        justifyContent: "center",
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <ChargeScreen />
-    </View>);
+      return (
+        <View
+          style={{
+            backgroundColor: "#ffffff",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <ChargeScreen />
+        </View>
+      );
     else if (
       typeof this.props.user.information == "undefined" ||
       typeof this.props.user.information.personal.name == "undefined"
@@ -561,16 +566,14 @@ class HomeScreen extends React.Component<Props> {
     ) {
       return (
         <View style={styles.container}>
-          <View style={styles.body}>
-            {this.userBody()}
-          </View>
+          <View style={styles.body}>{this.userBody()}</View>
           <View style={styles.footer}>
             {this.props.connection && (
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => {
-                  //this.clearAllData()
-                  this.props.navigation.navigate("UpdateInfo");
+                onPress={async () => {
+                //this.clearAllData()
+                 this.props.navigation.navigate("UpdateInfo");
                   //this.checkAsync();
                   // this.logOut();
                 }}
@@ -611,7 +614,7 @@ class HomeScreen extends React.Component<Props> {
       this.props.user.information.personal &&
       this.props.user.information.personal.name
     ) {
-      console.warn("patient ino=---", this.props.user);
+    //  console.warn("patient ino=---", this.props.user);
       return (
         <View style={styles.container}>
           {/* <View style={styles.header}>
@@ -625,9 +628,9 @@ class HomeScreen extends React.Component<Props> {
           <View style={styles.body}>
             {this.props.user.information &&
             this.props.user.information.role === "paciente" &&
-            this.props.user.information.medical && 
+            this.props.user.information.medical &&
             this.props.user.information.companionEmail === ""
-              ?  this.patientRegisterBody() 
+              ? this.patientRegisterBody()
               : this.userBody()}
           </View>
 

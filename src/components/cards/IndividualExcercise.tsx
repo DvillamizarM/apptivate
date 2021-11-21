@@ -34,18 +34,22 @@ class EjercicioInactivo extends React.Component<Props> {
   constructor(props) {
     super(props);
   }
-  state = {};
+  state = {
+    info: [],
+    setup:[]
+  };
 
   componentDidMount = async () => {
     console.log("Las props que tenemos en el nuevo son: ", this.props);
     this.setState({
-      ...this.props.navigation.state.params.data,
+      info: this.props.navigation.state.params.data,
+      setup: this.props.navigation.state.params.setup,
     });
   };
 
   handlePlaySound = async () => {
     console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync({ uri: this.state.voz });
+    const { sound } = await Audio.Sound.createAsync({ uri: this.state.info.voz });
     // setSound(sound);
 
     console.log("Playing Sound");
@@ -59,7 +63,7 @@ class EjercicioInactivo extends React.Component<Props> {
 
         <View style={styles.containerImage}>
           <Image
-            source={{ uri: this.state.gif }}
+            source={{ uri: this.state.info.gif }}
             style={{ width: "100%", height: "100%", resizeMode: "contain" }}
           />
         </View>
@@ -72,7 +76,7 @@ class EjercicioInactivo extends React.Component<Props> {
             <View style={styles.textContainer}>
               <Text style={{}}>Series</Text>
               <Text style={{}}>
-                {this.state.series ? this.state.series : "1"}
+                {this.state.setup.series ? this.state.setup.series : "1"}
               </Text>
             </View>
           </View>
@@ -85,7 +89,7 @@ class EjercicioInactivo extends React.Component<Props> {
             <View style={styles.textContainer}>
               <Text style={{ fontSize: vmin(3.1) }}>Repeticiones</Text>
               <Text style={{}}>
-                {this.state.repetitions ? this.state.repetitions : "1"}
+                {this.state.setup.repeticiones ? this.state.setup.repeticiones : "1"}
               </Text>
             </View>
           </View>
@@ -101,7 +105,7 @@ class EjercicioInactivo extends React.Component<Props> {
 
             <View style={styles.textContainer}>
               <Text style={{}}>Tiempo</Text>
-              <Text style={{}}>{this.state.activeTime || "1"}</Text>
+              <Text style={{}}>{this.state.info.activeTime || "1"}</Text>
             </View>
           </View>
 
@@ -123,20 +127,24 @@ class EjercicioInactivo extends React.Component<Props> {
           <Text
             style={{
               fontSize: vmin(4),
-              borderBottomWidth:0.3,
               marginBottom:"2%",
-              paddingBottom:5
+              padding:5,
+              backgroundColor: "rgba(105,121,248,0.2)",
+              borderRadius:10,
             }}
           >
-            Descripción: {this.state.description}
+            <Text style={{fontWeight: "bold"}}>Descripción: </Text> {this.state.info.description}
           </Text>
           {
-            this.state.materials != "" ? (<Text
+            this.state.info.materials != "" ? (<Text
             style={{
               fontSize: vmin(4),
+              padding:7,
+              backgroundColor: "rgba(105,121,248,0.2)",
+              borderRadius:10,
             }}
           >
-            Materiales: {this.state.materials}
+            <Text style={{fontWeight: "bold"}}>Materiales: </Text> {this.state.info.materials}
           </Text>) : (console.log("nothing"))
           }
         </View>
@@ -157,7 +165,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
      backgroundColor: "#ffffff",
-     justifyContent: "space-evenly",
+     justifyContent: "flex-start",
      alignItems: "center"
   },
   containerHeaderCard: {
@@ -206,15 +214,16 @@ const styles = StyleSheet.create({
     height: "55%",
     width: "100%",
     flexDirection: "row",
-    marginTop:"5%"
-    // backgroundColor: "pink",
+    marginBottom:"2%",
+   //  backgroundColor: "pink",
   },
   indicatorTextContainer: {
-    backgroundColor: "rgba(105,121,248,0.2)",
-    height: "15%",
-    width: "90%",
-    padding: vmin(3),
-    borderRadius:10
+    // backgroundColor: "rgba(105,121,248,0.2)",
+    borderRadius:10,
+    height: "23%",
+    width: "95%",
+    justifyContent: "space-evenly",
+    padding: vmin(1),
   },
   // footerSection: {
   //   backgroundColor: "black",
@@ -239,11 +248,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   containerButtons: {
-    height: "20%",
+    height: "18%",
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
+    marginBottom:"2%",
     // backgroundColor: "green",
   },
 

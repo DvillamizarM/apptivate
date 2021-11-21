@@ -115,7 +115,8 @@ const RecordTrainingData = (props) => {
     return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" , marginTop:"5%"}}><ChargeScreen/></View>);
   } else {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1,
+        backgroundColor: "#ffffff", }}>
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -332,7 +333,7 @@ const RecordTrainingData = (props) => {
               <View style={styles.radioOptions}>
                 <View style={{ width: "30%" }}>
                   <Image
-                    source={require("../../assets/images/transfemoral.jpg")}
+                    source={require("../../assets/images/transfemoral.png")}
                     style={styles.imageContainer}
                   />
                   <RadioButton
@@ -352,7 +353,7 @@ const RecordTrainingData = (props) => {
                 </View>
                 <View style={{ width: "30%", flexDirection: "column" }}>
                   <Image
-                    source={require("../../assets/images/rodilla.jpg")}
+                    source={require("../../assets/images/desarticulacion.png")}
                     style={styles.imageContainer}
                   />
                   <RadioButton
@@ -372,7 +373,7 @@ const RecordTrainingData = (props) => {
                 </View>
                 <View style={{ width: "30%", flexDirection: "column" }}>
                   <Image
-                    source={require("../../assets/images/transtibial.jpg")}
+                    source={require("../../assets/images/transtibial.png")}
                     style={styles.imageContainer}
                   />
                   <RadioButton
@@ -403,7 +404,7 @@ const RecordTrainingData = (props) => {
               <View style={styles.radioOptions}>
                 <View style={{ width: "30%" }}>
                   <Image
-                    source={require("../../assets/images/transfemoral.jpg")}
+                    source={require("../../assets/images/desarticulacion.png")}
                     style={styles.imageContainer}
                   />
                   <RadioButton
@@ -421,7 +422,7 @@ const RecordTrainingData = (props) => {
                 </View>
                 <View style={{ width: "30%", flexDirection: "column" }}>
                   <Image
-                    source={require("../../assets/images/rodilla.jpg")}
+                    source={require("../../assets/images/protesis.png")}
                     style={styles.imageContainer}
                   />
                   <RadioButton
@@ -479,7 +480,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    // backgroundColor: "black",
+     backgroundColor: "#ffffff",
   },
   sliderContainer: {
     height: vmin(20),

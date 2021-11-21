@@ -45,152 +45,82 @@ const ExerciseRoutine = (props) => {
     },
   ];
 
-  const basicPhaseExercises = async (exercises) => {
-    const promises = exercises.map(async (Item) => {
-      const numItem = await Item.get();
-      return numItem;
-    });
-
-    return new Promise(async (resolve, reject) => {
-      const numItems = await Promise.all(promises);
-
-      resolve(numItems.map((e) => e.data()));
-    });
-  };
-
-  const getBasicData = async () => {
-    let dbRef = firebase.db
-      .collection("protocol")
-      .doc("protesico")
-      .collection("basic");
-
-    return dbRef.get().then(async (querySnapshot) => {
-      const promises = querySnapshot.docs.map(async (doc) => {
-        let ejerciciosXfase = Object.values(doc.data());
-        let res = basicPhaseExercises(ejerciciosXfase);
-        return res;
-      });
-
-      const arrayBasicExercises: any = await Promise.all(promises);
-
-      let Array: any = [];
-
-      const promises2 = querySnapshot.docs.map(async (doc, i) => {
-        // doc.data() is never undefined for query doc snapshots
-        Array.push({
-          title1:
-            doc.id == "cooldown"
-              ? "Enfriamiento"
-              : doc.id == "stretch"
-              ? "Estiramiento"
-              : "Calentamiento",
-          collection: [
-            {
-              title2: "",
-              exerciseCollection: arrayBasicExercises[i].map((e, j) => {
-                // console.log(
-                //   "3838383838383838383838888383838383838383383833838383838383833838383,",
-                //   e
-                // );
-                return {
-                  day: "Ejercicio " + (j - -1),
-                  time: e.activeTime || "",
-                  multimedia: e.gif,
-                  materials: e.materials || false,
-                  data: { ...e },
+  const getProtocol = async () => {
+    let passed = 0;
+    let list: any = [];
+    if (information.length !== 14) {
+      await firebase.db
+        .collection("protocol")
+        .doc("protesico")
+        .get()
+        .then((element) => {
+          let data: any = element.data();
+          const otherList = Object.values(data).map(
+            async (element: any, index) => {
+              const trainingPhase =
+                props.user.information.control.trainingPhase &&
+                props.user.information.control.trainingPhase !== ""
+                  ? props.user.information.control.trainingPhase
+                  : "";
+              if (element.refs.length > 0) {
+                let info: any = [];
+                let temp = {
+                  title: element.title,
+                  phase: element.phase,
+                  setup: element.setup,
+                  order: element.order,
+                  exercises: [],
                 };
-              }),
-            },
-          ],
+                const promises = element.refs.map(async (ref, index) => {
+                  await ref.get().then((res) => {
+                    info.push(res.data());
+                  });
+                  return info;
+                });
+                const finished = await Promise.all(promises).then(
+                  (finished: Object) => {
+                    temp.exercises = finished[0];
+                    temp.phase === "" || temp.phase === trainingPhase
+                      ? list.push(temp)
+                      : console.log("passed");
+                    console.warn("passed----", passed);
+                    if (
+                      (trainingPhase === "" && list.length === 13 - passed) ||
+                      (trainingPhase === "Avanzada" &&
+                        list.length === 7 - passed) ||
+                      (trainingPhase === "Intermedia" &&
+                        list.length === 6 - passed) ||
+                      (trainingPhase === "Inicial" &&
+                        list.length === 6 - passed)
+                    ) {
+                      console.log("exercise list---- ", list);
+                      list.sort(function (a, b) {
+                        return a.order - b.order;
+                      });
+                      setInformation(list);
+                      setLoading(false);
+                    }
+                  }
+                );
+              } else {
+                if (trainingPhase === "" || trainingPhase === element.phase) {
+                  passed++;
+                }
+              }
+            }
+          );
+        })
+        .catch((e) => {
+          console.log("El error es ", e);
         });
-      });
-
-      //console.log("resultado #1", Array, " anres estaba", information);
-      return Array;
-    });
-  };
-
-  const getInformationWeeks = async () => {
-    // var docRef = firebase.db.collection("protocol").doc("protesico");
-
-    // // docRef = await docRef.get();
-    // docRef.get().then((collections) => {
-    //   console.log(
-    //     "collection-----",
-    //     collections.data()
-    //   );
-    // });
-    // // let res = await docRef.get();
-    // // console.log("*********", await res);
-    let Array: any = [];
-    let array2: any = [];
-    let ArraySetup: any = [];
-
-    for (let index = 0; index < 1; index++) {
-      let dbRef = firebase.db
-        .collection("protocol")
-        .doc("protesico")
-        .collection("week" + (index + 1))
-        .doc("active");
-
-      let res2 = await dbRef.get();
-      let ejerciciosXfase = Object.values(res2.data());
-      let res = await basicPhaseExercises(ejerciciosXfase);
-      // console.log("ooooooooooo", res);
-      array2.push(res);
-
-      // Aqui se pide el setup por semanas
-      let refSetup = firebase.db
-        .collection("protocol")
-        .doc("protesico")
-        .collection("week" + (index + 1))
-        .doc("setup");
-
-      let getSetup = await refSetup.get();
-      let setupValues = getSetup.data();
-      // console.warn(
-      //   "Setup Setup Setup Setup Setup Setup Setup Setup Setup ",
-      //   setupValues
-      // );
-      ArraySetup.push(setupValues);
     }
-
-    let map2 = array2.map((element, index) => {
-      Array.push({
-        title1: index <= 3 ? "Fase inicial" : "Fase intermedia",
-        collection: [
-          {
-            title2: "Semana " + index + 1,
-            exerciseCollection: element.map((e, j) => {
-              // console.log(
-              //   " El ejercio es -------------------<-<-<-<---------> : ",
-              //   {
-              //     ...e,
-              //     ...ArraySetup[j],
-              //   }
-              // );
-              return {
-                day: "Ejercicio " + (j - -1),
-                time: e.activeTime || "",
-                multimedia: e.gif,
-                materials: e.materials || false,
-                data: { ...e, ...ArraySetup[j] },
-              };
-            }),
-          },
-        ],
-      });
-    });
-
-    //  console.log("resultado #2", Array, " anres estaba", information);
-    return Array;
   };
 
   const getUrls = (items) => {
     // console.log(items);
     let urlList = [];
     items.forEach((element) => {
-      urlList.push(element.multimedia);
+      urlList.push(element.gif);
     });
     return urlList;
   };
@@ -198,46 +128,24 @@ const ExerciseRoutine = (props) => {
   const getAudioUrls = (items) => {
     let urlList = [];
     items.forEach((element) => {
-     console.warn("voz====",items);
-       urlList.push(element.data.voz);
-     
+      console.warn("voz====", items);
+      urlList.push(element.data.voz);
     });
     return urlList;
   };
 
-  const getExercises = async () => {
-    // console.log("connection----", props.connection)
-    if (props.connection && information[0] === undefined) {
-      // console.log("index 0 value info------",information[0])
-      let basic: [] = await getBasicData();
-      let weeks: [] = await getInformationWeeks();
-//console.warn("weeks", weeks);
-      let ordenado: any = [];
-      ordenado[0] = basic[2];
-      ordenado[1] = basic[1];
-
-      let ordenado2 = ordenado.concat(weeks);
-      ordenado2.push(basic[0]);
-      //  console.log("retried from database------", ordenado2);
-
-      setInformation(ordenado2);
-      // Se guardan datos en el reducer
-      setLoading(false);
-    } else {
-      // console.warn("eles exercise props", props.ExerciseRoutine)
-      setInformation(props.ExerciseRoutine);
-      //  console.warn("Hubo problemas de conexion");
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     let mounted = true;
-     console.warn("in useEffect----", mounted)
-    if(mounted){
-       getExercises();
-    }return () => {mounted = false;}
-   
+    // console.warn("in useEffect----", mounted);
+    if (mounted && information !== [] && loading) {
+      console.warn("entreed");
+      getProtocol();
+    } else {
+      console.warn("info----- eff---", information);
+    }
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const NavigationButton = () => {
@@ -247,8 +155,8 @@ const ExerciseRoutine = (props) => {
           onPress={() => {
             if (CurrentInformation - 1 >= 0) {
               setCurrentInformation(CurrentInformation - 1);
-            }else if(CurrentInformation===0){
-              setCurrentInformation(1)
+            } else if (CurrentInformation === 0) {
+              setCurrentInformation(1);
             }
           }}
           style={navigationStyles.sideButton}
@@ -267,8 +175,8 @@ const ExerciseRoutine = (props) => {
           onPress={() => {
             if (CurrentInformation + 1 < protocol.length) {
               setCurrentInformation(CurrentInformation + 1);
-            }else if(CurrentInformation===1){
-              setCurrentInformation(0)
+            } else if (CurrentInformation === 1) {
+              setCurrentInformation(0);
             }
           }}
         >
@@ -280,41 +188,37 @@ const ExerciseRoutine = (props) => {
     );
   };
 
-  const downloadSection = async ({ sectionIndex, title }) => {
-    
+  const downloadSection = async ({ sectionIndex, title, title2 }) => {
     const urls = getUrls(
-      information[sectionIndex].collection[0].exerciseCollection
+      information[sectionIndex].exercises
     );
     const audioUrls = getAudioUrls(
-      information[sectionIndex].collection[0].exerciseCollection
+      information[sectionIndex].exercises
     );
     let items: any = [...information];
-    console.warn("item---",items);
+    console.warn("item---", items);
     await Promise.all(
       urls.map(async (element, index) => {
         const fileUri: string = `${FileSystem.documentDirectory}${
-          title + index
+          title+title2+index
         }`;
         const audioUri: string = `${FileSystem.documentDirectory}${
-          title + "Audio" + index
+          title +title2+ "Audio" + index
         }`;
 
         const downloadedFile: FileSystem.FileSystemDownloadResult =
           await FileSystem.downloadAsync(element, fileUri);
-          
-     if(audioUrls[index] !== "cloudstorageID"){
-        const downloadedFile1: FileSystem.FileSystemDownloadResult =
-          await FileSystem.downloadAsync(audioUrls[index], audioUri);
-     }
-     console.warn("collection---", items[sectionIndex].collection[0].exerciseCollection[index].data.series);
+
+        if (audioUrls[index] !== "cloudstorageID"|| audioUrls[index] !== "") {
+          const downloadedFile1: FileSystem.FileSystemDownloadResult =
+            await FileSystem.downloadAsync(audioUrls[index], audioUri);
+        }
         let item = {
-          ...items[sectionIndex].collection[0].exerciseCollection[index],
+          ...items[sectionIndex].exercises[index],
           voz: audioUri,
           gif: fileUri,
-          multimedia: fileUri,
-          serie: items[sectionIndex].collection[0].exerciseCollection[index],
         };
-        items[sectionIndex].collection[0].exerciseCollection[index] = item;
+        items[sectionIndex].exercises[index] = item;
         setInformation(items);
       })
     );
@@ -336,13 +240,13 @@ const ExerciseRoutine = (props) => {
 
   const deleteInformation = (sectionIndex, title) => {
     const urls = getUrls(
-      props.ExerciseRoutine[sectionIndex].collection[0].exerciseCollection
+      props.ExerciseRoutine[sectionIndex].exercises
     );
     urls.forEach(async (uri) => {
       const dlete = await deleteMultimedia(uri);
     });
     const urlsAudio = getAudioUrls(
-      props.ExerciseRoutine[sectionIndex].collection[0].exerciseCollection
+      props.ExerciseRoutine[sectionIndex].exercises
     );
     urlsAudio.forEach(async (uri) => {
       const dlete = await deleteMultimedia(uri);
@@ -352,16 +256,18 @@ const ExerciseRoutine = (props) => {
   };
 
   const FirstSection = (info, sectionIndex) => {
-    let title = info.title1;
-    let collection = info.collection;
-    // console.log(
-    //   collection,
-    //   "5645f5adsf4sd5f4sda4ds5fds4a5f4sdf564654545454545454"
-    // );
+    let title = info.phase !== "" ? info.phase : info.title;
+    let title2 = info.phase !== "" ? info.title : "";
+
+    console.log("info fisrt", info.exercises, info.title);
 
     let existsInDownloads = props.previusIdentifiers.includes(title);
-    let pendingDownload = 0;
-
+    const exercises = info.exercises.map((element, index) => {
+      let tempExercise = {};
+      tempExercise["exerciseList"] = element;
+      tempExercise["setup"] = info.setup;
+      return tempExercise;
+    });
     return (
       <View style={FirstSectionStyles.container}>
         <View style={FirstSectionStyles.rowContainer}>
@@ -407,13 +313,13 @@ const ExerciseRoutine = (props) => {
                   color="rgba(52, 152, 219, 1)"
                 />
               </TouchableOpacity>
-            ) : (!pending ? (
+            ) : !pending ? (
               <TouchableOpacity
                 onPress={async () => {
                   //Alert.alert(title);
                   Alert.alert(
                     "Descargar " + title,
-                    "¿Está seguro que quiere descargar " + title + "?",
+                    "¿Está seguro que quiere descargar " + title + " "+"title2"+ "?",
                     [
                       {
                         text: "Cancelar",
@@ -426,6 +332,7 @@ const ExerciseRoutine = (props) => {
                           const download = await downloadSection({
                             sectionIndex,
                             title,
+                            title2,
                           });
                           setPending(false);
                         },
@@ -446,28 +353,39 @@ const ExerciseRoutine = (props) => {
                 />
               </TouchableOpacity>
             ) : (
-              <View style={{flexDirection: "row"}}>
+              <View style={{ flexDirection: "row" }}>
                 <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
                   Descargando
                 </Text>
                 <ActivityIndicator size="small" color="rgba(52, 152, 219, 1)" />
               </View>
-            ))}
+            )}
           </View>
         </View>
 
         <View>
-          {collection.map((element, index) => (
-            <SecondSection key={"sec2" + index} element={element} />
-          ))}
+          <View style={SecondSectionStyles.container}>
+            <Text style={SecondSectionStyles.title}>{title2}</Text>
+
+            <View>
+              <FlatList
+                horizontal
+                data={exercises}
+                renderItem={OverviewExercise}
+                style={{}}
+                keyExtractor={(item, index) => item.key}
+              />
+            </View>
+          </View>
+          {/* <SecondSection key={"sec2" + 1} element={info} /> */}
         </View>
       </View>
     );
   };
 
-  const SecondSection = ({ element }) => {
-    let title2 = element.title2;
-    let exerciseCollection = element.exerciseCollection;
+  const SecondSection = (element) => {
+    let title2 = element.phase !== "" ? "" : element.title;
+    let exerciseCollection = element.exercises;
     return (
       <View style={SecondSectionStyles.container}>
         <Text style={SecondSectionStyles.title}>{title2}</Text>
@@ -485,21 +403,21 @@ const ExerciseRoutine = (props) => {
   };
 
   const OverviewExercise = (item) => {
-     //console.warn("El item que llega al ejercicios es :", item);
-    let exercise = item.item;
-    let day = exercise.day;
-    let time = exercise.time;
-    let multimedia = exercise.multimedia;
-    let materials = exercise.materials || false;
-    let materialsBackground = materials
-      ? "rgba(142, 255, 127 ,1)"
-      : "rgba(255, 136, 110,1)";
+    // console.warn("El item que llega al ejercicios es :", item.item);
+    let value = item.item;
+    let exercise = value.exerciseList;
+    // let day = exercise.day;
+    // let time = exercise.time;
+    let multimedia = exercise.gif;
+    let materials = exercise.materials;
+    let materialsBackground =
+      materials !== "" ? "rgba(142, 255, 127 ,1)" : "rgba(255, 136, 110,1)";
 
     let key_e = item.index;
 
     // console.log(
     //   "Las props que tenemos hata aca son:::::::::::::::::",
-    //   exercise.data
+    //   exercise
     // );
 
     return (
@@ -508,7 +426,8 @@ const ExerciseRoutine = (props) => {
         style={OverviewExerciseStyles.container}
         onPress={() =>
           props.props.navigation.navigate("IndividualExcercise", {
-            data: exercise.data,
+            data: exercise,
+            setup: value.setup,
           })
         }
       >
@@ -524,7 +443,7 @@ const ExerciseRoutine = (props) => {
           />
         </View>
         <View style={OverviewExerciseStyles.containerTexts}>
-          <Text style={OverviewExerciseStyles.title}>{day}</Text>
+          {/* <Text style={OverviewExerciseStyles.title}>{day}</Text> */}
           {/* <Text style={OverviewExerciseStyles.subtitle}>{time}</Text> */}
           <Text
             style={[
@@ -540,8 +459,15 @@ const ExerciseRoutine = (props) => {
   };
 
   if (loading) {
-    return (<View style={{justifyContent:"center",height:"100%", marginTop:"5%"}}><ChargeScreen/></View>);
+    return (
+      <View
+        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else if (information.length !== 0) {
+    // console.warn("informacion--------", information);
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -572,10 +498,10 @@ const ExerciseRoutine = (props) => {
   }
 };
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log(
-    "exercise rotone reducer-------",
-    store.DownloadReducer.ExerciseRoutine
-  );
+  // console.log(
+  //   "exercise rotone reducer-------",
+  //   store.DownloadReducer.ExerciseRoutine
+  // );
   return {
     user: store.User.user,
     connection: store.User.connection,
@@ -708,10 +634,10 @@ const SecondSectionStyles = StyleSheet.create({
 
 const OverviewExerciseStyles = StyleSheet.create({
   container: {
-    width: vmin(24),
-    height: vmin(44),
+    width: vmin(42),
+    height: vmin(65),
     // backgroundColor: "yellow",
-    marginRight: vmin(2),
+    marginRight: vmin(5),
   },
 
   containerTexts: {
@@ -727,7 +653,8 @@ const OverviewExerciseStyles = StyleSheet.create({
   },
 
   subtitle: {
-    fontSize: vmin(3),
+    padding: "3%",
+    fontSize: vmin(4.5),
     color: "black",
     width: "100%",
     textAlign: "center",
