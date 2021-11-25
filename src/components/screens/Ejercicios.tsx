@@ -10,6 +10,8 @@ import {
   Alert,
   BackHandler,
   ToastAndroid,
+  Modal,
+  Image,
 } from "react-native";
 import { connect } from "react-redux";
 
@@ -38,6 +40,8 @@ class Ejercicios extends React.Component<Props> {
     setup: {},
     currentExercise: 0,
     loading: false,
+    showModal: false,
+    modalText: "",
   };
 
   componentWillUnmount() {
@@ -51,6 +55,17 @@ class Ejercicios extends React.Component<Props> {
     );
     return true;
   }
+
+  alertChange = (text) => {
+    console.warn("in alert change", text);
+
+    this.setState({ showModal: true, modalText: text });
+    // if(!this.state.loading){
+    setTimeout(() => {
+      this.setState({ showModal: false });
+    }, 5000);
+    // }
+  };
 
   getRoutineList = async () => {
     let values: any = [];
@@ -70,7 +85,7 @@ class Ejercicios extends React.Component<Props> {
                 element.order === activeWeek ||
                 element.order === 13
               ) {
-                let listInfo: any =  {
+                let listInfo: any = {
                   idsList: element.refs,
                   setupsList: element.setup,
                   order: element.order,
@@ -79,8 +94,8 @@ class Ejercicios extends React.Component<Props> {
                 if (values.length === 4) {
                   values.sort(
                     (a, b) => parseFloat(a.order) - parseFloat(b.order)
-                    );
-                    console.log("values====r---",values);
+                  );
+                  console.log("values====r---", values);
                   return values;
                 }
               }
@@ -93,19 +108,22 @@ class Ejercicios extends React.Component<Props> {
           });
 
           console.log("finished routine----", finished[0]);
-          
+
           this.setState({
-            values: finished[0]
+            values: finished[0],
           });
-          //get first routine phase exercise list... 
+          //get first routine phase exercise list...
           let info: any = [];
-          const position = this.state.currentPosition === 4 ? 3 : this.state.currentPosition
-          const promises2 = finished[0][position].idsList.map(async (ref, index) => {
-            await ref.get().then((res) => {
-              info.push(res.data());
-            });
-            return info;
-          });
+          const position =
+            this.state.currentPosition === 4 ? 3 : this.state.currentPosition;
+          const promises2 = finished[0][position].idsList.map(
+            async (ref, index) => {
+              await ref.get().then((res) => {
+                info.push(res.data());
+              });
+              return info;
+            }
+          );
           const finished2: Object = await Promise.all(promises2);
           console.log("phase list---", finished2);
           this.setState({
@@ -119,15 +137,17 @@ class Ejercicios extends React.Component<Props> {
 
   getPhaseList = async (phase) => {
     let info: any = [];
-    phase === 3 ? phase = 1 : phase === 4 ? phase = 3 : phase = phase ;
-    console.warn("phase number--- ", phase)
-    const promises = this.state.values[phase].idsList.map(async (ref, index) => {
-      console.log("in promise mapp---", this.state.values[phase])
-      await ref.get().then((res) => {
-        info.push(res.data());
-      });
-      return info;
-    });
+    phase === 3 ? (phase = 1) : phase === 4 ? (phase = 3) : (phase = phase);
+    console.log("phase number--- ", this.state.values[phase]);
+    const promises = this.state.values[phase].idsList.map(
+      async (ref, index) => {
+        console.log("in promise mapp---", this.state.values[phase]);
+        await ref.get().then((res) => {
+          info.push(res.data());
+        });
+        return info;
+      }
+    );
     const finished: Object = await Promise.all(promises);
     console.log("phase list---", finished);
     this.setState({
@@ -138,6 +158,7 @@ class Ejercicios extends React.Component<Props> {
   };
 
   getExerciseOffline = (phase) => {
+    phase === 3 ? (phase = 1) : phase === 4 ? (phase = 3) : (phase = phase);
     this.setState({ loading: true });
     console.log("offflien phase---", phase);
     let exerciseList: any = [];
@@ -147,34 +168,24 @@ class Ejercicios extends React.Component<Props> {
       console.warn("dowlonad-----", downloadedExercises);
       downloadedExercises.map((exercisess, index) => {
         if (index === phase) {
-          console.warn(
-            "conoled----",
-            exercisess.collection[0].exerciseCollection
-          );
           console.warn("map resutl----", exercisess);
-          let currentList = exercisess.collection[0].exerciseCollection;
+          let currentList = exercisess.exercises;
           console.warn("ucrueen--", currentList);
           currentList.map((current, index) => {
             let temp = {
-              routinePhase: current.data.routinePhase,
+              routinePhase: current.routinePhase,
               gif: current.gif,
-              description: current.data.description,
+              description: current.description,
               voz: current.voz,
-              activeTime: current.data.activeTime,
+              activeTime: current.activeTime,
             };
-            if (current.data.series !== undefined) {
-              setup = {
-                series: current.data.series,
-                repetitions: current.data.repetitions,
-                restTimeMin: current.data.restTimeMin,
-                restTimeSec: current.data.restTimeSec,
-              };
-            }
+
             exerciseList.push(temp);
           });
+          setup = exercisess.setup;
         }
       });
-
+      console.log("exercise list--", exerciseList, setup);
       this.setState({
         exercises: exerciseList,
         // setup:setup ,
@@ -211,18 +222,29 @@ class Ejercicios extends React.Component<Props> {
 
   componentDidMount = () => {
     BackHandler.addEventListener("hardwareBackPress", this.handleBackButton);
+    this.alertChange("start");
     if (this.props.connection) {
       console.warn("did mount routine list");
       this.getRoutineList();
     } else {
+      console.warn("else---");
       this.getExerciseOffline(this.state.currentPosition);
     }
   };
 
   changeCurrentExercise = () => {
+    // console.log("oidsj--", this.state);
+    // console.warn("currents exercise---", this.state.currentExercise +1 , this.state.exercises.length - 1)
     if (this.state.currentExercise + 1 > this.state.exercises.length - 1) {
+      console.warn("in if current exercicse");
+      this.alertChange("phase");
       this.changeCurrentPhase();
-    } else {
+    } else if (
+      this.state.currentExercise + 1 <=
+      this.state.exercises.length - 1
+    ) {
+      console.warn("in else current exercicse");
+      this.alertChange("exercise");
       this.setState({ currentExercise: this.state.currentExercise + 1 });
     }
   };
@@ -276,6 +298,57 @@ class Ejercicios extends React.Component<Props> {
     );
   };
 
+  LoadingModal = () => {
+    const moment =this.state.modalText;
+    const text =
+      moment === "start"
+        ? "¡La rutina está por comenzar!"
+        : moment === "phase"
+        ? "¡Prepárate para la siguiente etapa!"
+        : moment === "exercise"
+        ? "¡Prepárate para el siguiente ejercicio!"
+        : "¡Prepárate para la siguiente serie!";
+    return (
+      <Modal visible={this.state.showModal}>
+        <View style={styles.modalView}>
+          <View style={styles.innermodalView}>
+            <View style={styles.imageModalView}>
+              {/* <View style={{marginBottom:"3%", marginLeft:"4%"}}> */}
+              <Image
+                source={
+                  moment === "start"
+                    ? require("../../assets/images/apptivateLogo.png")
+                    : moment === "phase"
+                    ? require("../../assets/images/success.png")
+                    : moment === "exercise"
+                    ? require("../../assets/images/success.png")
+                    : require("../../assets/images/success.png")
+                }
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 50,
+                }}
+              />
+            </View>
+
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: vmin(8),
+                color: "rgba(153, 153, 153, 1)",
+                marginTop: "5%",
+              }}
+            >
+              {text}
+            </Text>
+            <ActivityIndicator size="large" color="#6979f8" />
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   render() {
     const labels = ["Calentar", "Estirar", "Activar", "Estirar", "Enfriar"];
     const customStyles = {
@@ -303,14 +376,14 @@ class Ejercicios extends React.Component<Props> {
     };
 
     if (
-      this.state.exercises[this.state.currentExercise] == undefined ||
+      this.state.exercises[this.state.currentExercise] === undefined ||
       this.state.loading
     ) {
       return (
         <View
           style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
         >
-          <ChargeScreen />
+          <this.LoadingModal moment = {this.state.modalText}/>
         </View>
       );
     } else {
@@ -319,6 +392,7 @@ class Ejercicios extends React.Component<Props> {
         <View
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
         >
+          <this.LoadingModal />
           <View style={{ height: "5%" }}>
             <Text>{""}</Text>
           </View>
@@ -395,6 +469,7 @@ class Ejercicios extends React.Component<Props> {
                   setup={this.state.setup}
                   exercise={this.state.exercises[this.state.currentExercise]}
                   changeCurrentExercise={this.changeCurrentExercise}
+                  alertChange={this.alertChange}
                 />
               </View>
             </View>
@@ -474,5 +549,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
 
     elevation: 7,
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: "center",
+    height: "100%",
+    minHeight: "100%",
+    width: "100%",
+    //backgroundColor: "salmon",
+    alignItems: "center",
+  },
+  innermodalView: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  imageModalView: {
+    height: 150,
+    width: 150,
+    justifyContent: "center",
+    // backgroundColor: "salmon",
+    alignItems: "center",
   },
 });

@@ -90,7 +90,7 @@ const GeneralInformation = (props) => {
     };
     // console.warn("paso---", validateExists(title, index));
     if (!validateExists(title, index)) {
-      //  console.warn("in if =---", item);
+      console.warn("in if =---", item);
       props.downloadInfo({ title, item });
       setExistence(!exists);
     }
@@ -255,6 +255,7 @@ const GeneralInformation = (props) => {
   };
 
   const CardInformation = (title, element, index) => {
+    console.warn("multipp-----",element.multimedia)
     let description;
     function setDescription() {
       try {
@@ -279,14 +280,14 @@ const GeneralInformation = (props) => {
       <View key={"general" + index} style={styles.cardInformation}>
         <Text style={{ fontWeight: "bold" }}>{element.title}</Text>
 
-          {element.multimedia != "" && (
+          {element.multimedia !== "" && element.multimedia !== "na" ? (
             <View style={styles.containerImage}>
               <Image
                 source={{ uri: element.multimedia }}
                 style={{ width: "100%", height: "100%", resizeMode: "contain" }}
               />
             </View>
-          )}
+          ) : <View></View>}
         <View style={styles.containerDescription}>
           {description.map((text, key_index) => {
             return (
@@ -594,7 +595,7 @@ const styles = StyleSheet.create({
   body: {
     width: "100%",
     height: "85%",
-    //   backgroundColor: "pink"
+    //  backgroundColor: "pink"
   },
 
   containerNavigationButton: {
@@ -632,8 +633,9 @@ const styles = StyleSheet.create({
 
   cardInformation: {
     width: "100%",
-    backgroundColor: "white",
-    justifyContent: "space-evenly",
+  //  backgroundColor: "green",
+    //justifyContent: "space-evenly",
+    alignItems:"flex-start",
     borderColor: "rgba(21, 21, 34, 1)",
     borderBottomWidth: vmin(0.4),
     paddingLeft: "10%",

@@ -639,7 +639,7 @@ class HomeScreen extends React.Component<Props> {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  //this.clearAllData()
+                 // this.clearAllData()
                   this.props.navigation.navigate("UpdatePatient");
                   //this.checkAsync();
                   // this.logOut();

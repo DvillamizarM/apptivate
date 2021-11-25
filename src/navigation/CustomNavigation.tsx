@@ -58,6 +58,7 @@ import PatientProfileScreen from "../components/companion/PatientProfileScreen";
 import PatientHistory from "../components/companion/PatientHistory";
 import PatientEvent from "../components/companion/PatientEvent";
 import UpdateInfo from "../components/PublicUser/UpdateInfo";
+import SurveyButton from "../components/Simple/SurveyButton";
 
 const stack = createStackNavigator(
   {
@@ -82,6 +83,12 @@ const stack = createStackNavigator(
             <Logo/>
           </View>
         ),
+        // headerRight: (props) => (
+        //   <View style={{ width: "100%"}}>
+            
+        //     <SurveyButton props={props}/>
+        //   </View>
+        // ),
         headerShown: true,
       }),
     },

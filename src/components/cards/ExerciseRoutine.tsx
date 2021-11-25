@@ -48,7 +48,7 @@ const ExerciseRoutine = (props) => {
   const getProtocol = async () => {
     let passed = 0;
     let list: any = [];
-    if (information.length !== 14) {
+    if (props.connection && information.length !== 14) {
       await firebase.db
         .collection("protocol")
         .doc("protesico")
@@ -113,6 +113,9 @@ const ExerciseRoutine = (props) => {
         .catch((e) => {
           console.log("El error es ", e);
         });
+    } else if (!props.connection) {
+      setInformation(props.ExerciseRoutine);
+      setLoading(false);
     }
   };
 
@@ -129,7 +132,7 @@ const ExerciseRoutine = (props) => {
     let urlList = [];
     items.forEach((element) => {
       console.warn("voz====", items);
-      urlList.push(element.data.voz);
+      urlList.push(element.voz);
     });
     return urlList;
   };
@@ -189,70 +192,83 @@ const ExerciseRoutine = (props) => {
   };
 
   const downloadSection = async ({ sectionIndex, title, title2 }) => {
-    const urls = getUrls(
-      information[sectionIndex].exercises
-    );
-    const audioUrls = getAudioUrls(
-      information[sectionIndex].exercises
-    );
+    const urls = getUrls(information[sectionIndex].exercises);
+    const audioUrls = getAudioUrls(information[sectionIndex].exercises);
     let items: any = [...information];
+    title2 = title2 === "title2" ? "" : title2;
+
     console.warn("item---", items);
     await Promise.all(
       urls.map(async (element, index) => {
+        console.warn("url---", element);
         const fileUri: string = `${FileSystem.documentDirectory}${
-          title+title2+index
+          title + title2 + index
         }`;
-        const audioUri: string = `${FileSystem.documentDirectory}${
-          title +title2+ "Audio" + index
+        console.warn("uri---", fileUri);
+        let audioUri: string = `${FileSystem.documentDirectory}${
+          title + title2 + "Audio" + index
         }`;
 
         const downloadedFile: FileSystem.FileSystemDownloadResult =
           await FileSystem.downloadAsync(element, fileUri);
-
-        if (audioUrls[index] !== "cloudstorageID"|| audioUrls[index] !== "") {
+        if (audioUrls[index].length > 25) {
+          console.warn("passed file download", audioUrls[index]);
           const downloadedFile1: FileSystem.FileSystemDownloadResult =
             await FileSystem.downloadAsync(audioUrls[index], audioUri);
+        } else {
+          audioUri = "";
         }
         let item = {
           ...items[sectionIndex].exercises[index],
           voz: audioUri,
           gif: fileUri,
         };
+        console.warn("downloaded all----", item);
         items[sectionIndex].exercises[index] = item;
+
         setInformation(items);
       })
-    );
-    if (!props.previusIdentifiers.includes(title)) {
-      let sectionToSave = information[sectionIndex];
-      console.warn("section---", information[sectionIndex]);
-      props.addItemToExerciseRoutine({ newExercise: sectionToSave, title });
-    }
-    setExistence(!exists);
+    )
+      .then(() => {
+        if (!props.previusIdentifiers.includes(title + title2)) {
+          let sectionToSave = information[sectionIndex];
+          console.warn("section---", information[sectionIndex]);
+          props.addItemToExerciseRoutine({
+            newExercise: sectionToSave,
+            title,
+            title2,
+          });
+        }
+        setExistence(!exists);
+      })
+      .catch((e) => {
+        console.warn("promise all download---", e);
+      });
   };
 
   const deleteMultimedia = async (uri) => {
     try {
-      await FileSystem.deleteAsync(FileSystem.documentDirectory + uri);
+      await FileSystem.deleteAsync(uri);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const deleteInformation = (sectionIndex, title) => {
-    const urls = getUrls(
-      props.ExerciseRoutine[sectionIndex].exercises
-    );
-    urls.forEach(async (uri) => {
-      const dlete = await deleteMultimedia(uri);
+  const deleteInformation = (sectionIndex, order, title, title2) => {
+    console.warn("exercise routine--", props.ExerciseRoutine[sectionIndex]);
+    props.ExerciseRoutine.forEach(async (phase, index) => {
+      if (phase.order === order) {
+        phase.exercises.forEach(async (exercise) => {
+          const dlete = await deleteMultimedia(exercise.gif);
+          if (exercise.voz.length > 25) {
+            const dlete = await deleteMultimedia(exercise.voz);
+          }
+        });
+
+        props.deleteExercise({ order, title, title2 });
+        setExistence(!exists);
+      }
     });
-    const urlsAudio = getAudioUrls(
-      props.ExerciseRoutine[sectionIndex].exercises
-    );
-    urlsAudio.forEach(async (uri) => {
-      const dlete = await deleteMultimedia(uri);
-    });
-    props.deleteExercise(title);
-    setExistence(!exists);
   };
 
   const FirstSection = (info, sectionIndex) => {
@@ -261,7 +277,7 @@ const ExerciseRoutine = (props) => {
 
     console.log("info fisrt", info.exercises, info.title);
 
-    let existsInDownloads = props.previusIdentifiers.includes(title);
+    let existsInDownloads = props.previusIdentifiers.includes(title + title2);
     const exercises = info.exercises.map((element, index) => {
       let tempExercise = {};
       tempExercise["exerciseList"] = element;
@@ -280,28 +296,36 @@ const ExerciseRoutine = (props) => {
                 style={FirstSectionStyles.downloadButton}
                 onPress={() => {
                   // Alert.alert(" ALert on press ");
-                  Alert.alert(
-                    "Eliminar " + title,
-                    "¿Está seguro que quiere eliminar la descarga de " +
-                      title +
-                      "?",
-                    [
-                      {
-                        text: "Cancelar",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Eliminar",
-                        onPress: async () => {
-                          const dlete = await deleteInformation(
-                            sectionIndex,
-                            title
-                          );
+                  if (props.connection) {
+                    Alert.alert(
+                      "Eliminar " + title,
+                      "¿Está seguro que quiere eliminar la descarga de " +
+                        title +
+                        "?",
+                      [
+                        {
+                          text: "Cancelar",
+                          style: "cancel",
                         },
-                      },
-                    ],
-                    { cancelable: false }
-                  );
+                        {
+                          text: "Eliminar",
+                          onPress: async () => {
+                            const dlete = await deleteInformation(
+                              sectionIndex,
+                              info.order,
+                              title,
+                              title2
+                            );
+                          },
+                        },
+                      ],
+                      { cancelable: false }
+                    );
+                  } else {
+                    Alert.alert(
+                      "Por favor conéctese al internet para eliminar."
+                    );
+                  }
                 }}
               >
                 <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
@@ -319,7 +343,11 @@ const ExerciseRoutine = (props) => {
                   //Alert.alert(title);
                   Alert.alert(
                     "Descargar " + title,
-                    "¿Está seguro que quiere descargar " + title + " "+"title2"+ "?",
+                    "¿Está seguro que quiere descargar " +
+                      title +
+                      " " +
+                      title2 +
+                      "?",
                     [
                       {
                         text: "Cancelar",
@@ -415,9 +443,9 @@ const ExerciseRoutine = (props) => {
 
     let key_e = item.index;
 
-    // console.log(
-    //   "Las props que tenemos hata aca son:::::::::::::::::",
-    //   exercise
+    // console.warn(
+    //   "La multimeodoas s props que tenemos hata aca son:::::::::::::::::",
+    //   multimedia
     // );
 
     return (
@@ -498,10 +526,10 @@ const ExerciseRoutine = (props) => {
   }
 };
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  // console.log(
-  //   "exercise rotone reducer-------",
-  //   store.DownloadReducer.ExerciseRoutine
-  // );
+  console.log(
+    "exercise rotone reducer-------",
+    store.DownloadReducer.ExerciseRoutine
+  );
   return {
     user: store.User.user,
     connection: store.User.connection,

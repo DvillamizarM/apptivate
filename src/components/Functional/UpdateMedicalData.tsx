@@ -530,17 +530,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
   },
-  sliderContainer: {
-    height: vmin(20),
-    width: "100%",
-    marginLeft: "2%",
-    marginTop: vmin(2),
-    marginBottom: "8%",
-    alignItems: "center",
-    justifyContent: "center",
-    // backgroundColor: "salmon",
-  },
-
+  
   containerInput: {
     height: "10%",
     width: "90%",
@@ -552,7 +542,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // backgroundColor: "green",
   },
-
+  
   repetitionInputContainer: {
     height: "30%",
     width: "100%",
@@ -560,7 +550,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
   },
-
+  
+  sliderContainer: {
+    height: vmin(20),
+    width: "100%",
+    marginLeft: "2%",
+    marginTop: vmin(2),
+    marginBottom: "8%",
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: "salmon",
+  },
   resultSlider: {
     width: "30%",
     height: "100%",

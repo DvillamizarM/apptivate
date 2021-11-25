@@ -124,6 +124,7 @@ class EjercicioInactivo extends React.Component<Props> {
     this.setState({ timerType: "Reposo" });
     this.state.mainTimer = setInterval(() => {
       if (this.state.timer == "00:00") {
+        this.props.alertChange("serie");
         this.setState(
           { diasbleButton: false, serieActual: this.state.serieActual + 1 },
           () => {
@@ -182,7 +183,7 @@ class EjercicioInactivo extends React.Component<Props> {
   }
 
   componentDidMount = async () => {
-    //console.warn("exercisie----", this.props.exercise);
+    console.warn("exercisie----", this.props.exercise);
     if (this.props.exercise) {
      // console.log(this.props.setup, "SETUP");
       // SI tiene setup

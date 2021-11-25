@@ -80,29 +80,14 @@ const Limiting = (props) => {
           borderRadius={16}
         > */}
         <View style={styles.effortContainer}>
-          <TouchableOpacity
-            style={{
-              borderColor: "rgba(255, 231, 35,1)",
-              paddingBottom: "1%",
-              borderBottomWidth: vmin(0.8),
-              width: "55%",
-              flexDirection:"row",
-            }}
-            onPress={() => {
-              Alert.alert(
-                "Esfuerzo Percibido",
-                "Es una forma de clasificar la intensidad de las actividades físicas a través de las propias sensaciones que siente el individuo que realiza la actividad en cuestión. Para medir su esfuerzo percibido siéntese y levántese de una silla 10 veces y califique como se siente al finalizar. "
-              );
-            }}
-          >
+         
             <Text style={[styles.title2, {marginRight:"4%"}]}>Esfuerzo Percibido</Text>
-            <LightBulb name="lightbulb-o" size={vmin(6)} color="rgba(255, 231, 35,1)" />
             {/* <FontAwesomeIcon icon="fa-solid fa-lightbulb" /> */}
-          </TouchableOpacity>
+         
 
-          {/* <Text style={styles.grayText}>
-              De acuerdo a la intensidad del ejercicio físico
-            </Text> */}
+          <Text style={styles.grayText}>
+          Es una forma de clasificar la intensidad de las actividades físicas a través de las propias sensaciones que siente el individuo que realiza la actividad en cuestión. Para medir su esfuerzo percibido siéntese y levántese de una silla 10 veces y califique como se siente al finalizar.
+            </Text>
         </View>
         {/* </TourGuideZone> */}
       </View>
