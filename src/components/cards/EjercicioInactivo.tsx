@@ -19,7 +19,7 @@ import IconCheck from "react-native-vector-icons/FontAwesome";
 
 import IconLoader from "react-native-vector-icons/FontAwesome";
 
-import { Audio } from "expo-av";
+import { Audio, Video } from "expo-av";
 
 // Iconos para la seccion de informacion
 import Check from "react-native-vector-icons/FontAwesome";
@@ -296,16 +296,7 @@ class EjercicioInactivo extends React.Component<Props> {
         </View>
 
         <View style={styles.containerImage}>
-          {this.state.timerType !== "" ? (
-            <Image
-              source={
-                this.state.timerType !== "Reposo"
-                  ? { uri: this.state.gif }
-                  : require("../../assets/images/stop1.png")
-              }
-              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
-          ) : (
+          {this.state.timerType === "" ?  (
             <Text
               style={{
                 textAlign: "justify",
@@ -320,6 +311,24 @@ class EjercicioInactivo extends React.Component<Props> {
               chulito. Realice los ejercicios acorde a sus capacidades y con su
               acompañante presente.
             </Text>
+          ) : (this.state.gif && this.state.gif.includes("gif")) ? (
+            <Image
+              source={
+                this.state.timerType !== "Reposo"
+                  ? { uri: this.state.gif }
+                  : require("../../assets/images/stop1.png")
+              }
+              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+            />
+          ) : (
+            <Video
+              source={{ uri: this.state.gif }}
+              resizeMode="stretch"
+              isLooping
+              usePoster
+              shouldPlay
+              style={{ width: "100%", height: "100%" }}
+            />
           )}
         </View>
         <View style={styles.containerButtons}>

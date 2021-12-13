@@ -17,7 +17,7 @@ import IconCheck from "react-native-vector-icons/FontAwesome";
 
 import IconLoader from "react-native-vector-icons/FontAwesome";
 
-import { Audio } from "expo-av";
+import { Audio, Video } from "expo-av";
 
 // Iconos para la seccion de informacion
 import Check from "react-native-vector-icons/FontAwesome";
@@ -40,6 +40,8 @@ class EjercicioInactivo extends React.Component<Props> {
   };
 
   componentDidMount = async () => {
+    
+console.warn("state gif---" , this.state.info);
     console.log("Las props que tenemos en el nuevo son: ", this.props);
     this.setState({
       info: this.props.navigation.state.params.data,
@@ -55,17 +57,27 @@ class EjercicioInactivo extends React.Component<Props> {
     console.log("Playing Sound");
     await sound.playAsync();
   };
-
   render() {
     return (
       <View style={styles.containerCard}>
        
 
         <View style={styles.containerImage}>
-          <Image
-            source={{ uri: this.state.info.gif }}
-            style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-          />
+        {(this.state.info.gif && this.state.info.gif.includes("gif")) ? (
+            <Image
+              source={{ uri: this.state.info.gif }}
+              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+            />
+          ) : (
+            <Video
+              source={{ uri: this.state.info.gif }}
+              resizeMode="stretch"
+              isLooping
+              usePoster
+              shouldPlay
+              style={{ width: "100%", height: "100%" }}
+            />
+          )}
         </View>
         <View style={styles.containerButtons}>
           <View style={styles.box}>

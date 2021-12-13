@@ -14,6 +14,7 @@ import {
 import firebase from "../../../database/firebase";
 import Download from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { Video, AVPlaybackStatus } from 'expo-av';
 
 var { vmin } = require("react-native-expo-viewport-units");
 
@@ -36,6 +37,9 @@ const ExerciseRoutine = (props) => {
   const [loading, setLoading] = useState(true);
   const [exists, setExistence] = useState(false);
   const [pending, setPending] = useState(false);
+
+  
+  const video = React.useRef(null);
 
   const protocol = [
     { title: "Fase Preprotésica", key: "preprotesico" },
@@ -448,27 +452,44 @@ const ExerciseRoutine = (props) => {
     //   multimedia
     // );
 
+
     return (
       <TouchableOpacity
         key={key_e + "e"}
         style={OverviewExerciseStyles.container}
         onPress={() =>
+         { console.warn("exercise itro--", exercise)
           props.props.navigation.navigate("IndividualExcercise", {
             data: exercise,
             setup: value.setup,
-          })
+          })}
         }
       >
         <View style={OverviewExerciseStyles.imageContainer}>
-          <Image
-            source={{ uri: multimedia }}
-            style={{
-              width: "100%",
-              height: "100%",
-              resizeMode: "cover",
-              borderRadius: 13,
-            }}
-          />
+          {multimedia.includes("gif") ? (
+            <Image
+              source={{ uri: multimedia }}
+              style={{
+                width: "100%",
+                height: "100%",
+                resizeMode: "cover",
+                borderRadius: 13,
+              }}
+            />
+          ) : (
+            <Video
+              source={{ uri: multimedia }}
+              resizeMode="stretch"
+              isLooping
+              usePoster
+              shouldPlay
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: 13,
+              }}
+            />
+          )}
         </View>
         <View style={OverviewExerciseStyles.containerTexts}>
           {/* <Text style={OverviewExerciseStyles.title}>{day}</Text> */}

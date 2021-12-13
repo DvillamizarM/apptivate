@@ -78,6 +78,69 @@ const UpdateMedicalData = (props) => {
 
   const saveMedicalData = async () => {
   
+//     var batch = firebase.db.batch();
+//     let array = [
+// 	"Warmup"
+//       {
+//         activeTime: 0,
+//         description: "Estando de pie con las piernas separadas, sujetar un objeto pesado y agacharse sin doblar las rodillas intentando tocar la punta de los pies.",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P2F.gif?alt=media&token=e71b0c7e-be41-4084-990b-817e8e870b08",
+//         materials: "Ladrillo o pesa o botella con agua o arena",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//       {
+//         activeTime: 0,
+//         description: "Ubicarse de pie frente a un espejo, con las piernas separadas, desplazarse hacia un lado y el otro haciendo carga de peso en los pies.",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P2G.gif?alt=media&token=73543874-bf39-4739-9953-10f175514089",
+//         materials: "Espejo (que se pueda ver completo)",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//       {
+//         activeTime: 0,
+//         description: "De  pie,  ubicarse  junto  a  una  pared.  Colocar  una  pelota  a  la  altura  de  la  cadera  del  lado  sano  y presionar la pelota durante 10 segundos. ",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P4A.gif?alt=media&token=0dad9eea-1a15-4a4a-82ed-695c706b01d7",
+//         materials: "Muro, balón",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//       {
+//         activeTime: 0,
+//         description: "Ubicarse frente una pared y apoyarse con las dos manos. Adelantar la pierna sana y empujar la pared mientras la pierna protésica permanece extendida y con el pie completamente apoyado en el piso.",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P4F.gif?alt=media&token=c4730a0f-81a3-4a56-9b01-42eda092d336",
+//         materials: "Muro",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//       {
+//         activeTime: 0,
+//         description: "Acostado con rodillas flexionadas y pies apoyados, extender la rodilla del lado protésico y elevar la cadera. Sostener esta posición por 10 segundos y regresar al punto de partida.",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P5G.gif?alt=media&token=de7f6d7a-c5f4-40a4-b294-6ae8e56aaa14",
+//         materials: "",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//       {
+//         activeTime: 0,
+//         description: "Patear un balón contra la pared con la pierna sana.",
+//         gif: "https://firebasestorage.googleapis.com/v0/b/rehabilitacion-420dc.appspot.com/o/P7H.gif?alt=media&token=0e0f9af7-907d-4b9f-8b28-c97b0baa47e3",
+//         materials: "Balón",
+//         routinePhase: "Activa",
+//         voz: "",
+//       },
+//     ];
+//     array.forEach((doc) => {
+//       batch.set(firebase.db.collection("exercise").doc(), doc);
+//     });
+//     batch.commit().then((docs)=>{
+//       let temp = []
+//       docs.data().forEach((val)=>{
+// temp.push(val);
+//       })
+//       console.log("val----", temp)
+//     }).catch((e) => {});
+
 
     await firebase.db
       .collection("users")

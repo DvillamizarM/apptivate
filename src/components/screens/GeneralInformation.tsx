@@ -31,7 +31,7 @@ import ChargeScreen from "../Simple/ChargeScreen";
 
 const GeneralInformation = (props) => {
   const [information, setInformation] = useState([]);
-  const [CurrentInformation, setCurrentInformation] = useState(0);
+  const [CurrentInformation, setCurrentInformation] = useState(2);
   const [exists, setExistence] = useState(false);
   const [isFocused, setIsFocused] = useState(
     props.props.navigation.isFocused()
@@ -219,10 +219,14 @@ const GeneralInformation = (props) => {
       <View style={styles.containerNavigationButton}>
         <TouchableOpacity
           onPress={() => {
-            if (CurrentInformation - 1 >= 0) {
-              setCurrentInformation(CurrentInformation - 1);
-            } else if (CurrentInformation === 0) {
-              setCurrentInformation(information.length - 1);
+            if (CurrentInformation + 1 < information.length) {
+              setCurrentInformation(CurrentInformation + 1);
+            } else {
+              if (props.navigation) {
+                props.navigation.navigate("Home");
+              } else {
+                setCurrentInformation(0);
+              }
             }
           }}
           style={styles.sideButton}
@@ -237,14 +241,10 @@ const GeneralInformation = (props) => {
         <TouchableOpacity
           style={styles.sideButton}
           onPress={() => {
-            if (CurrentInformation + 1 < information.length) {
-              setCurrentInformation(CurrentInformation + 1);
-            } else {
-              if (props.navigation) {
-                props.navigation.navigate("Home");
-              } else {
-                setCurrentInformation(0);
-              }
+            if (CurrentInformation - 1 >= 0) {
+              setCurrentInformation(CurrentInformation - 1);
+            } else if (CurrentInformation === 0) {
+              setCurrentInformation(information.length - 1);
             }
           }}
         >
