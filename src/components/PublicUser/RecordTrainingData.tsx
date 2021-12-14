@@ -104,8 +104,7 @@ const RecordTrainingData = (props) => {
             corporalMass: parseInt(data.weight) / parseInt(data.size),
           },
         });
-        Alert.alert("Se actualizaron los datos médicos");
-        props.props.navigation.navigate("CustomizeRoutine", {
+        props.navigation.navigate("CustomizeRoutine", {
           btnText: "Continuar",
         });
       });

@@ -29,7 +29,7 @@
       "versionCode": 1,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/apptivateLogo.png",
+        "foregroundImage": "./src/assets/images/playstore.png",
         "backgroundColor": "#FFFFFF"
       }
     },

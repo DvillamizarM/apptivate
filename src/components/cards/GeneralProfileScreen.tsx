@@ -190,8 +190,8 @@ const GeneralProfileScreen = (props) => {
     //   btnText: "Continuar",
     // });
     if (
-      props.props.user.information.role == "paciente" &&
-      props.props.user.information.companionRef != ""
+      props.props.user.information.role === "paciente" &&
+      props.props.user.information.companionRef !== ""
     ) {
       props.props.navigation.navigate("CustomizeRoutine", {
         btnText: "Continuar",

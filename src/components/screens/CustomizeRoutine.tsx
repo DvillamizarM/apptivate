@@ -338,7 +338,7 @@ function CustomizeRoutine(props) {
               placeholder={"00:00"}
               setData={pull_timeData}
               initialValue={time}
-              list={["0:00", "0:30", "1:00", "1:30", "2:00"]}
+              list={[ "0:30", "1:00", "1:30", "2:00"]}
             />
             {/* {unifiedTimeSlector()} */}
           </View>
