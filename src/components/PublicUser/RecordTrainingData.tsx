@@ -42,10 +42,7 @@ const RecordTrainingData = (props) => {
     evolutionTime: "",
     amputationLevel: "",
     amputationPhase: "",
-    medicineList: [],
-    conditionList: [],
-    medicine: "",
-    condition: "",
+
     corporalMass: 0,
   });
 
@@ -103,19 +100,39 @@ const RecordTrainingData = (props) => {
             amputationPhase: data.amputationPhase,
             corporalMass: parseInt(data.weight) / parseInt(data.size),
           },
+
+          control: {
+            trainingPhase: "Inicial",
+            activeWeek: "week1",
+            activeDay: 0,
+            record: [],
+          },
         });
-        props.navigation.navigate("CustomizeRoutine", {
-          btnText: "Continuar",
-        });
+        props.navigation.state.params.start
+          ? props.navigation.navigate("CustomizeRoutine", {
+              btnText: "Continuar",
+            })
+          : props.navigation.navigate("ProfileScreen");
       });
   };
 
   if (loading) {
-    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" , marginTop:"5%"}}><ChargeScreen/></View>);
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+          marginTop: "5%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     return (
-      <View style={{ flex: 1,
-        backgroundColor: "#ffffff", }}>
+      <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -124,7 +141,7 @@ const RecordTrainingData = (props) => {
             style={{
               height: "10%",
               width: "80%",
-              marginLeft:"10%",
+              marginLeft: "10%",
               justifyContent: "center",
               alignItems: "center",
             }}
@@ -278,6 +295,7 @@ const RecordTrainingData = (props) => {
                   min={1}
                   max={5}
                   step={1}
+                  
                   valueOnChange={(value) => {
                     let stirngVal = "Liviano";
                     setPerceivedVal(value);
@@ -303,17 +321,7 @@ const RecordTrainingData = (props) => {
                     }
                     setData({ ...data, perceivedForce: stirngVal });
                   }}
-                  initialValue={
-                    data.perceivedForce == "Excesivamente Liviano"
-                      ? 1
-                      : data.perceivedForce == "Liviano"
-                      ? 2
-                      : data.perceivedForce == "Ni liviano ni pesado"
-                      ? 3
-                      : data.perceivedForce == "Pesado"
-                      ? 4
-                      : 5
-                  }
+                  initialValue={1}
                   knobColor="#6979F8"
                   valueLabelsBackgroundColor="rgba(65,65,65)"
                   inRangeBarColor="rgba(65,65,65, 0.7)"
@@ -442,19 +450,32 @@ const RecordTrainingData = (props) => {
               </View>
             </View>
             <View
-              // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
+            // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
             >
               <TouchableOpacity
                 style={updateMedicalDataStyles.button}
-                onPress={() => saveMedicalData()}
+                onPress={() => {
+                  if (
+                    data.age !== "" &&
+                    data.amputationLevel !== "" &&
+                    data.amputationPhase !== "" &&
+                    data.evolutionTime !== "" &&
+                    data.perceivedForce !== "" &&
+                    data.size !== "" &&
+                    data.weight !== ""
+                  ) {
+                    saveMedicalData();
+                  } else {
+                    Alert.alert("Por favor ingrese toda la información.")
+                  }
+                }}
               >
                 <Text style={{ color: "white" }}>Actualizar Datos Médicos</Text>
               </TouchableOpacity>
             </View>
-            <View style={{padding:50}}/>
+            <View style={{ padding: 50 }} />
           </View>
         </ScrollView>
-        
       </View>
     );
   }
@@ -479,7 +500,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-     backgroundColor: "#ffffff",
+    backgroundColor: "#ffffff",
   },
   sliderContainer: {
     height: vmin(20),
@@ -503,7 +524,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 30,
-    flexGrow:1
+    flexGrow: 1,
   },
   radioOptions: {
     flexDirection: "row",

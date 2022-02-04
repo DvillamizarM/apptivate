@@ -97,7 +97,7 @@ function UserRegister(props) {
               amputationPhase: "",
             },
             configuration: {
-              repetitionAmount: 100,
+              repetitionAmount: 0,
               repetitionMax: 0,
               repetitionMin: 0,
               restTimeMin: 0,

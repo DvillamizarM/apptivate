@@ -14,7 +14,7 @@ import {
 import firebase from "../../../database/firebase";
 import Download from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Video, AVPlaybackStatus } from 'expo-av';
+import { Video, AVPlaybackStatus } from "expo-av";
 
 var { vmin } = require("react-native-expo-viewport-units");
 
@@ -38,7 +38,6 @@ const ExerciseRoutine = (props) => {
   const [exists, setExistence] = useState(false);
   const [pending, setPending] = useState(false);
 
-  
   const video = React.useRef(null);
 
   const protocol = [
@@ -52,18 +51,21 @@ const ExerciseRoutine = (props) => {
   const getProtocol = async () => {
     let passed = 0;
     let list: any = [];
+    const level = protocol[CurrentInformation].key;
     if (props.connection && information.length !== 14) {
       await firebase.db
         .collection("protocol")
-        .doc("protesico")
+        .doc(level)
         .get()
         .then((element) => {
           let data: any = element.data();
           const otherList = Object.values(data).map(
             async (element: any, index) => {
               const trainingPhase =
-                props.user.information.control.trainingPhase &&
-                props.user.information.control.trainingPhase !== ""
+                props.user.information.control === undefined
+                  ? ""
+                  : props.user.information.control.trainingPhase &&
+                    props.user.information.control.trainingPhase !== ""
                   ? props.user.information.control.trainingPhase
                   : "";
               if (element.refs.length > 0) {
@@ -87,9 +89,9 @@ const ExerciseRoutine = (props) => {
                     temp.phase === "" || temp.phase === trainingPhase
                       ? list.push(temp)
                       : console.log("passed");
-                    console.warn("passed----", passed);
+                    console.warn("passed----", passed, " | ", list.length);
                     if (
-                      (trainingPhase === "" && list.length === 13 - passed) ||
+                      (trainingPhase === "" && list.length === 3) ||
                       (trainingPhase === "Avanzada" &&
                         list.length === 7 - passed) ||
                       (trainingPhase === "Intermedia" &&
@@ -102,7 +104,7 @@ const ExerciseRoutine = (props) => {
                         return a.order - b.order;
                       });
                       setInformation(list);
-                      setLoading(false);
+                      // setLoading(false);
                     }
                   }
                 );
@@ -119,7 +121,7 @@ const ExerciseRoutine = (props) => {
         });
     } else if (!props.connection) {
       setInformation(props.ExerciseRoutine);
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -146,20 +148,21 @@ const ExerciseRoutine = (props) => {
     // console.warn("in useEffect----", mounted);
     if (mounted && information !== [] && loading) {
       console.warn("entreed");
-      getProtocol();
+      getProtocol().then(() => (loading ? setLoading(false) : console.log("")));
     } else {
       console.warn("info----- eff---", information);
     }
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [CurrentInformation]);
 
   const NavigationButton = () => {
     return (
       <View style={navigationStyles.containerNavigationButton}>
         <TouchableOpacity
           onPress={() => {
+            setLoading(true);
             if (CurrentInformation - 1 >= 0) {
               setCurrentInformation(CurrentInformation - 1);
             } else if (CurrentInformation === 0) {
@@ -180,6 +183,7 @@ const ExerciseRoutine = (props) => {
         <TouchableOpacity
           style={navigationStyles.sideButton}
           onPress={() => {
+            setLoading(true);
             if (CurrentInformation + 1 < protocol.length) {
               setCurrentInformation(CurrentInformation + 1);
             } else if (CurrentInformation === 1) {
@@ -452,18 +456,17 @@ const ExerciseRoutine = (props) => {
     //   multimedia
     // );
 
-
     return (
       <TouchableOpacity
         key={key_e + "e"}
         style={OverviewExerciseStyles.container}
-        onPress={() =>
-         { console.warn("exercise itro--", exercise)
+        onPress={() => {
+          console.warn("exercise itro--", exercise);
           props.props.navigation.navigate("IndividualExcercise", {
             data: exercise,
             setup: value.setup,
-          })}
-        }
+          });
+        }}
       >
         <View style={OverviewExerciseStyles.imageContainer}>
           {multimedia.includes("gif") ? (
@@ -529,7 +532,7 @@ const ExerciseRoutine = (props) => {
         </ScrollView>
       </View>
     );
-  } else {
+  } else if (!props.connection) {
     return (
       <View style={styles.container}>
         <Text
@@ -542,6 +545,14 @@ const ExerciseRoutine = (props) => {
         >
           No hay descargas
         </Text>
+      </View>
+    );
+  } else {
+    return (
+      <View
+        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+      >
+        <ChargeScreen />
       </View>
     );
   }

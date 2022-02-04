@@ -255,7 +255,7 @@ const GeneralInformation = (props) => {
   };
 
   const CardInformation = (title, element, index) => {
-    console.warn("multipp-----",element.multimedia)
+    console.warn("multipp-----", element.multimedia);
     let description;
     function setDescription() {
       try {
@@ -280,14 +280,16 @@ const GeneralInformation = (props) => {
       <View key={"general" + index} style={styles.cardInformation}>
         <Text style={{ fontWeight: "bold" }}>{element.title}</Text>
 
-          {element.multimedia !== "" && element.multimedia !== "na" ? (
-            <View style={styles.containerImage}>
-              <Image
-                source={{ uri: element.multimedia }}
-                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-              />
-            </View>
-          ) : <View></View>}
+        {element.multimedia !== "" && element.multimedia !== "na" ? (
+          <View style={styles.containerImage}>
+            <Image
+              source={{ uri: element.multimedia }}
+              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+            />
+          </View>
+        ) : (
+          <View></View>
+        )}
         <View style={styles.containerDescription}>
           {description.map((text, key_index) => {
             return (
@@ -433,7 +435,9 @@ const GeneralInformation = (props) => {
     // console.warn("current inf-----", information[CurrentInformation]);
 
     let level = "";
-    props.props.navigation.getParam("amputationLevel") !== undefined
+    props.user.information.medical === undefined
+      ? (level = "")
+      : props.props.navigation.getParam("amputationLevel") !== undefined
       ? (level = props.props.navigation.getParam("amputationLevel"))
       : props.user.information.medical.amputationLevel !== undefined
       ? (level = props.user.information.medical.amputationLevel)
@@ -633,9 +637,9 @@ const styles = StyleSheet.create({
 
   cardInformation: {
     width: "100%",
-  //  backgroundColor: "green",
+    //  backgroundColor: "green",
     //justifyContent: "space-evenly",
-    alignItems:"flex-start",
+    alignItems: "flex-start",
     borderColor: "rgba(21, 21, 34, 1)",
     borderBottomWidth: vmin(0.4),
     paddingLeft: "10%",

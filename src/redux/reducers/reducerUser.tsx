@@ -107,11 +107,11 @@ export const UserReducer = (
       };
 
       case actionTypes.UPDATE_USER_CONFIGURATION:
-        console.warn("chaginging user UPDATE_USER_CONFIGURATION USER :=======", action.payload);
-  
+        
         let user5:any = state.user;
         user5.configuration = action.payload;
-  
+        
+        console.warn("UPDATE_USER_CONFIGURATION USER :=======",user5);
         return {
           ...state,
           user: user5,

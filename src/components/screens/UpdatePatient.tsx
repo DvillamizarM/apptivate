@@ -14,6 +14,7 @@ import firebase from "../../../database/firebase";
 import UpdateMedicalData from "../Functional/UpdateMedicalData";
 import UpdatePersonalData from "../Functional/UpdatePersonalData";
 import UpdataeCompanionData from "../Functional/UpdataeCompanionData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function UpdatePatient(props) {
   const [navigationPosition, setnavigationPosition] = useState(0);
@@ -121,8 +122,11 @@ export default function UpdatePatient(props) {
                 {
                   text: "Cerrar Sesión",
                   onPress: async () => {
-                    props.navigation.navigate("Login");
-                    await firebase.auth.signOut();
+                    await firebase.auth.signOut().then(() => {
+                      AsyncStorage.getAllKeys()
+                        .then((keys) => AsyncStorage.multiRemove(keys))
+                        .then(() => props.navigation.navigate("Login"));
+                    });
                   },
                 },
               ],

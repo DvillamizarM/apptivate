@@ -83,12 +83,7 @@ const stack = createStackNavigator(
             <Logo/>
           </View>
         ),
-        // headerRight: (props) => (
-        //   <View style={{ width: "100%"}}>
-            
-        //     <SurveyButton props={props}/>
-        //   </View>
-        // ),
+        
         headerShown: true,
       }),
     },
@@ -243,12 +238,6 @@ const stack = createStackNavigator(
       navigationOptions: () => ({
         title: `Catálogo de Info`,
         headerShown: true,
-        
-        headerRight: () => (
-          <View>
-            <InfoButton />
-          </View>
-        ),
       }),
     },
 

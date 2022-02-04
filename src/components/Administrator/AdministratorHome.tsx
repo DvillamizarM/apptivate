@@ -22,6 +22,7 @@ var { vmin } = require("react-native-expo-viewport-units");
 
 import Settings from "react-native-vector-icons/Ionicons";
 import ChargeScreen from "../Simple/ChargeScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CompanionHome = (props) => {
   const [users, setUsers] = useState([]);
@@ -51,10 +52,13 @@ const CompanionHome = (props) => {
   const reversedRoleValues = objectFlip(roleValues);
 
   const getUsers = async () => {
-    let collection
+    let collection;
     const collection1 = await firebase.db.collection("users").get();
-    const collection2 = await firebase.db.collection("users").where("personal.id", "==", filter).get();
-    filter == ""  ? collection = collection1 : collection = collection2
+    const collection2 = await firebase.db
+      .collection("users")
+      .where("personal.id", "==", filter)
+      .get();
+    filter == "" ? (collection = collection1) : (collection = collection2);
 
     let users: any = collection.docs.map((doc) => {
       return {
@@ -64,6 +68,7 @@ const CompanionHome = (props) => {
     });
 
     setUsers(users);
+    setFilter("");
     setLoading(false);
   };
 
@@ -84,8 +89,11 @@ const CompanionHome = (props) => {
         {
           text: "Cerrar Sesión",
           onPress: async () => {
-            props.navigation.navigate("Login");
-            await firebase.auth.signOut();
+            await firebase.auth.signOut().then(() => {
+              AsyncStorage.getAllKeys()
+                .then((keys) => AsyncStorage.multiRemove(keys))
+                .then(() => props.navigation.navigate("Login"));
+            });
           },
         },
       ],
@@ -96,6 +104,21 @@ const CompanionHome = (props) => {
   const renderReport = (UserProps, props) => {
     //console.log("Las props que llegan son :", UserProps, " y ademas:", props);
     const { personal } = UserProps;
+
+    if (loading) {
+      return (
+        <View
+          style={{
+            backgroundColor: "#ffffff",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <ChargeScreen />
+        </View>
+      );
+    }
     return (
       <TouchableOpacity
         key={UserProps.uid}
@@ -152,10 +175,20 @@ const CompanionHome = (props) => {
     );
   };
 
- 
   if (loading) {
-    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);
-  }else{
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
+  } else {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -163,23 +196,46 @@ const CompanionHome = (props) => {
             Lista de todos los usuarios
           </Text>
           <View style={styles.containerInput}>
-          
-          <TextInput
-            style={styles.input}
-            onChangeText={(value) => {setFilter(value)}}
-            placeholder={"Filtrar por cédula de usuario"}
-          />
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() => {getUsers()}}
-          >
-            <Text style={{ color: "white" , fontSize: vmin(6)}}>➔</Text>
-          </TouchableOpacity>
-        </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={(value) => {
+                setFilter(value);
+              }}
+              placeholder={"Filtrar por cédula de usuario"}
+            />
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => {
+                setLoading(true);
+                getUsers().then(() => {
+                  setLoading(false);
+                });
+              }}
+            >
+              <Text style={{ color: "white", fontSize: vmin(6) }}>➔</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView style={styles.body}>
-          {users.map((user) => renderReport(user, props))}
+          {users.length !== 0 ? (
+            users.map((user) => renderReport(user, props))
+          ) : (
+            <View>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: vmin(8),
+                  color: "rgba(153, 153, 153, 1)",
+                  marginTop: "50%",
+                }}
+              >
+                {filter !== ""
+                  ? "No existe usuario registrado con la cédula digitada."
+                  : "No hay usuarios registrados."}
+              </Text>
+            </View>
+          )}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -221,7 +277,7 @@ const styles = StyleSheet.create({
     height: "10%",
     // backgroundColor: "orange",
     borderColor: "rgba(21, 21, 34, 1)",
-   // borderBottomWidth: vmin(0.4),
+    // borderBottomWidth: vmin(0.4),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -241,15 +297,16 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#6979F8",
-    width: "90%",
-    height: "90%",
+    width: "80%",
+    height: "80%",
     justifyContent: "center",
     alignItems: "center",
     marginLeft: "5%",
+    borderRadius: 10,
+
     marginRight: "5%",
   },
 
-  
   filterButton: {
     backgroundColor: "#6979F8",
     width: "18%",
@@ -288,8 +345,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     left: vmin(1.5),
   },
-
-
 });
 
 const reportStyles = StyleSheet.create({
@@ -329,7 +384,7 @@ const reportStyles = StyleSheet.create({
     width: "90%",
     borderBottomWidth: 1,
     borderColor: "rgba(21, 21, 34, 1)",
-    justifyContent:"space-evenly",
+    justifyContent: "space-evenly",
     // shadowColor: "#000",
     // shadowOffset: {
     //   width: 0,
@@ -339,7 +394,7 @@ const reportStyles = StyleSheet.create({
     // shadowRadius: 9.11,
     // elevation: 14,
     margin: "5%",
-    paddingBottom:10
+    paddingBottom: 10,
     // backgroundColor: "#CDD2FD",
   },
 });

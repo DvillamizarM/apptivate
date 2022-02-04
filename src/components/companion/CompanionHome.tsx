@@ -30,6 +30,7 @@ import Download from "react-native-vector-icons/Ionicons";
 
 import Settings from "react-native-vector-icons/Ionicons";
 import ChargeScreen from "../Simple/ChargeScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CompanionHome = (props) => {
   const [patientInformation, setPatientInformation]: any = useState({});
@@ -135,8 +136,11 @@ const CompanionHome = (props) => {
         {
           text: "Cerrar Sesión",
           onPress: async () => {
-            props.navigation.navigate("Login");
-            await firebase.auth.signOut();
+            await firebase.auth.signOut().then(() => {
+              AsyncStorage.getAllKeys()
+                .then((keys) => AsyncStorage.multiRemove(keys))
+                .then(() => props.navigation.navigate("Login"));
+            });
           },
         },
       ],

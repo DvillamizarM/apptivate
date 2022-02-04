@@ -69,26 +69,30 @@ class Ejercicios extends React.Component<Props> {
 
   getRoutineList = async () => {
     let values: any = [];
+    const level = this.props.user.information.medical.amputationPhase === "Protésico" ? "protesico" : "preprotesico";
+    console.warn(level)
     const userActiveWeek = this.props.user.information.control.activeWeek;
     const activeWeek = parseInt(userActiveWeek.replace(/\D/g, "")) + 2;
     await firebase.db
       .collection("protocol")
-      .doc("protesico")
+      .doc(level)
       .get()
       .then(async (element: any) => {
         if (element.data() !== undefined) {
           const promises = Object.values(element.data()).map(
-            (element: any, index) => {
+            (faseElement: any, index) => {
+              console.log("data in each ----", faseElement.order, activeWeek);
               if (
-                element.order === 1 ||
-                element.order === 2 ||
-                element.order === activeWeek ||
-                element.order === 13
+                faseElement.title === "Calentamiento" ||
+                faseElement.title === "Estiramiento" ||
+                 faseElement.order === activeWeek ||
+                faseElement.title === "Enfriamiento"
               ) {
+                console.log("passed  order", faseElement.setup);
                 let listInfo: any = {
-                  idsList: element.refs,
-                  setupsList: element.setup,
-                  order: element.order,
+                  idsList: faseElement.refs,
+                  setupsList: faseElement.setup,
+                  order: faseElement.order,
                 };
                 values.push(listInfo);
                 if (values.length === 4) {
@@ -101,7 +105,7 @@ class Ejercicios extends React.Component<Props> {
               }
             }
           );
-          let finished: Object = await Promise.all(promises);
+          let finished: Object = await Promise.all(promises).catch((error)=> console.warn("error000 === ", error));
 
           finished = Object.values(finished).filter(function (element) {
             return element !== undefined;
@@ -299,7 +303,7 @@ class Ejercicios extends React.Component<Props> {
   };
 
   LoadingModal = () => {
-    const moment =this.state.modalText;
+    const moment = this.state.modalText;
     const text =
       moment === "start"
         ? "¡La rutina está por comenzar!"
@@ -383,7 +387,7 @@ class Ejercicios extends React.Component<Props> {
         <View
           style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
         >
-          <this.LoadingModal moment = {this.state.modalText}/>
+          <this.LoadingModal moment={this.state.modalText} />
         </View>
       );
     } else {

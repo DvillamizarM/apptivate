@@ -26,6 +26,21 @@ import Check from "react-native-vector-icons/FontAwesome";
 import Repeat from "react-native-vector-icons/FontAwesome";
 import Wathc from "react-native-vector-icons/Ionicons";
 import Play from "react-native-vector-icons/Ionicons";
+import AntDesign from "react-native-vector-icons/AntDesign";
+
+
+const SoundPlayer = async (audio) => {
+  const { sound } = await Audio.Sound.createAsync({ uri: audio });
+  
+  React.useEffect(()=>{
+    sound.unloadAsync(); 
+  },[sound])
+
+    console.log("Playing Sound");
+    sound.playAsync().then(()=>{
+      
+    });
+};
 
 interface Props {
   exercise: object[];
@@ -41,6 +56,7 @@ class EjercicioInactivo extends React.Component<Props> {
     timer: "00:00",
     stop: true,
     diasbleButton: false,
+    playing: false,
     mainTimer: 2000,
     serieActual: 1,
     sec: 0,
@@ -54,7 +70,7 @@ class EjercicioInactivo extends React.Component<Props> {
     voz: null,
     activeTime: 0,
     series: 0,
-    timerType: "",
+    timerType: "Iniciar Serie",
   };
 
   startTimer = () => {
@@ -103,7 +119,7 @@ class EjercicioInactivo extends React.Component<Props> {
     }
   };
   timerCycle = () => {
-    this.setState({ timerType: "Tiempo Activo" });
+    this.setState({ timerType: "Terminar Serie" });
     this.state.mainTimer = setInterval(() => {
       if (!this.state.stop) {
         this.setTimerView();
@@ -136,7 +152,7 @@ class EjercicioInactivo extends React.Component<Props> {
         this.setTimerView();
         if (this.state.sec == 0) {
           if (this.state.min == 0) {
-            this.setState({ timer: "00:00", timerType: "" });
+            this.setState({ timer: "00:00", timerType: "Iniciar Serie" });
           }
           this.state.min--;
           this.state.sec = 59;
@@ -149,7 +165,7 @@ class EjercicioInactivo extends React.Component<Props> {
   };
 
   countdownActive = () => {
-    this.setState({ timerType: "Tiempo Activo" });
+    this.setState({ timerType: "Terminar Serie" });
     //  console.log("[countdownActive] El temporizador comenzo con:", this.state.sec,"segundos y " , this.state.min , " minu" )
     this.state.mainTimer = setInterval(() => {
       //   console.log("Interval: ", this.state.sec,"segundos y " , this.state.min , " minu" )
@@ -185,10 +201,10 @@ class EjercicioInactivo extends React.Component<Props> {
   componentDidMount = async () => {
     console.warn("exercisie----", this.props.exercise);
     if (this.props.exercise) {
-     // console.log(this.props.setup, "SETUP");
+      // console.log(this.props.setup, "SETUP");
       // SI tiene setup
       if (Object.values(this.props.setup).length > 0) {
-      //  console.log(this.props.setup.restTimeSec, "didmount inactivo");
+        //  console.log(this.props.setup.restTimeSec, "didmount inactivo");
         this.setState({
           series: this.props.setup.series,
           repetitions: this.props.setup.repetitions,
@@ -196,7 +212,7 @@ class EjercicioInactivo extends React.Component<Props> {
           setSec: this.props.setup.restTimeSec,
         });
       } else {
-      //  console.warn("inactivo didmount-----else");
+        //  console.warn("inactivo didmount-----else");
         this.setState({
           series: null,
           repetitions: null,
@@ -205,11 +221,11 @@ class EjercicioInactivo extends React.Component<Props> {
         });
       }
 
-     // console.log("Las nuevas props de ejercicos son :", this.props.exercise);
+      // console.log("Las nuevas props de ejercicos son :", this.props.exercise);
 
       const res = this.props.exercise;
 
-     // console.log("--*inactivo*--->", res);
+      // console.log("--*inactivo*--->", res);
 
       let materialList = "";
       res.materials ? (materialList = res.materials) : (materialList = "");
@@ -235,20 +251,11 @@ class EjercicioInactivo extends React.Component<Props> {
     clearTimeout(this.state.mainTimer);
   };
 
-  handlePlaySound = async () => {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync({ uri: this.state.voz });
-    // setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  };
-
   render() {
     return (
       <View style={styles.containerCard}>
         <View style={styles.containerHeaderCard}>
-          <View
+          {/* <View
             style={[
               styles.headerLeftSection,
               {
@@ -259,12 +266,12 @@ class EjercicioInactivo extends React.Component<Props> {
           >
             <View
               style={
-                this.state.timerType !== "Tiempo Activo"
+                this.state.timerType !== "Detener"
                   ? [styles.greenSection, { backgroundColor: "red" }]
                   : styles.greenSection
               }
             ></View>
-          </View>
+          </View> */}
 
           <View
             style={[
@@ -283,20 +290,17 @@ class EjercicioInactivo extends React.Component<Props> {
             style={
               !this.state.diasbleButton
                 ? styles.headerRightSection
-                : [styles.headerRightSection, { backgroundColor: "#999999" }]
+                : [styles.headerRightSection, { backgroundColor: "#e40404" }]
             }
           >
-            <TouchableOpacity
-              disabled={this.state.diasbleButton}
-              onPress={this.startTimer}
-            >
-              <IconCheck name="check" size={vmin(5.5)} color="#ffffff" />
-            </TouchableOpacity>
+            <Text style={{ fontSize: vmin(5), fontWeight: "bold", color: "#fff" }}>
+              {this.state.timer}
+            </Text>
           </View>
         </View>
 
         <View style={styles.containerImage}>
-          {this.state.timerType === "" ?  (
+          {this.state.timerType === "Iniciar Serie" ? (
             <Text
               style={{
                 textAlign: "justify",
@@ -307,27 +311,30 @@ class EjercicioInactivo extends React.Component<Props> {
                 marginRight: "5%",
               }}
             >
-              Para iniciar el tiempo activo de clic en el botón azul con el
-              chulito. Realice los ejercicios acorde a sus capacidades y con su
+              Para iniciar el tiempo activo de clic en el botón azul de "Play".
+              Realice los ejercicios acorde a sus capacidades y con su
               acompañante presente.
             </Text>
-          ) : (this.state.gif && this.state.gif.includes("gif")) ? (
-            <Image
-              source={
-                this.state.timerType !== "Reposo"
-                  ? { uri: this.state.gif }
-                  : require("../../assets/images/stop1.png")
-              }
-              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
+          ) : this.state.timerType === "Terminar Serie" ? (
+            this.state.gif && this.state.gif.includes("gif") ? (
+              <Image
+                source={{ uri: this.state.gif }}
+                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+              />
+            ) : (
+              <Video
+                source={{ uri: this.state.gif }}
+                resizeMode="stretch"
+                isLooping
+                usePoster
+                shouldPlay
+                style={{ width: "100%", height: "100%" }}
+              />
+            )
           ) : (
-            <Video
-              source={{ uri: this.state.gif }}
-              resizeMode="stretch"
-              isLooping
-              usePoster
-              shouldPlay
-              style={{ width: "100%", height: "100%" }}
+            <Image
+              source={require("../../assets/images/stop1.png")}
+              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
             />
           )}
         </View>
@@ -376,12 +383,28 @@ class EjercicioInactivo extends React.Component<Props> {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.box}>
+          <TouchableOpacity
+            disabled={this.state.diasbleButton}
+            onPress={this.startTimer}
+            style={styles.box2}
+          >
             <View style={styles.iconContainer}>
-              <Wathc
-                name="md-stopwatch-outline"
+              <AntDesign
+                name={
+                  this.state.timerType === "Iniciar Serie"
+                    ? "play"
+                    : this.state.timerType === "Terminar Serie"
+                    ? "pausecircle"
+                    : "minussquare"
+                }
                 size={vmin(9)}
-                color="#999999"
+                color={
+                  this.state.timerType === "Iniciar Serie"
+                    ? "#6979f8"
+                    : this.state.timerType === "Terminar Serie"
+                    ? "#fce51b"
+                    : "#ad1010"
+                }
               />
             </View>
 
@@ -390,21 +413,24 @@ class EjercicioInactivo extends React.Component<Props> {
                 style={{
                   width: "100%",
                   textAlign: "center",
-                  fontSize: vmin(3.3),
+                  fontSize: vmin(4),
+                  fontWeight: "bold",
                 }}
               >
-                {this.state.timerType == "" ? "Tiempo" : this.state.timerType}
+                {this.state.timerType}
               </Text>
-              <Text style={{}}>{this.state.timer}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.box}
-            onPress={() => this.handlePlaySound()}
+            style={styles.box2}
+            disabled={this.state.playing}
+            onPress={() => {
+              handlePlaySound(this.state.voz);
+            }}
           >
             <View style={styles.iconContainer}>
-              <Play name="play-outline" size={vmin(9)} color="#999999" />
+              <AntDesign name="sound" size={vmin(9)} color="#999999" />
             </View>
             <View style={styles.textContainer}>
               <Text style={{}}>Comando</Text>
@@ -414,7 +440,7 @@ class EjercicioInactivo extends React.Component<Props> {
         </View>
 
         <View style={styles.indicatorTextContainer}>
-          <ScrollView style= {{height:"100%"}}>
+          <ScrollView style={{ height: "100%" }}>
             <Text
               style={{
                 fontSize: vmin(4),
@@ -442,7 +468,7 @@ class EjercicioInactivo extends React.Component<Props> {
             ) : (
               console.log("nothing")
             )}
-             <View style={{ height: 25 }} />
+            <View style={{ height: 25 }} />
           </ScrollView>
         </View>
       </View>
@@ -480,7 +506,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00C48C",
   },
   headerCenterSection: {
-    width: "75%",
+    width: "70%",
     height: "100%",
     // backgroundColor: "orange",
   },
@@ -489,7 +515,7 @@ const styles = StyleSheet.create({
     color: "#999999",
   },
   textHeaderExercise: {
-    fontSize: vmin(4),
+    fontSize: vmin(5),
     color: "black",
     fontWeight: "bold",
   },
@@ -498,10 +524,10 @@ const styles = StyleSheet.create({
     color: "#999999",
   },
   headerRightSection: {
-    width: "15%",
+    width: "20%",
     height: "100%",
     flexDirection: "row",
-    backgroundColor: "#6979F8",
+    backgroundColor: "#07d107",
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
@@ -519,18 +545,9 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: vmin(3),
     borderRadius: 10,
-    justifyContent:"space-evenly",
+    justifyContent: "space-evenly",
     marginTop: "2%",
   },
-  // footerSection: {
-  //   backgroundColor: "black",
-  //   height: "10%",
-  //   width: "100%",
-  //   justifyContent: "flex-start",
-  //   alignItems: "center",
-  //   flexDirection: "row",
-  //   paddingLeft: vmin(10),
-  // },
   textActiveTime: {
     fontSize: vmin(4),
     color: "#999999",
@@ -545,6 +562,7 @@ const styles = StyleSheet.create({
   containerButtons: {
     height: "17%",
     width: "100%",
+    display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -557,6 +575,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "red",
+  },
+
+  box2: {
+    height: "90%",
+    width: "20%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: vmin(3),
+    backgroundColor: "rgba(129,129,129,0.08)",
   },
 
   iconContainer: {

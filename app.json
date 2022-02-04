@@ -36,6 +36,6 @@
     "web": {
       "favicon": "./src/assets/images/apptivateLogo.png"
     },
-    "description": ""
+    "description": "Aplicación móvil para la rehabilitación de paciente amputados"
   }
 }

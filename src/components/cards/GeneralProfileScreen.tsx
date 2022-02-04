@@ -208,12 +208,27 @@ const GeneralProfileScreen = (props) => {
     }
   };
 
+  const validateEditData = async () => {
+    
+    if (
+      props.props.user.information.medical.size !== "" ||
+      props.props.user.information.medical.perceivedForce !== ""
+    ) {
+      props.props.navigation.navigate("CustomizeRoutine", {
+        btnText: "Guardar",
+      })
+    } else{
+      props.props.navigation.navigate("RecordTrainingData", {start: false});
+    } 
+
+  }
+
   const validateExistenceOfData = () => {
     if (
       props.props.user.information.medical.size === "" ||
       props.props.user.information.medical.perceivedForce === ""
     ) {
-      props.props.navigation.navigate("RecordTrainingData");
+      props.props.navigation.navigate("RecordTrainingData", {start: true});
     } else {
       props.props.navigation.navigate("CustomizeRoutine", {
         btnText: "Continuar",
@@ -493,11 +508,7 @@ const GeneralProfileScreen = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button2}
-              onPress={() =>
-                props.props.navigation.navigate("CustomizeRoutine", {
-                  btnText: "Guardar",
-                })
-              }
+              onPress={() => validateEditData()}
             >
               <ScalableText style={{ color: "white", fontWeight: "bold" }}>
                 Editar intensidad y tiempo de reposo

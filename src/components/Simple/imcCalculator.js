@@ -135,7 +135,7 @@ export default function imcCalculator(props) {
             }}
           >
             <View style={styles.containerInput}>
-              <Text style={styles.headerInput}>Peso (KG)</Text>
+              <Text style={styles.headerInput}>Peso en kilogramos</Text>
               <TextInput
                 style={styles.input}
                 keyboardType="number-pad"
@@ -147,7 +147,7 @@ export default function imcCalculator(props) {
               />
             </View>
             <View style={styles.containerInput}>
-              <Text style={styles.headerInput}>Estatura (CM)</Text>
+              <Text style={styles.headerInput}>Estatura en centímetros</Text>
               <TextInput
                 style={styles.input}
                 keyboardType="number-pad"

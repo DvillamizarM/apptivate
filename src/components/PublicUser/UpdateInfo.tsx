@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 
 import {
@@ -17,7 +18,7 @@ import UpdatePersonalData from "../Functional/UpdatePersonalData";
 export default function UpdateInfo(props) {
   const [navigationPosition, setnavigationPosition] = useState(0);
   const navigationTitles = ["Datos Personales", "Datos Médicos"];
-
+  console.log("props in update---", props);
   const NavigationButton = () => {
     return (
       <View style={navigationButtonStyles.containerNavigationButton}>
@@ -106,8 +107,8 @@ export default function UpdateInfo(props) {
         <TouchableOpacity
           style={styles.button2}
           onPress={async () => {
-          //  props.navigation.navigate("Login");
-           // await firebase.auth.signOut();
+            //  props.navigation.navigate("Login");
+            // await firebase.auth.signOut();
             Alert.alert(
               "Cerrar Sesión",
               "¿Está seguro que quiere cerrar sesión? ",
@@ -120,8 +121,11 @@ export default function UpdateInfo(props) {
                 {
                   text: "Cerrar Sesión",
                   onPress: async () => {
-                    props.navigation.navigate("Login");
-                    await firebase.auth.signOut();
+                    await firebase.auth.signOut().then(() => {
+                      AsyncStorage.getAllKeys()
+                        .then((keys) => AsyncStorage.multiRemove(keys))
+                        .then(() => props.navigation.navigate("Login"));
+                    });
                   },
                 },
               ],
@@ -132,9 +136,16 @@ export default function UpdateInfo(props) {
           <Text style={{ color: "white" }}>Cerrar Sesión</Text>
         </TouchableOpacity>
       </View>
+      {props.navigation.state.params.check.check ? (
+        <View></View>
+      ) : (
+        <View style={styles.header}>{NavigationButton()}</View>
+      )}
 
-      <View style={styles.header}>{NavigationButton()}</View>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+      >
         {navigationPosition == 0 ? (
           <UpdatePersonalData props={props} />
         ) : (
@@ -154,7 +165,12 @@ const styles = StyleSheet.create({
     marginLeft: "5%",
     marginRight: "5%",
   },
-  container: { flex: 1, backgroundColor: "white", width: "100%", height: "100%" },
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    width: "100%",
+    height: "100%",
+  },
   button2: {
     backgroundColor: "rgba(199, 0, 57,1)",
     width: "30%",
@@ -173,14 +189,13 @@ const styles = StyleSheet.create({
     elevation: 7,
   },
   scroll: {
-    height:"100%",
+    height: "100%",
     width: "100%",
   },
-scrollContent:{
-  paddingBottom: 0,
-},
+  scrollContent: {
+    paddingBottom: 0,
+  },
 });
-
 
 const navigationButtonStyles = StyleSheet.create({
   containerNavigationButton: {

@@ -77,7 +77,7 @@ class HomeScreen extends React.Component<Props> {
     appState: AppState.currentState,
     connection: false,
     publicUser: null,
-    initializing: true,
+    loading: true,
     mounted: true,
     unsubscribe: () => {},
   };
@@ -165,57 +165,28 @@ class HomeScreen extends React.Component<Props> {
   clearAllData() {
     AsyncStorage.getAllKeys()
       .then((keys) => AsyncStorage.multiRemove(keys))
-      .then(() => Alert.alert("success"));
+      .then(() => this.props.navigation.navigate("Login"));
   }
   componentDidMount = () => {
-   // console.warn("mounted value------", this.state.mounted);
     try {
-      //this.checkAsync();
-      //console.warn("exercise Props++++++", this.props.ExerciseRoutine)
+      //para sincronizar las finalziaciones de rutina en almacenamiento local por falta de conexion internet
       if (!this.props.cachedEndRoutines.empty) {
         this.syncCachedEndRoutines(this.props.cachedEndRoutines);
       }
+
       this.checkNetInfo();
-      //  console.warn("repo-----", this.props.repoIndex)
-      if (this.state.mounted) {
-      //  console.warn("in is moutned mount-----", this.props);
-        var temp = firebase.auth.onAuthStateChanged(this.onAuthStateChanged);
-      }
+      // if (this.state.mounted) {
+      const temp = new Promise((resolve) => {
+        resolve(firebase.auth.onAuthStateChanged(this.onAuthStateChanged));
+      });
+      temp.then(() => {
+        this.setState({ loading: false });
+      });
+      // }
     } catch (error) {
       console.warn("Home Error ---", error);
     }
-  //  console.warn("mounted value b4 return------", this.state.mounted);
-    //  return () => {
-
-    //  }
-    //  mounted = false,
-    //   console.warn("mounted value return------", mounted)};
   };
-
-  // componentDidUpdate() {
-  //   if (!this.state.initializing) {
-  //     let tempMounted = true;
-  //     // this.props.user.information.role === ""
-  //     //   ? (tempMounted = false)
-  //     //   : (tempMounted = true);
-  //     // this.setState({ mounted: tempMounted})
-  //   }
-  // }
-
-  // shouldComponentUpdate() {
-  //   // if (this.props.user.information.companionEmail !== "") {
-  //   //  // console.warn("in should update if");
-  //   //   return true;
-  //   // }
-  //  // console.warn("should update------", this.state.mounted);
-  //   return this.state.mounted;
-  // }
-
-  // componentWillUnmount= () =>{
-  //   this.state.unsubscribe()
-  //   console.warn("unsubscribed")
-
-  // }
 
   onAuthStateChanged = async (user) => {
     let user2 = {};
@@ -240,7 +211,7 @@ class HomeScreen extends React.Component<Props> {
             const r = JSON.stringify(user2["information"]);
           })
           .then(() => {
-            if (user2.information.token == "") {
+            if (user2.information.token === "") {
               this.registerForPushNotificationsAsync();
             }
           })
@@ -249,16 +220,11 @@ class HomeScreen extends React.Component<Props> {
           });
       }
     }
-    if (this.state.initializing) {
-      this.setState({ initializing: false });
-    }
   };
 
   syncCachedEndRoutines = async (list) => {
     let idRecord = "";
     list.forEach(async (form, index) => {
-      console.warn("form---", form);
-      console.warn("user----", this.props.user.uid);
       let res = await firebase.db.collection("endRoutine").add({
         ...form,
         day: this.props.user.information.control.activeDay,
@@ -267,10 +233,7 @@ class HomeScreen extends React.Component<Props> {
         uid: this.props.user.uid,
       });
       idRecord = res.id;
-      console.log("El id es ", idRecord);
-      console.warn("length----", list.length, "-------- index---", index);
       if (form.endRoutine === "Si") {
-        console.warn("in eyes");
         await this.updateControl(idRecord, form);
       }
       if (index === list.length - 1) {
@@ -290,18 +253,6 @@ class HomeScreen extends React.Component<Props> {
     let activeWeek = this.props.user.information.control.activeWeek;
     let activeDay = this.props.user.information.control.activeDay;
     let old_record = this.props.user.information.control.record || [];
-
-    console.log(
-      "Los antiguos cambios son trainingPhase",
-      trainingPhase,
-      " activeWeek ,",
-      activeWeek,
-      "activeDay",
-      activeDay,
-      old_record
-    );
-    // Inicial","Intermedia","Avanzada"
-
     let new_trainingPhase = "";
     let new_activeWeek = "";
     let new_activeDay = 0;
@@ -329,13 +280,6 @@ class HomeScreen extends React.Component<Props> {
       }
 
       const aux = old_record.push(idRecord);
-
-      console.log(idRecord, "Los nuevos cambios son", {
-        trainingPhase: new_trainingPhase,
-        activeDay: new_activeDay,
-        activeWeek: new_activeWeek,
-        record: old_record,
-      });
 
       await firebase.db
         .collection("users")
@@ -386,7 +330,7 @@ class HomeScreen extends React.Component<Props> {
     const message = {
       to: expoPushToken,
       sound: "default",
-      title: "Rutina Finalizada!" + props.user.information.personal.name,
+      title: "Rutina Finalizada!" + this.props.user.information.personal.name,
       data: { someData: "goes here" },
     };
 
@@ -418,8 +362,11 @@ class HomeScreen extends React.Component<Props> {
         {
           text: "Cerrar Sesión",
           onPress: async () => {
-            this.props.navigation.navigate("Login");
-            await firebase.auth.signOut();
+            await firebase.auth.signOut().then(() => {
+              AsyncStorage.getAllKeys()
+                .then((keys) => AsyncStorage.multiRemove(keys))
+                .then(() => this.props.navigation.navigate("Login"));
+            });
           },
         },
       ],
@@ -457,33 +404,37 @@ class HomeScreen extends React.Component<Props> {
           </View>
         </TouchableOpacity>
         {/* </TourGuideZone> */}
-        <TouchableOpacity
-          style={styles.groupContainerOrange}
-          onPress={() => {
-            AsyncStorage.getItem("persist:root", (err, result) => {
-              console.warn("AsyncMap -- ", JSON.parse(result));
-            });
-            //  <GeneralProfileScreen props={props} />
-            this.props.navigation.navigate("ProfileScreen", {
-              name: this.props.user.information.personal.name,
-            });
-          }}
-        >
-          <View style={styles.containerIcon}>
-            <Dumbbell name="dumbbell" size={vmin(13)} />
-          </View>
+        {this.props.user.information.medical === undefined ? (
+          <View></View>
+        ) : (
+          <TouchableOpacity
+            style={styles.groupContainerOrange}
+            onPress={() => {
+              AsyncStorage.getItem("persist:root", (err, result) => {
+                console.warn("AsyncMap -- ", JSON.parse(result));
+              });
+              //  <GeneralProfileScreen props={props} />
+              this.props.navigation.navigate("ProfileScreen", {
+                name: this.props.user.information.personal.name,
+              });
+            }}
+          >
+            <View style={styles.containerIcon}>
+              <Dumbbell name="dumbbell" size={vmin(13)} />
+            </View>
 
-          <View style={styles.containerText}>
-            <Text style={styles.tile1}>Plan de Ejercicios</Text>
-            <Text style={styles.tile2}>
-              Consultar proceso personal del plan de ejercicios
-            </Text>
-          </View>
+            <View style={styles.containerText}>
+              <Text style={styles.tile1}>Plan de Ejercicios</Text>
+              <Text style={styles.tile2}>
+                Consultar proceso personal del plan de ejercicios
+              </Text>
+            </View>
 
-          <View style={styles.arrowContainer}>
-            <NavigateNext name="navigate-next" size={vmin(10)} />
-          </View>
-        </TouchableOpacity>
+            <View style={styles.arrowContainer}>
+              <NavigateNext name="navigate-next" size={vmin(10)} />
+            </View>
+          </TouchableOpacity>
+        )}
 
         {/* <TouchableOpacity
           style={styles.groupContainer}
@@ -538,8 +489,7 @@ class HomeScreen extends React.Component<Props> {
   };
 
   render() {
-    
-    if (this.state.initializing)
+    if (this.state.loading) {
       return (
         <View
           style={{
@@ -552,7 +502,7 @@ class HomeScreen extends React.Component<Props> {
           <ChargeScreen />
         </View>
       );
-    else if (
+    } else if (
       typeof this.props.user.information == "undefined" ||
       typeof this.props.user.information.personal.name == "undefined"
     ) {
@@ -572,10 +522,18 @@ class HomeScreen extends React.Component<Props> {
               <TouchableOpacity
                 style={styles.button}
                 onPress={async () => {
-                //this.clearAllData()
-                 this.props.navigation.navigate("UpdateInfo");
+                  //this.clearAllData()
+                  const check =
+                    this.props.user.information.medical === undefined
+                      ? true
+                      : false;
+                  this.props.navigation.navigate("UpdateInfo", {
+                    check: { check },
+                  });
                   //this.checkAsync();
                   // this.logOut();
+
+                  //   await this.addData();
                 }}
               >
                 <Text style={{ color: "white" }}>Editar Perfil</Text>
@@ -614,17 +572,8 @@ class HomeScreen extends React.Component<Props> {
       this.props.user.information.personal &&
       this.props.user.information.personal.name
     ) {
-    //  console.warn("patient ino=---", this.props.user);
       return (
         <View style={styles.container}>
-          {/* <View style={styles.header}>
-            <Text style={{ fontWeight: "bold" }}>
-              Hola {this.props.user.information.personal.name}
-            </Text>
-            <Text style={styles.textHeader}>
-              Utiliza el menu para navegar por la app
-            </Text>
-          </View> */}
           <View style={styles.body}>
             {this.props.user.information &&
             this.props.user.information.role === "paciente" &&
@@ -639,7 +588,7 @@ class HomeScreen extends React.Component<Props> {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                 // this.clearAllData()
+                  //  this.clearAllData()
                   this.props.navigation.navigate("UpdatePatient");
                   //this.checkAsync();
                   // this.logOut();
@@ -775,12 +724,6 @@ class HomeScreen extends React.Component<Props> {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  //Alert.alert("-------",
-  //  store.User.user.information ,
-  //);
-  //console.warn("Store-------",store.User.repoIndex);
-  //console.warn("cached end----", store.DownloadReducer.SavedEndRoutines);
-  //#FFE723
   return {
     connection: store.User.connection,
     repoIndex: store.User.repoIndex,
@@ -914,3 +857,259 @@ const styles = StyleSheet.create({
     // backgroundColor:"peru"
   },
 });
+
+// addData = async () => {
+//   var batch = firebase.db.batch();
+//   let array = {
+//     warmup: {
+//       order: "1",
+//       refs: [
+//         firebase.db.doc("/exercise/0NSxMIlwexBN40kxPadW"),
+//         firebase.db.doc("/exercise/16DSqoWbiWIAhZ3G7NHw"),
+//         firebase.db.doc("/exercise/aEQYOic4VGCnhBsWpquM"),
+//         firebase.db.doc("/exercise/tdb41Bg2p12viwjSIJ1h"),
+//       ],
+//       phase: "",
+//       setup: {
+//         repeticiones: 10,
+//         series: 5,
+//       },
+//       title: "Calentamiento",
+//     },
+//     stretch: {
+//       order: "2",
+//       refs: [
+//         firebase.db.doc("/exercise/KsIRW4YfHCeppAIys4M9"),
+//         firebase.db.doc("/exercise/LPT8jGVHuGxd7IimRhp5"),
+//         firebase.db.doc("/exercise/lrDS1C51PCNE0gNkYzlY"),
+//         firebase.db.doc("/exercise/Rz2PiE58dUoH3ToqbwQu"),
+//       ],
+//       phase: "",
+//       setup: {
+//         repeticiones: 10,
+//         series: 5,
+//       },
+//       title: "Estiramiento",
+//     },
+//     cooldown: {
+//       order: "13",
+//       refs: [
+//         firebase.db.doc("/exercise/EbWF2tghBEkWWuo1gc8l"),
+//         firebase.db.doc("/exercise/J2Hnpx2hiIleeg0z2Pk3"),
+//         firebase.db.doc("/exercise/PQIkA58imgH9HazAQXJ6"),
+//       ],
+//       phase: "",
+//       setup: {
+//         repeticiones: 10,
+//         series: 5,
+//       },
+//       title: "Enfriamiento",
+//     },
+//     week1: {
+//       order: "4",
+//       refs: [
+//         firebase.db.doc("/exercise/RgeKISkF7V8O4iUXrQNh"),
+//         firebase.db.doc("/exercise/tdnRw12ZSSgqz1neN9FG"),
+//         firebase.db.doc("/exercise/wsRMdaeg2ZxmGWEJvbxl"),
+//         firebase.db.doc("/exercise/c4Ilw3l8xnspQSomuURm"),
+//         firebase.db.doc("/exercise/xLmjc1uY1sIPZ9tXtV0l"),
+//         firebase.db.doc("/exercise/srLaM2udfUPDmKM2RxZo"),
+//         firebase.db.doc("/exercise/GUYQdp7VxlyLzZ7PMKiO"),
+//         firebase.db.doc("/exercise/nTPMN9TYCwVQeUANi3tb"),
+//         firebase.db.doc("/exercise/RtI2i5F7qT9uGmYVD22j")
+//       ],
+//       phase: "Inicial",
+//       setup: {
+//         repeticiones: 10,
+//         series: 2,
+//       },
+//       title: "Semana 1",
+//     },
+//     week2: {
+//       order: "5",
+//       refs: [
+//         firebase.db.doc("/exercise/hqUMUDIOHrmuOqcfrkrb"),
+//         firebase.db.doc("/exercise/Eh2pgt5Hxnu4gtMoDZhy"),
+//         firebase.db.doc("/exercise/7VAJqZJDhwuigAyVD31O"),
+//         firebase.db.doc("/exercise/lE6E2USURZi4vCbhfTtq"),
+//         firebase.db.doc("/exercise/g1bm6d1da0W71xrP3fXu"),
+//         firebase.db.doc("/exercise/Hkamr5L6WEZ41ohaXzvd"),
+//         firebase.db.doc("/exercise/jExGwIBoHEbKE8T8htQm"),
+//         firebase.db.doc("/exercise/hCuGf3J2uEp6igBV4B9T"),
+//         firebase.db.doc("/exercise/8DE9scpjwUPFcwnqr8GP"),
+//         firebase.db.doc("/exercise/oRhVThq32NJ2Aj1SXhAD"),
+//       ],
+//       phase: "Inicial",
+//       setup: {
+//         repeticiones: 10,
+//         series: 4,
+//       },
+//       title: "Semana 2",
+//     },
+//     week3: {
+//       order: "6",
+//       refs: [
+//         firebase.db.doc("/exercise/Pi9PdHOACI05wzGQr2ug"),
+//         firebase.db.doc("/exercise/eBwu9sDj2c3sKr1RfUAh"),
+//         firebase.db.doc("/exercise/dGriEyLXjLjH2R7wIukE"),
+//         firebase.db.doc("/exercise/vmAyuFTswxkEg3aSwmr0"),
+//         firebase.db.doc("/exercise/EzsHbO23Pf3wFuKYnh9r"),
+//         firebase.db.doc("/exercise/VBhwlZSIOkshoRmfDfmt"),
+//         firebase.db.doc("/exercise/noIXpOt2AiduYtOINCe9"),
+//         firebase.db.doc("/exercise/6KEU1u127n61HLXL1new"),
+//         firebase.db.doc("/exercise/xROgvDg29tateC3PM4uq"),
+//         firebase.db.doc("/exercise/3HAmDnIWlIqRFiXXhWo4"),
+//       ],
+//       phase: "Inicial",
+//       setup: {
+//         repeticiones: 10,
+//         series: 5,
+//       },
+//       title: "Semana 3",
+//     },
+//     week4: {
+//       order: "7",
+//       refs: [
+//         firebase.db.doc("/exercise/gZ4p5DhWoKYkrrNC8cPQ "),
+//         firebase.db.doc("/exercise/bhLn72bBAr63G3TjcDxq"),
+//         firebase.db.doc("/exercise/8F9b5CLVPY5GiZz2X8GS"),
+//         firebase.db.doc("/exercise/ljUkzvWcUBvWXu6PaUUn"),
+//         firebase.db.doc("/exercise/dhb6rrAX1jFnLi5nAhLG"),
+//         firebase.db.doc("/exercise/w1lW97wQyWmRd0oXnRIo"),
+//         firebase.db.doc("/exercise/RD4QFrzro7VwDCUO6lgq"),
+//         firebase.db.doc("/exercise/MapG4cC5kaODCRrtoDdR"),
+//         firebase.db.doc("/exercise/rSdN4VaEXoBPZaPBMuPa")
+//       ],
+//       phase: "Intermedia",
+//       setup: {
+//         repeticiones: 10,
+//         series: 5,
+//       },
+//     },
+//     week5: {
+//       order: "8",
+//       refs: [
+//         firebase.db.doc("/exercise/bZTkpEdoc9UuQjKqnpW4"),
+//         firebase.db.doc("/exercise/cb00ScTwA4OEdMZq4Wzv"),
+//         firebase.db.doc("/exercise/xXbRCQ0kHQk92WpDer0C"),
+//         firebase.db.doc("/exercise/qayvX9W9fs2BBtbCCKAd"),
+//         firebase.db.doc("/exercise/AvCpZctjIdqXWouVHsmM"),
+//         firebase.db.doc("/exercise/MR8xRIH4befPjjc5PsS4"),
+//         firebase.db.doc("/exercise/ZDLzGQ33CMSgaDq1103f"),
+//         firebase.db.doc("/exercise/KceisEseBKlrvGNhFELF"),
+//         firebase.db.doc("/exercise/QhaGgIlCOiFqUAFtY62k"),
+//         firebase.db.doc("/exercise/ltkqHtpQsO6bZE6M4Y5A"),
+//       ],
+//       phase: "Intermedia",
+//       setup: {
+//         repeticiones: 15,
+//         series: 4,
+//       },
+//       title: "Semana 5",
+//     },
+//     week6: {
+//       order: "9",
+//       refs: [
+//         firebase.db.doc("/exercise/RgeKISkF7V8O4iUXrQNh"),
+//         firebase.db.doc("/exercise/tdnRw12ZSSgqz1neN9FG"),
+//         firebase.db.doc("/exercise/wsRMdaeg2ZxmGWEJvbxl"),
+//         firebase.db.doc("/exercise/c4Ilw3l8xnspQSomuURm"),
+//         firebase.db.doc("/exercise/xLmjc1uY1sIPZ9tXtV0l"),
+//         firebase.db.doc("/exercise/srLaM2udfUPDmKM2RxZo"),
+//         firebase.db.doc("/exercise/GUYQdp7VxlyLzZ7PMKiO"),
+//         firebase.db.doc("/exercise/nTPMN9TYCwVQeUANi3tb"),
+//         firebase.db.doc("/exercise/RtI2i5F7qT9uGmYVD22j")
+//       ],
+//       phase: "Intermedia",
+//       setup: {
+//         repeticiones: 15,
+//         series: 5,
+//       },
+//       title: "Semana 6",
+//     },
+//     week7: {
+//       order: "10",
+//       refs: [
+//         firebase.db.doc("/exercise/hqUMUDIOHrmuOqcfrkrb"),
+//         firebase.db.doc("/exercise/Eh2pgt5Hxnu4gtMoDZhy"),
+//         firebase.db.doc("/exercise/7VAJqZJDhwuigAyVD31O"),
+//         firebase.db.doc("/exercise/lE6E2USURZi4vCbhfTtq"),
+//         firebase.db.doc("/exercise/g1bm6d1da0W71xrP3fXu"),
+//         firebase.db.doc("/exercise/Hkamr5L6WEZ41ohaXzvd"),
+//         firebase.db.doc("/exercise/jExGwIBoHEbKE8T8htQm"),
+//         firebase.db.doc("/exercise/hCuGf3J2uEp6igBV4B9T"),
+//         firebase.db.doc("/exercise/8DE9scpjwUPFcwnqr8GP"),
+//         firebase.db.doc("/exercise/oRhVThq32NJ2Aj1SXhAD"),
+//       ],
+//       phase: "Avanzada",
+//       setup: {
+//         repeticiones: 15,
+//         series: 5,
+//       },
+//       title: "Semana 7",
+//     },
+//     week8: {
+//       order: "11",
+//       refs: [
+//         firebase.db.doc("/exercise/Pi9PdHOACI05wzGQr2ug"),
+//         firebase.db.doc("/exercise/eBwu9sDj2c3sKr1RfUAh"),
+//         firebase.db.doc("/exercise/dGriEyLXjLjH2R7wIukE"),
+//         firebase.db.doc("/exercise/vmAyuFTswxkEg3aSwmr0"),
+//         firebase.db.doc("/exercise/EzsHbO23Pf3wFuKYnh9r"),
+//         firebase.db.doc("/exercise/VBhwlZSIOkshoRmfDfmt"),
+//         firebase.db.doc("/exercise/noIXpOt2AiduYtOINCe9"),
+//         firebase.db.doc("/exercise/6KEU1u127n61HLXL1new"),
+//         firebase.db.doc("/exercise/xROgvDg29tateC3PM4uq"),
+//         firebase.db.doc("/exercise/3HAmDnIWlIqRFiXXhWo4"),
+//       ],
+//       phase: "Avanzada",
+//       setup: {
+//         repeticiones: 20,
+//         series: 6,
+//       },
+//       title: "Semana 8",
+//     },
+//     week9: {
+//       order: "12",
+//       refs: [
+//         firebase.db.doc("/exercise/gZ4p5DhWoKYkrrNC8cPQ "),
+//         firebase.db.doc("/exercise/bhLn72bBAr63G3TjcDxq"),
+//         firebase.db.doc("/exercise/8F9b5CLVPY5GiZz2X8GS"),
+//         firebase.db.doc("/exercise/ljUkzvWcUBvWXu6PaUUn"),
+//         firebase.db.doc("/exercise/dhb6rrAX1jFnLi5nAhLG"),
+//         firebase.db.doc("/exercise/w1lW97wQyWmRd0oXnRIo"),
+//         firebase.db.doc("/exercise/RD4QFrzro7VwDCUO6lgq"),
+//         firebase.db.doc("/exercise/MapG4cC5kaODCRrtoDdR"),
+//         firebase.db.doc("/exercise/rSdN4VaEXoBPZaPBMuPa")
+//       ],
+//       phase: "Avanzada",
+//       setup: {
+//         repeticiones: 20,
+//         series: 8,
+//       },
+//       title: "Semana 9",
+//     },
+//     week10: {
+//       order: "12",
+//       refs: [
+//         firebase.db.doc("/exercise/bZTkpEdoc9UuQjKqnpW4"),
+//         firebase.db.doc("/exercise/cb00ScTwA4OEdMZq4Wzv"),
+//         firebase.db.doc("/exercise/xXbRCQ0kHQk92WpDer0C"),
+//         firebase.db.doc("/exercise/qayvX9W9fs2BBtbCCKAd"),
+//         firebase.db.doc("/exercise/AvCpZctjIdqXWouVHsmM"),
+//         firebase.db.doc("/exercise/MR8xRIH4befPjjc5PsS4"),
+//         firebase.db.doc("/exercise/ZDLzGQ33CMSgaDq1103f"),
+//         firebase.db.doc("/exercise/KceisEseBKlrvGNhFELF"),
+//         firebase.db.doc("/exercise/QhaGgIlCOiFqUAFtY62k"),
+//         firebase.db.doc("/exercise/ltkqHtpQsO6bZE6M4Y5A"),
+//       ],
+//       phase: "Avanzada",
+//       setup: {
+//         repeticiones: 20,
+//         series: 10,
+//       },
+//       title: "Semana 10",
+//     },
+//   };
+//   await firebase.db.collection("protocol").doc("preprotesico").set(array);
+// };

@@ -256,7 +256,7 @@ function EndRoutine(props) {
 
   const askIfCompleted = () => {
     let routineIsNotOver = props.navigation.state.params.routineIsNotOver;
-    console.warn("routine is not over---", routineIsNotOver)
+    console.warn("routine is not over---", routineIsNotOver);
     if (loading) {
       return (
         <View
@@ -286,7 +286,6 @@ function EndRoutine(props) {
             list={["Seleccionar", "Si", "No"]}
             disabled={routineIsNotOver}
           />
-        
         </View>
       );
     }
@@ -299,11 +298,15 @@ function EndRoutine(props) {
           width={"100%"}
           height={40}
           placeholder={"Seleccionar"}
-          setData={(itemValue, itemIndex) => setForm({ ...form, why: itemValue })}
+          setData={(itemValue, itemIndex) =>
+            setForm({ ...form, why: itemValue })
+          }
           initialIndex={form.why}
           list={[
             "Seleccionar",
             "No entendí",
+            "Estaba muy cansado",
+            "Sentia dolor",
             "Estaba muy complicado",
             "No entiendo como usar la app",
             "No me alcanzó el tiempo",
@@ -324,15 +327,20 @@ function EndRoutine(props) {
       </View>
       <View style={styles.configurationContainer}>
         <View style={styles.containerInput}>
-          <Text style={{}}>¿Finalizo la Rutina?</Text>
+          <Text style={styles.titleText}>¿Finalizo la Rutina?</Text>
 
           {askIfCompleted()}
         </View>
-
-        <View style={styles.containerInput}>
-          <Text style={{}}>¿Si no finalizó la rutina, seleccione por que?</Text>
-          {questionWhy()}
-        </View>
+        {form.endRoutine === "No" ? (
+          <View style={styles.containerInput}>
+            <Text style={styles.titleText}>
+              ¿Por qué no terminó la rutina completa?
+            </Text>
+            {questionWhy()}
+          </View>
+        ) : (
+          <View></View>
+        )}
 
         <View style={styles.containerInput}>
           <TouchableOpacity
@@ -352,9 +360,7 @@ function EndRoutine(props) {
               );
             }}
           >
-            <Text style={{ marginRight: "4%", fontSize: vmin(4) }}>
-              Esfuerzo Percibido
-            </Text>
+            <Text style={styles.titleText}>Esfuerzo Percibido</Text>
             <LightBulb
               name="lightbulb-o"
               size={vmin(6)}
@@ -410,10 +416,18 @@ function EndRoutine(props) {
         </View>
 
         <View style={styles.containerInput}>
-          <Text style={{}}>Comentario</Text>
+          <Text style={styles.titleText}>Comentario</Text>
           <TextInput
-          multiline={true}
-            style={[styles.repetitionInputContainer, {marginTop:"4%", height: "80%" ,  borderWidth: 1, flexWrap:"wrap"}]}
+            multiline={true}
+            style={[
+              styles.repetitionInputContainer,
+              {
+                marginTop: "4%",
+                height: "80%",
+                borderWidth: 1,
+                flexWrap: "wrap",
+              },
+            ]}
             onChangeText={(value) => setForm({ ...form, commentary: value })}
             value={form.commentary}
           />
@@ -424,10 +438,27 @@ function EndRoutine(props) {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            setLoading(true);
-            saveFormEndRoutine();
-            if (props.user.information.control.activeWeek !== "week11") {
-              scheduleActivityControl();
+            if (form.endRoutine === "Si") {
+              if (form.commentary !== "") {
+                setLoading(true);
+                saveFormEndRoutine();
+                if (props.user.information.control.activeWeek !== "week11") {
+                  scheduleActivityControl();
+                }
+              } else {
+                Alert.alert("Por favor ingrese toda la información.");
+              }
+            }
+            if (form.endRoutine === "No") {
+              if (form.commentary !== "" && form.why !== "") {
+                setLoading(true);
+                saveFormEndRoutine();
+                if (props.user.information.control.activeWeek !== "week11") {
+                  scheduleActivityControl();
+                }
+              } else {
+                Alert.alert("Por favor ingrese toda la información.");
+              }
             }
           }}
         >
@@ -472,18 +503,21 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: vmin(5),
   },
+  titleText: {
+    fontWeight: "bold",
+    fontSize: vmin(4),
+    marginRight: "4%",
+  },
 
   container: { backgroundColor: "white", width: "100%", height: "100%" },
 
   configurationContainer: {
     // backgroundColor: "peru",
     width: "100%",
-    height: "75%",
+    height: "70%",
 
     // justifyContent: "center",
     alignItems: "center",
-    borderBottomColor: "#151522",
-    borderBottomWidth: 1,
   },
   containerPercentajes: {
     // backgroundColor: "peru",
@@ -500,7 +534,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "tomato",
     marginLeft: "5%",
     marginRight: "5%",
-    marginBottom: "3%",
+    marginBottom: "8%",
     justifyContent: "space-evenly",
   },
 
@@ -527,7 +561,7 @@ const styles = StyleSheet.create({
   },
 
   containerButton: {
-    height: "10%",
+    height: "15%",
     width: "100%",
     // backgroundColor: "red",
     justifyContent: "center",
@@ -537,8 +571,9 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     margin: vmin(2),
-    width: "100%",
-    height: "100%",
+    width: "80%",
+    borderRadius: 10,
+    height: "60%",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -546,9 +581,9 @@ const styles = StyleSheet.create({
   repetitionInputContainer: {
     height: "35%",
     width: "100%",
-    marginBottom:"5%",
+    marginBottom: "5%",
     borderColor: "rgba(228, 228, 228, 0.6)",
-   // borderWidth: 1,
+    // borderWidth: 1,
     borderRadius: 5,
   },
 

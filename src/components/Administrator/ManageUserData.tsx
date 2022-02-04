@@ -65,7 +65,7 @@ function ManageUserData(props) {
         return temp;
       })
       .catch((error) => {
-        console.log("Error getting documents: ", error);
+        console.log("Error getting doments: ", error);
       });
   };
 
@@ -186,21 +186,22 @@ function ManageUserData(props) {
     return (
       <View style={styles.repetitionInputContainer}>
         <Picker
-                width={"100%"}
-                height={40}
-                placeholder={"Seleccionar"}
-                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
-                setSelectedValue({ ...selectedValue, roleValue: itemValue })}
-                }
-                initialValue={selectedValue.roleValue}
-                list={[
-                  "Usuario público",
-                  "Paciente",
-                  "Fisioterapeuta",
-                  "Administrador",
-                  "Acompañante",
-                ]}
-              />
+          width={"100%"}
+          height={40}
+          placeholder={"Seleccionar"}
+          setData={(itemValue, itemIndex) => {
+            console.warn("in set data---", itemValue);
+            setSelectedValue({ ...selectedValue, roleValue: itemValue });
+          }}
+          initialValue={selectedValue.roleValue}
+          list={[
+            "Usuario público",
+            "Paciente",
+            "Fisioterapeuta",
+            "Administrador",
+            "Acompañante",
+          ]}
+        />
       </View>
     );
   };
@@ -214,16 +215,16 @@ function ManageUserData(props) {
       return (
         <View style={styles.repetitionInputContainer}>
           <Picker
-                width={"100%"}
-                height={40}
-                placeholder={"Seleccionar"}
-                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
-                setSelectedValue({ ...selectedValue, physioValue: itemValue })}
-                }
-                initialValue={selectedValue.physioValue}
-                list={temp}
-              />
-          
+            width={"100%"}
+            height={40}
+            placeholder={"Seleccionar"}
+            setData={(itemValue, itemIndex) => {
+              console.warn("in set data---", itemValue);
+              setSelectedValue({ ...selectedValue, physioValue: itemValue });
+            }}
+            initialValue={selectedValue.physioValue}
+            list={temp}
+          />
         </View>
       );
     }
@@ -246,14 +247,19 @@ function ManageUserData(props) {
     return (
       <View style={styles.container}>
         <View style={styles.configurationContainer}>
-          <Text>Informacion del usuario: {UserProps.personal.name}</Text>
+          <View style={{ height:"10%", marginTop: "4%" }}>
+            <Text style= {{fontWeight: "bold"}}>Usuario: {UserProps.personal.name}</Text>
+          </View>
 
           <View style={styles.containerInput}>
             <Text style={{}}>Rol </Text>
             {repetitionSelector()}
+        <View style={styles.header2}>
+          <Text> ALERTA : No cambiar los usuarios ACOMPAÑANTE o FISIOTERAPEUTA a PACIENTE. </Text>
+        </View>
           </View>
           {selectedValue.roleValue == "Paciente" ? (
-            <View style={styles.containerInput}>
+            <View style={styles.containerInput2}>
               <Text style={{}}>Fisioterapeuta Encargado </Text>
               {physioSelector()}
             </View>
@@ -283,7 +289,7 @@ function ManageUserData(props) {
                 }
                 getUsers();
                 props.navigation.navigate("Home");
-              setLoading(false);
+                setLoading(false);
               });
             }}
           >
@@ -321,7 +327,16 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: vmin(5),
   },
-
+  header2: {
+    height: "40%",
+    width: "90%",
+    padding: 15,
+    justifyContent: "center",
+    marginLeft: "5%",
+    marginRight: "5%",
+    alignItems: "center",
+    backgroundColor: "#fff300",
+  },
   container: {
     backgroundColor: "white",
     width: "100%",
@@ -331,9 +346,7 @@ const styles = StyleSheet.create({
   configurationContainer: {
     // backgroundColor: "peru",
     width: "100%",
-    height: "90%",
-    borderBottomWidth: 1,
-    borderBottomColor: "#151522",
+    height: "80%",
     alignItems: "center",
 
     // justifyContent: "center",
@@ -357,9 +370,19 @@ const styles = StyleSheet.create({
     // backgroundColor: "tomato",
   },
 
+  containerInput2: {
+    height: "20%",
+    width: "90%",
+    marginLeft: "5%",
+    marginRight: "5%",
+    marginBottom: "10%",
+    justifyContent: "flex-start",
+    // backgroundColor: "tomato",
+  },
+
   timeContainer: {
     borderColor: "rgba(228, 228, 228, 0.6)",
-  //  borderWidth: 1,
+    //  borderWidth: 1,
     borderRadius: 5,
     height: "100%",
     width: "45%",
@@ -370,7 +393,7 @@ const styles = StyleSheet.create({
   },
 
   containerButton: {
-    height: "10%",
+    height: "20%",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
@@ -380,17 +403,18 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     margin: vmin(2),
-    width: "100%",
-    height: "100%",
+    width: "80%",
+    borderRadius: 10,
+    height: "50%",
     justifyContent: "center",
     alignItems: "center",
   },
 
   repetitionInputContainer: {
-    height: "50%",
+    height: "30%",
     width: "100%",
     borderColor: "rgba(228, 228, 228, 0.6)",
-  //  borderWidth: 1,
+    //  borderWidth: 1,
     borderRadius: 5,
   },
 

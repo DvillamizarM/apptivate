@@ -177,15 +177,13 @@ function CustomizeRoutine(props) {
     });
   };
 
-
   const titleText = (user) => {
     if (user.information.role == "paciente") {
       return "";
     }
   };
   const pull_repData = (data) => {
-    
-    setSelectedValue({ ...selectedValue, repetitionAmount: data })
+    setSelectedValue({ ...selectedValue, repetitionAmount: data });
     console.warn("rep data pulled==========", data); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
   };
 
@@ -198,7 +196,9 @@ function CustomizeRoutine(props) {
   };
 
   useEffect(() => {
+    console.warn("entered state setter ue effect");
     if (props.connection) {
+      console.log("checking database");
       firebase.db
         .collection("users")
         .doc(firebase.auth.currentUser?.uid)
@@ -216,47 +216,46 @@ function CustomizeRoutine(props) {
     console.warn("time----", time);
   }, []);
 
-  useEffect(() => {
-    let sec = "";
-    props.configuration.restTimeSec === 0
-      ? (sec = 0 + "" + props.configuration.restTimeSec)
-      : (sec = props.configuration.restTimeSec);
-    props.configuration.restTimeMin + ":" + sec;
-    props.configuration.restTimeSec === 0
-      ? (sec = 0 + "" + props.configuration.restTimeSec)
-      : (sec = props.configuration.restTimeSec);
-    if (props.navigation.state.params.btnText == "Continuar") {
-      Alert.alert(
-        "Antes de comenzar: ",
-        "¿Quiere configurar la intensidad de repeticiones o tiempo de reposo? \n\nActualmente la configuración es: \nIntensidad - " +
-          props.configuration.repetitionAmount +
-          "% \nReposo - " +
-          time,
-        [
-          {
-            text: "Editar intensidad y reposo ",
-            onPress: () => {},
-          },
-          {
-            text: "Iniciar rutina",
-            onPress: () =>
-              props.navigation.navigate("Ejercicios", {
-                repetitionAmount: parseInt(
-                  props.user.information.configuration.repetitionAmount
-                ),
-                restTimeMin: parseInt(
-                  props.user.information.configuration.restTimeMin
-                ),
-                restTimeSec: parseInt(
-                  props.user.information.configuration.restTimeSec
-                ),
-              }),
-          },
-        ],
-        { cancelable: false }
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   let sec = "";
+  //   console.warn("enter model use effect");
+  //   props.user.information.configuration.restTimeSec === 0
+  //     ? (sec = 0 + "" + props.user.information.configuration.restTimeSec)
+  //     : (sec = props.user.information.configuration.restTimeSec);
+  //   if (props.navigation.state.params.btnText == "Continuar") {
+  //     Alert.alert(
+  //       "Antes de comenzar: ",
+  //       "¿Quiere modifcar su configuración actual a la intensidad de repeticiones o tiempo de reposo? \n\nActualmente la configuración es: \nIntensidad - " +
+  //         props.user.information.configuration.repetitionAmount +
+  //         "% \nReposo - " +
+  //         props.user.information.configuration.restTimeMin +
+  //         ":" +
+  //         sec,
+  //       [
+  //         {
+  //           text: "Editar intensidad y reposo ",
+  //           onPress: () => {},
+  //         },
+  //         {
+  //           text: "Iniciar rutina",
+  //           onPress: () =>
+  //             props.navigation.navigate("Ejercicios", {
+  //               repetitionAmount: parseInt(
+  //                 props.user.information.configuration.repetitionAmount
+  //               ),
+  //               restTimeMin: parseInt(
+  //                 props.user.information.configuration.restTimeMin
+  //               ),
+  //               restTimeSec: parseInt(
+  //                 props.user.information.configuration.restTimeSec
+  //               ),
+  //             }),
+  //         },
+  //       ],
+  //       { cancelable: false }
+  //     );
+  //   }
+  // }, []);
 
   const updateConfig = async () => {
     if (props.connection) {
@@ -272,6 +271,10 @@ function CustomizeRoutine(props) {
           },
         })
         .then(() => {
+          console.warn(
+            "insdide then of updateconfig ",
+            selectedValue.repetitionAmount
+          );
           props.updateConfiguration({
             repetitionAmount: selectedValue.repetitionAmount,
             restTimeMin: minutes,
@@ -303,18 +306,31 @@ function CustomizeRoutine(props) {
   } else {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.textHeader}>
-            Su esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC es{" "}
-            {selectedValue.imcCategory} por ende usted puede hacer entre el{" "}
-            {selectedValue.min}% y {selectedValue.max}% de las repeticiones.
-          </Text>
+        <View
+          style={
+            props.navigation.state.params.btnText === "Continuar"
+              ? styles.header2
+              : styles.header
+          }
+        >
+          {props.navigation.state.params.btnText === "Continuar" ? (
+            <Text style={styles.textHeader}>
+              ANTES DE INICIAR: Por favor verifica que la configuración de
+              intensidad de repeticiones y tiempo de reposo este acorde a sus
+              capacidades actuales.
+            </Text>
+          ) : (
+            <Text style={styles.textHeader}>
+              Su esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC
+              es {selectedValue.imcCategory} por ende usted puede hacer entre el{" "}
+              {selectedValue.min}% y {selectedValue.max}% de las repeticiones.
+            </Text>
+          )}
         </View>
         <View style={styles.configurationContainer}>
-          <View style={styles.containerPercentajes}>
-
+          {/* <View style={styles.containerPercentajes}>
             <Text>Config. Actual {selectedValue.repetitionAmount}%</Text>
-          </View>
+          </View> */}
 
           <View style={styles.containerInput}>
             <Text style={{}}>Repeticiones </Text>
@@ -331,14 +347,17 @@ function CustomizeRoutine(props) {
           </View>
 
           <View style={styles.containerInput}>
-            <Text style={{}}>Tiempo de Reposo entre series</Text>
+            <Text style={{}}>Tiempo de Reposo entre series </Text>
+            <Text style={{ fontSize: vmin(4), fontWeight: "700" }}>
+              (MINUTO : SEGUNDO)
+            </Text>
             <Picker
               width={"100%"}
               height={40}
               placeholder={"00:00"}
               setData={pull_timeData}
               initialValue={time}
-              list={[ "0:30", "1:00", "1:30", "2:00"]}
+              list={["0:30", "1:00", "1:30", "2:00"]}
             />
             {/* {unifiedTimeSlector()} */}
           </View>
@@ -347,18 +366,19 @@ function CustomizeRoutine(props) {
         <View style={styles.containerButton}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => {
+            onPress={async () => {
               setLoading(true);
               console.warn("reps----", selectedValue.repetitionAmount);
               if (
-                selectedValue.repetitionAmount &&
-                selectedValue.repetitionAmount != "Seleccionar"
+                selectedValue.repetitionAmount !== 0 &&
+                (seconds !== 0 || minutes !== 0)
               ) {
-                updateConfig();
+                await updateConfig();
               } else {
                 Alert.alert(
                   "Por favor seleccione el porcentaje de repeticiones."
                 );
+                setLoading(false);
               }
             }}
           >
@@ -399,8 +419,21 @@ const styles = StyleSheet.create({
     marginLeft: "10%",
     marginRight: "10%",
   },
+  header2: {
+    height: "25%",
+    width: "90%",
+    padding: 15,
+    justifyContent: "center",
+    marginLeft: "5%",
+    marginRight: "5%",
+    marginTop: "3%",
+    alignItems: "center",
+    backgroundColor: "#fff300",
+  },
+
   textHeader: {
     fontSize: vmin(5),
+    textAlign: "justify",
   },
 
   container: {
@@ -412,7 +445,7 @@ const styles = StyleSheet.create({
   configurationContainer: {
     // backgroundColor: "peru",
     width: "100%",
-    height: "60%",
+    height: "55%",
     //borderBottomWidth: 1,
     borderBottomColor: "#151522",
     alignItems: "center",
@@ -433,7 +466,7 @@ const styles = StyleSheet.create({
     width: "90%",
     marginLeft: "5%",
     marginRight: "5%",
-    marginBottom: "10%",
+    marginTop: "10%",
     justifyContent: "space-evenly",
     // backgroundColor: "tomato",
   },
@@ -451,7 +484,7 @@ const styles = StyleSheet.create({
   },
 
   containerButton: {
-    height: "10%",
+    height: "20%",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
@@ -462,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6979F8",
     margin: vmin(2),
     width: "80%",
-    height: "100%",
+    height: "40%",
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",

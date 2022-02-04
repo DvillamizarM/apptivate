@@ -59,7 +59,7 @@ function timeConverter(time, ampm) {
   return date;
 }
 function scheduleDates(exerciseList) {
-  let dates = [];
+  let dates: any = [];
   exerciseList.forEach((exercise) => {
     // if(){}
     let day = exercise.weekDay;

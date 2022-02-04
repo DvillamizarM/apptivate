@@ -86,7 +86,12 @@ const Limiting = (props) => {
          
 
           <Text style={styles.grayText}>
-          Es una forma de clasificar la intensidad de las actividades físicas a través de las propias sensaciones que siente el individuo que realiza la actividad en cuestión. Para medir su esfuerzo percibido siéntese y levántese de una silla 10 veces y califique como se siente al finalizar.
+          
+          Es una forma de clasificar la intensidad de las actividades 
+          físicas a través de las propias sensaciones que siente el 
+          individuo que realiza la actividad en cuestión. Para medir 
+          su esfuerzo percibido siéntese y levántese de una silla 10 
+          veces y califique como se siente al finalizar.
             </Text>
         </View>
         {/* </TourGuideZone> */}
@@ -96,7 +101,7 @@ const Limiting = (props) => {
         <View style={[styles.row, { marginBottom: "4%" }]}>
           <View style={styles.column1}>
             <Text style={[styles.percentages, { fontWeight: "bold" }]}>
-              Sensación
+              Escala
             </Text>
           </View>
 
@@ -132,6 +137,7 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
+            <Text style={{fontWeight: 800}}>1</Text>
             <Image
               source={require("../../assets/images/1.png")}
               style={styles.imageContainer}

@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Alert, Linking, TextInput } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Linking,
+  TextInput,
+} from "react-native";
 
 var { vmin } = require("react-native-expo-viewport-units");
 import {
@@ -39,10 +47,7 @@ const renderUser = (user, props) => {
   //   PercentageOfCompletion=100
   // }
   return (
-    <View
-      key={user.uid}
-      style={userListStyles.container}
-    >
+    <View key={user.uid} style={userListStyles.container}>
       <View style={userListStyles.header}>
         <Text style={userListStyles.headerTitle}>{user.personal.name}</Text>
         {/* <Text style={userListStyles.headerSubtitle}>{user.personal.name}</Text> */}
@@ -144,9 +149,11 @@ const renderUser = (user, props) => {
                 borderRadius: 5,
                 padding: 6,
               }}
-              onPress={() => props.navigation.navigate("UserEventList", {
-                patientId: user.uid,
-              })}
+              onPress={() =>
+                props.navigation.navigate("UserEventList", {
+                  patientId: user.uid,
+                })
+              }
             >
               <Bell name="bell-o" size={vmin(10)} color="#444444" />
             </TouchableOpacity>
@@ -160,12 +167,13 @@ const renderUser = (user, props) => {
                 const saveFormSingleUserEvent = async () => {
                   Linking.openURL(
                     "https://api.whatsapp.com/send?text=Hola! " +
-                      user.personal.name + " me estoy contactando contigo por reportaste un evento. Por favor me indiques que paso." +
+                      user.personal.name +
+                      " me estoy contactando contigo porque reportaste un incidente en Apptivate. Por favor me indiques que paso." +
                       "&phone=+57" +
                       user.personal.phone
                   );
                 };
-              saveFormSingleUserEvent();
+                saveFormSingleUserEvent();
               }}
             >
               <Logowhatsapp
@@ -212,14 +220,17 @@ const HomePhysiotherapist = (props) => {
   // };
 
   const getUsers = async () => {
-    let collection 
-    const collection1= await firebase.db
+    let collection;
+    const collection1 = await firebase.db
       .collection("users")
       .where("physioEmail", "==", props.user.email)
       .get();
-    const collection2 = await firebase.db.collection("users").where("personal.id", "==", filter).get();
-    filter == ""  ? collection = collection1 : collection = collection2
-  
+    const collection2 = await firebase.db
+      .collection("users")
+      .where("personal.id", "==", filter)
+      .get();
+    filter == "" ? (collection = collection1) : (collection = collection2);
+
     let exercisesProcessed: any = collection.docs.map((doc) => {
       return {
         ...doc.data(),
@@ -233,61 +244,106 @@ const HomePhysiotherapist = (props) => {
     setLoading(false);
   };
   useEffect(() => {
-    getUsers();
+    getUsers().then(() => {
+      setLoading(false);
+    });
   }, []);
   if (loading) {
-    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
-  } else {
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={{ fontSize: vmin(4.5), fontWeight: "bold" }}>
-          {props.user.information.personal.name}
-        </Text>
-        <Text style={{ fontSize: vmin(3) }}>
-          {props.user.information.personal.email}
-        </Text>
-        
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
       </View>
-<View style={styles.containerInput}>
-          
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={{ fontSize: vmin(4.5), fontWeight: "bold" }}>
+            {props.user.information.personal.name}
+          </Text>
+          <Text style={{ fontSize: vmin(3) }}>
+            {props.user.information.personal.email}
+          </Text>
+        </View>
+        <View style={styles.containerInput}>
           <TextInput
             style={styles.input}
-            onChangeText={(value) => {setFilter(value)}}
+            onChangeText={(value) => {
+              setFilter(value);
+            }}
             placeholder={"Filtrar por cédula de usuario"}
           />
           <TouchableOpacity
             style={styles.filterButton}
-            onPress={() => {getUsers()}}
+            onPress={() => {
+              setLoading(true);
+              getUsers().then(() => {
+                setLoading(false);
+
+                setFilter("");
+              });
+            }}
           >
-            <Text style={{ color: "white" , fontSize: vmin(6)}}>➔</Text>
+            <Text style={{ color: "white", fontSize: vmin(6) }}>➔</Text>
           </TouchableOpacity>
         </View>
-      <ScrollView style={styles.body}>
-        {users.map((user) => renderUser(user, props))}
-      </ScrollView>
+        <ScrollView style={styles.body}>
+          {users.length > 0 ? (
+            users.map((user) => renderUser(user, props))
+          ) : (
+            <View>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: vmin(8),
+                  color: "rgba(153, 153, 153, 1)",
+                  marginTop: "50%",
+                }}
+              >
+                {filter !== ""
+                  ? "No existe usuario vinculado con la cédula digitada."
+                  : "No tiene pacientes bajo su cargo por el momento."}
+              </Text>
+            </View>
+          )}
+        </ScrollView>
 
-      <View style={styles.footer}>
-        {/* <TouchableOpacity
+        <View style={styles.footer}>
+          {/* <TouchableOpacity
           style={styles.button}
           onPress={() => props.navigation.navigate("UserEventList")}
         >
           <Text style={{ color: "white" }}>Eventos</Text>
         </TouchableOpacity> */}
-        {props.connection && (
+          {props.connection && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                props.navigation.navigate("UpdatePhysioData", { props: props })
+              }
+            >
+              <Text style={{ color: "white" }}>Editar Perfil</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.button}
-            onPress={() =>
-              props.navigation.navigate("UpdatePhysioData", {props:props})
-            }
+            onPress={() => {
+              props.navigation.navigate("Repository");
+            }}
           >
-            <Text style={{ color: "white" }}>Editar Perfil</Text>
+            <Text style={{ color: "white" }}>Catálogo de Información</Text>
           </TouchableOpacity>
-        )}
+        </View>
       </View>
-    </View>
-  );
-          }
+    );
+  }
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
@@ -315,12 +371,12 @@ const styles = StyleSheet.create({
   header: {
     width: "100%",
     height: "8%",
-     backgroundColor: "rgba(105,121,248,0.5)",
+    backgroundColor: "rgba(105,121,248,0.5)",
     // borderColor: "rgba(21, 21, 34, 1)",
     // borderBottomWidth: vmin(0.4),
     alignItems: "flex-start",
-    paddingLeft:10,
-    paddingTop:4
+    paddingLeft: 10,
+    paddingTop: 4,
   },
 
   body: {
@@ -331,12 +387,12 @@ const styles = StyleSheet.create({
 
   footer: {
     width: "100%",
-    height: "10%",
+    height: "15%",
     // backgroundColor: "salmon",
     justifyContent: "center",
     alignItems: "center",
   },
-  
+
   containerInput: {
     height: "5%",
     width: "90%",
@@ -359,7 +415,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 5,
   },
-   
+
   filterButton: {
     backgroundColor: "#6979F8",
     width: "18%",
@@ -372,11 +428,12 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#6979F8",
     width: "90%",
-    height: "50%",
+    height: "40%",
     justifyContent: "center",
     alignItems: "center",
     marginLeft: "5%",
     marginRight: "5%",
+    marginTop: "1%",
     borderRadius: 10,
   },
 });

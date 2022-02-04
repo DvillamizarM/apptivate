@@ -20,7 +20,7 @@ function ChargeScreen() {
         height: "100%",
         minHeight:"100%",
         width: "100%",
-        //backgroundColor: "salmon",
+        backgroundColor: "#fff",
         alignItems: "center",
       }}
     >

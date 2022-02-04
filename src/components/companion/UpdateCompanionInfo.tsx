@@ -22,6 +22,7 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import ChargeScreen from "../Simple/ChargeScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function UpdateCompanionInfo(props) {
   const [data, setdata] = useState({
@@ -218,8 +219,11 @@ function UpdateCompanionInfo(props) {
                   {
                     text: "Cerrar Sesión",
                     onPress: async () => {
-                      props.navigation.navigate("Login");
-                      await firebase.auth.signOut();
+                      await firebase.auth.signOut().then(() => {
+                        AsyncStorage.getAllKeys()
+                          .then((keys) => AsyncStorage.multiRemove(keys))
+                          .then(() => props.navigation.navigate("Login"));
+                      });
                     },
                   },
                 ],

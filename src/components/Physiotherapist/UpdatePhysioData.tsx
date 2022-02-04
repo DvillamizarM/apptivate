@@ -22,6 +22,7 @@ import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import ChargeScreen from "../Simple/ChargeScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function UpdatePhysioData(props) {
   const [data, setdata] = useState({
@@ -158,7 +159,18 @@ function UpdatePhysioData(props) {
   };
 
   if (loading) {
-    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
@@ -218,8 +230,11 @@ function UpdatePhysioData(props) {
                   {
                     text: "Cerrar Sesión",
                     onPress: async () => {
-                      props.navigation.navigate("Login");
-                      await firebase.auth.signOut();
+                      await firebase.auth.signOut().then(() => {
+                        AsyncStorage.getAllKeys()
+                          .then((keys) => AsyncStorage.multiRemove(keys))
+                          .then(() => props.navigation.navigate("Login"));
+                      });
                     },
                   },
                 ],
@@ -232,7 +247,7 @@ function UpdatePhysioData(props) {
         </View>
 
         <View style={{ height: "92%" }}>
-          <ScrollView style={{ marginBottom: "8%", paddingTop:8 }}>
+          <ScrollView style={{ marginBottom: "8%", paddingTop: 8 }}>
             <View style={styles.containerInput}>
               <Text style={styles.headerInput}>Nombre Completo</Text>
               <TextInput
@@ -320,7 +335,7 @@ function UpdatePhysioData(props) {
                 value={data.newPassWord}
               />
             </View>
-            <View style={{height: "40%", width:"100%", marginBottom:"15%"}}>
+            <View style={{ height: "40%", width: "100%", marginBottom: "15%" }}>
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
