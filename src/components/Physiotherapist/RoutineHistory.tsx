@@ -218,7 +218,7 @@ const RoutineHistory = ({ props }) => {
             marginTop: "50%",
           }}
         >
-          No hay eventos
+          No hay historial de rutinas registrado aún.
         </Text>
       </View>
     );

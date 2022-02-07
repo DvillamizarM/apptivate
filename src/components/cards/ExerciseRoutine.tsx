@@ -36,7 +36,7 @@ const ExerciseRoutine = (props) => {
   const [CurrentInformation, setCurrentInformation] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exists, setExistence] = useState(false);
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState(-1);
 
   const video = React.useRef(null);
 
@@ -86,12 +86,12 @@ const ExerciseRoutine = (props) => {
                 const finished = await Promise.all(promises).then(
                   (finished: Object) => {
                     temp.exercises = finished[0];
-                    temp.phase === "" || temp.phase === trainingPhase
+                    temp.phase === "" || temp.phase === trainingPhase || trainingPhase === ""
                       ? list.push(temp)
                       : console.log("passed");
                     console.warn("passed----", passed, " | ", list.length);
                     if (
-                      (trainingPhase === "" && list.length === 3) ||
+                      (trainingPhase === "" && list.length === 13) ||
                       (trainingPhase === "Avanzada" &&
                         list.length === 7 - passed) ||
                       (trainingPhase === "Intermedia" &&
@@ -205,10 +205,10 @@ const ExerciseRoutine = (props) => {
     let items: any = [...information];
     title2 = title2 === "title2" ? "" : title2;
 
-    console.warn("item---", items);
+    // console.warn("item---", items);
     await Promise.all(
       urls.map(async (element, index) => {
-        console.warn("url---", element);
+        // console.warn("url---", element);
         const fileUri: string = `${FileSystem.documentDirectory}${
           title + title2 + index
         }`;
@@ -220,7 +220,7 @@ const ExerciseRoutine = (props) => {
         const downloadedFile: FileSystem.FileSystemDownloadResult =
           await FileSystem.downloadAsync(element, fileUri);
         if (audioUrls[index].length > 25) {
-          console.warn("passed file download", audioUrls[index]);
+          // console.warn("passed file download", audioUrls[index]);
           const downloadedFile1: FileSystem.FileSystemDownloadResult =
             await FileSystem.downloadAsync(audioUrls[index], audioUri);
         } else {
@@ -240,7 +240,7 @@ const ExerciseRoutine = (props) => {
       .then(() => {
         if (!props.previusIdentifiers.includes(title + title2)) {
           let sectionToSave = information[sectionIndex];
-          console.warn("section---", information[sectionIndex]);
+          // console.warn("section---", information[sectionIndex]);
           props.addItemToExerciseRoutine({
             newExercise: sectionToSave,
             title,
@@ -286,12 +286,18 @@ const ExerciseRoutine = (props) => {
     console.log("info fisrt", info.exercises, info.title);
 
     let existsInDownloads = props.previusIdentifiers.includes(title + title2);
-    const exercises = info.exercises.map((element, index) => {
-      let tempExercise = {};
-      tempExercise["exerciseList"] = element;
-      tempExercise["setup"] = info.setup;
-      return tempExercise;
+
+    let exercises = [];
+    info.exercises.forEach((element, index) => {
+      if (element !== undefined) {
+        let tempExercise = {};
+        console.log("exercise map === ", element);
+        tempExercise["exerciseList"] = element;
+        tempExercise["setup"] = info.setup;
+        exercises.push(tempExercise);
+      }
     });
+
     return (
       <View style={FirstSectionStyles.container}>
         <View style={FirstSectionStyles.rowContainer}>
@@ -345,7 +351,7 @@ const ExerciseRoutine = (props) => {
                   color="rgba(52, 152, 219, 1)"
                 />
               </TouchableOpacity>
-            ) : !pending ? (
+            ) : pending !== sectionIndex ? (
               <TouchableOpacity
                 onPress={async () => {
                   //Alert.alert(title);
@@ -364,13 +370,13 @@ const ExerciseRoutine = (props) => {
                       {
                         text: "Descargar",
                         onPress: async () => {
-                          setPending(true);
+                          setPending(sectionIndex);
                           const download = await downloadSection({
                             sectionIndex,
                             title,
                             title2,
                           });
-                          setPending(false);
+                          setPending(-1);
                         },
                       },
                     ],
@@ -409,7 +415,7 @@ const ExerciseRoutine = (props) => {
                 data={exercises}
                 renderItem={OverviewExercise}
                 style={{}}
-                keyExtractor={(item, index) => item.key}
+                keyExtractor={(item, index) => "overview" + index}
               />
             </View>
           </View>
@@ -439,12 +445,12 @@ const ExerciseRoutine = (props) => {
   };
 
   const OverviewExercise = (item) => {
-    // console.warn("El item que llega al ejercicios es :", item.item);
+    console.warn("El item que llega al ejercicios es :", item.item);
     let value = item.item;
     let exercise = value.exerciseList;
     // let day = exercise.day;
     // let time = exercise.time;
-    let multimedia = exercise.gif;
+    let multimedia = exercise.gif !== undefined ? exercise.gif : "hello";
     let materials = exercise.materials;
     let materialsBackground =
       materials !== "" ? "rgba(142, 255, 127 ,1)" : "rgba(255, 136, 110,1)";
@@ -512,9 +518,7 @@ const ExerciseRoutine = (props) => {
 
   if (loading) {
     return (
-      <View
-        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
-      >
+      <View style={{ justifyContent: "center", height: "100%" }}>
         <ChargeScreen />
       </View>
     );
@@ -549,9 +553,7 @@ const ExerciseRoutine = (props) => {
     );
   } else {
     return (
-      <View
-        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
-      >
+      <View style={{ justifyContent: "center", height: "100%" }}>
         <ChargeScreen />
       </View>
     );

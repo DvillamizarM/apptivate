@@ -9,6 +9,7 @@ import ScalableText from "react-native-text"
 
 import GeneralProfileScreen from "../cards/GeneralProfileScreen";
 import ExerciseProfileScreen from "../cards/ExerciseProfileScreen";
+import ChargeScreen from "../Simple/ChargeScreen";
 
 const FirstRoute = (props) => <GeneralProfileScreen props={props} />;
 var { vmin } = require("react-native-expo-viewport-units");
@@ -16,9 +17,11 @@ var { vmin } = require("react-native-expo-viewport-units");
 //const SecondRoute = (props) => <ExerciseProfileScreen props={props} />;
 
 function TabViewExample(props) {
+  console.warn("profiel general==", props)
   const layout = useWindowDimensions();
 const name = props.user.information.personal.name;
   const [index, setIndex] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
   const [routes] = React.useState([
     { key: "first", title: "General", color: "red" },
    // { key: "second", title: "Programar rutinas" },
@@ -29,6 +32,29 @@ const name = props.user.information.personal.name;
    // second: () => SecondRoute(props),
   });
 
+
+  React.useEffect(() => {
+    console.warn("profile screen effect", props);
+    if (props.user !== undefined) {
+      console.warn("profile screen effect not undefined");
+      setLoading(false);
+     }
+   }, [loading]);
+   
+   if (loading) {
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
+  } 
   return (
     <TabView
       navigationState={{ index, routes }}

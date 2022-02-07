@@ -8,6 +8,8 @@ import {
   Image,
   Button,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { connect } from "react-redux";
 
@@ -17,13 +19,14 @@ import IconCheck from "react-native-vector-icons/FontAwesome";
 
 import IconLoader from "react-native-vector-icons/FontAwesome";
 
-import { Audio, Video } from "expo-av";
+import { Audio, Video, AVPlaybackStatus } from "expo-av";
 
 // Iconos para la seccion de informacion
 import Check from "react-native-vector-icons/FontAwesome";
 import Repeat from "react-native-vector-icons/FontAwesome";
 import Wathc from "react-native-vector-icons/Ionicons";
 import Play from "react-native-vector-icons/Ionicons";
+import AntDesign from "react-native-vector-icons/AntDesign";
 
 interface Props {
   exercise: object[];
@@ -36,12 +39,15 @@ class EjercicioInactivo extends React.Component<Props> {
   }
   state = {
     info: [],
-    setup:[]
+    setup: [],
+    playing: false,
+    imgLoading: false,
+    display: "",
+    video: null,
   };
 
   componentDidMount = async () => {
-    
-console.warn("state gif---" , this.state.info);
+    console.warn("state gif---", this.state.info);
     console.log("Las props que tenemos en el nuevo son: ", this.props);
     this.setState({
       info: this.props.navigation.state.params.data,
@@ -49,34 +55,140 @@ console.warn("state gif---" , this.state.info);
     });
   };
 
-  handlePlaySound = async () => {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync({ uri: this.state.info.voz });
-    // setSound(sound);
+  // _handleVideoRef = (component) => {
+  //   this.setState({ imgLoading: true });
+  //   new Promise(() => {
+  //     const playbackObject = component;
+  //   });
+  //   playbackObject
+  //     .then(() => {
+  //       this.setState({ imgLoading: false });
+  //     })
+  //     .catch((err) => Alert.alert("No fue posible cargar la animación"));
+  // };
 
-    console.log("Playing Sound");
-    await sound.playAsync();
-  };
+  async handlePlaySound(audio) {
+    this.setState({ playing: true });
+    const { sound } = await Audio.Sound.createAsync({ uri: audio });
+
+    new Promise((resolve, reject) => {
+      console.log("Playing Sound");
+      sound.playAsync();
+      console.warn("then");
+      setTimeout(() => {
+        resolve("foo");
+      }, 15000);
+    })
+      .then(() => {
+        sound.unloadAsync();
+        this.setState({ playing: false });
+      })
+      .catch((err) => {
+        Alert.alert("No se cargo el audio correctamente.");
+      });
+  }
   render() {
     return (
       <View style={styles.containerCard}>
-       
-
         <View style={styles.containerImage}>
-        {(this.state.info.gif && this.state.info.gif.includes("gif")) ? (
-            <Image
-              source={{ uri: this.state.info.gif }}
-              style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
+          {
+            this.state.info.gif && this.state.info.gif.includes("gif") ? (
+              <Image
+                source={{ uri: this.state.info.gif }}
+                onLoad={() => {
+                  console.warn("entered gif load start");
+                  this.setState({ imgLoading: true, display: "hidden" });
+                }}
+                onLoadEnd={() => {
+                  console.warn("entered gif load end");
+                  this.setState({ imgLoading: false, display: "flex" });
+                }}
+                style={
+                  this.state.imgLoading
+                    ? {
+                        width: "100%",
+                        display: "none",
+                        height: "100%",
+                        resizeMode: "contain",
+                      }
+                    : {
+                        width: "100%",
+                        display: "flex",
+                        height: "100%",
+                        resizeMode: "contain",
+                      }
+                }
+              />
+            ) : (
+              <Video
+                source={{ uri: this.state.info.gif }}
+                resizeMode="stretch"
+                isLooping
+                usePoster
+                onPlaybackStatusUpdate={(status) => {
+                  console.warn("status", status, "  ", this.state.info.gif);
+                }}
+                shouldPlay
+                style={{ width: "100%", height: "100%" }}
+              />
+              // <Video
+              //   source={{ uri: this.state.info.gif }}
+              //   resizeMode="stretch"
+              //   isLooping
+              //   ref={this.state.video}
+              //   shouldPlay
+              //   onError={() => {
+              //     const tempVideo = this.state.info.gif;
+              //     this.state.video
+              //       ? this.state.video.current.loadAsync(
+              //           this.state.info.gif,
+              //           (downloadFirst = true)
+              //         )
+              //       : Alert.alert("erro");
+              //   }}
+              //   usePoster
+              //   onLoadStart={()=>{console.warn("heelooo")}}
+              //   onPlaybackStatusUpdate={(status) => {
+              //     console.warn("status", status, "  ", this.state.info.gif);
+              //     status.isLoaded
+              //       ? this.setState({ imgLoading: true, display: "hidden" })
+              //       : Alert.alert("Error");
+              //   }}
+              //   style={
+              //     this.state.imgLoading
+              //       ? {
+              //           width: "100%",
+              //           display: "none",
+              //           height: "100%",
+              //         }
+              //       : {
+              //           width: "100%",
+              //           display: "flex",
+              //           height: "100%",
+              //         }
+              //   }
+              // />
+            )
+            // (this.state.info.gif && this.state.info.gif.includes("gif")) ? (
+            //     <Image
+            //       source={{ uri: this.state.info.gif }}
+            //       style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+            //     />
+            //   ) : (
+            //     <Video
+            //       source={{ uri: this.state.info.gif }}
+            //       resizeMode="stretch"
+            //       isLooping
+            //       usePoster
+            //       shouldPlay
+            //       style={{ width: "100%", height: "100%" }}
+            //     />
+            //   )
+          }
+          {this.state.imgLoading ? (
+            <ActivityIndicator size="large" color="#6979f8" />
           ) : (
-            <Video
-              source={{ uri: this.state.info.gif }}
-              resizeMode="stretch"
-              isLooping
-              usePoster
-              shouldPlay
-              style={{ width: "100%", height: "100%" }}
-            />
+            <View></View>
           )}
         </View>
         <View style={styles.containerButtons}>
@@ -101,12 +213,14 @@ console.warn("state gif---" , this.state.info);
             <View style={styles.textContainer}>
               <Text style={{ fontSize: vmin(3.1) }}>Repeticiones</Text>
               <Text style={{}}>
-                {this.state.setup.repeticiones ? this.state.setup.repeticiones : "1"}
+                {this.state.setup.repeticiones
+                  ? this.state.setup.repeticiones
+                  : "1"}
               </Text>
             </View>
           </View>
 
-          <View style={styles.box}>
+          {/* <View style={styles.box}>
             <View style={styles.iconContainer}>
               <Wathc
                 name="md-stopwatch-outline"
@@ -119,14 +233,20 @@ console.warn("state gif---" , this.state.info);
               <Text style={{}}>Tiempo</Text>
               <Text style={{}}>{this.state.info.activeTime || "1"}</Text>
             </View>
-          </View>
-
+          </View> */}
           <TouchableOpacity
             style={styles.box}
-            onPress={() => this.handlePlaySound()}
+            disabled={this.state.playing}
+            onPress={() => {
+              this.handlePlaySound(this.state.info.voz);
+            }}
           >
             <View style={styles.iconContainer}>
-              <Play name="play-outline" size={vmin(9)} color="#999999" />
+              {this.state.playing ? (
+                <ActivityIndicator size="large" color="#6979f8" />
+              ) : (
+                <AntDesign name="sound" size={vmin(9)} color="#999999" />
+              )}
             </View>
             <View style={styles.textContainer}>
               <Text style={{}}>Comando</Text>
@@ -139,26 +259,30 @@ console.warn("state gif---" , this.state.info);
           <Text
             style={{
               fontSize: vmin(4),
-              marginBottom:"2%",
-              padding:5,
+              marginBottom: "2%",
+              padding: 5,
               backgroundColor: "rgba(105,121,248,0.2)",
-              borderRadius:10,
+              borderRadius: 10,
             }}
           >
-            <Text style={{fontWeight: "bold"}}>Descripción: </Text> {this.state.info.description}
+            <Text style={{ fontWeight: "bold" }}>Descripción: </Text>{" "}
+            {this.state.info.description}
           </Text>
-          {
-            this.state.info.materials != "" ? (<Text
-            style={{
-              fontSize: vmin(4),
-              padding:7,
-              backgroundColor: "rgba(105,121,248,0.2)",
-              borderRadius:10,
-            }}
-          >
-            <Text style={{fontWeight: "bold"}}>Materiales: </Text> {this.state.info.materials}
-          </Text>) : (console.log("nothing"))
-          }
+          {this.state.info.materials != "" ? (
+            <Text
+              style={{
+                fontSize: vmin(4),
+                padding: 7,
+                backgroundColor: "rgba(105,121,248,0.2)",
+                borderRadius: 10,
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>Materiales: </Text>{" "}
+              {this.state.info.materials}
+            </Text>
+          ) : (
+            console.log("nothing")
+          )}
         </View>
       </View>
     );
@@ -176,9 +300,9 @@ const styles = StyleSheet.create({
   containerCard: {
     width: "100%",
     height: "100%",
-     backgroundColor: "#ffffff",
-     justifyContent: "flex-start",
-     alignItems: "center"
+    backgroundColor: "#ffffff",
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
   containerHeaderCard: {
     borderRadius: 10,
@@ -225,13 +349,16 @@ const styles = StyleSheet.create({
   containerImage: {
     height: "55%",
     width: "100%",
-    flexDirection: "row",
-    marginBottom:"2%",
-   //  backgroundColor: "pink",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    marginBottom: "2%",
+    //  backgroundColor: "pink",
   },
   indicatorTextContainer: {
     // backgroundColor: "rgba(105,121,248,0.2)",
-    borderRadius:10,
+    borderRadius: 10,
     height: "23%",
     width: "95%",
     justifyContent: "space-evenly",
@@ -265,7 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
-    marginBottom:"2%",
+    marginBottom: "2%",
     // backgroundColor: "green",
   },
 

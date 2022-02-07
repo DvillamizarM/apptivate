@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -23,7 +23,6 @@ import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import firebase from "../../../database/firebase";
 
-// import ProgressCircle from "react-native-progress-circle";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const GeneralProfileScreen = (props) => {
@@ -31,16 +30,30 @@ const GeneralProfileScreen = (props) => {
   let trainingPhase = "";
   let activeWeek = "";
   let activeDay = 0;
+console.warn("props control===", props.props.user.information.control)
+  const [percent, setPercent] = useState([]);
+  const [control, setControl] = useState({
+    trainingPhase: props.props.user.information.control.trainingPhase,
+      activeWeek:
+        parseInt(
+          props.props.user.information.control.activeWeek.replace("week", "")
+        ) - 1,
+      activeDay: props.props.user.information.control.activeDay,
+  });
+
   let width = "";
+  props.props.user.information.role === "paciente" ||
+  props.props.user.information.role === ""
+    ? (width = "42%")
+    : (width = "84%");
+
   const [userInformation, setUserInformation] = useState({ loading: true });
   let info: any = {};
-  console.warn("props---", props.props.user.information.role);
+
+  console.warn("props---", props.user.information);
+
   const getInformation = async () => {
     let patientIdentifier = props.props.user.uid;
-    console.warn(
-      "{}{}{}{}P{}{}{}{}{}{}{}{}{}}el id del paciente que llegas es ",
-      patientIdentifier
-    );
     await firebase.db
       .collection("users")
       .doc(patientIdentifier)
@@ -48,25 +61,63 @@ const GeneralProfileScreen = (props) => {
       .then((user: any) => {
         info = user.data();
         info["loading"] = false;
-        console.log("La informaicon qudo asi ;", info);
       })
       .catch((e) => {
-        // setLoading(false);
+        Alert.alert("Error conectando con la base de datos vuelva a intentar");
+        props.props.navigation.navigate("ProfileScreen");
       });
-
     let record = await firebase.db
       .collection("endRoutine")
       .where("uid", "==", patientIdentifier)
       .get();
 
     info["record"] = filterRecord(record);
-    console.log(
-      "La informacion es :::::::::::: :::::::::::: :::::::::::: :::::::::::: ::::::::::::",
-      info
-    );
     setUserInformation(info);
   };
 
+  const setPercents = async () => {
+    console.log("in percent info---", control);
+    setControl({
+      trainingPhase: props.user.information.control.trainingPhase,
+      activeWeek:
+        parseInt(
+          props.user.information.control.activeWeek.replace("week", "")
+        ) - 1,
+      activeDay: props.user.information.control.activeDay,
+    });
+    let tempTraingingPercent = 0;
+    let tempWeekPercent = 0;
+    let tempDayPercent = 0;
+    if (control.activeWeek == 11) {
+      tempTraingingPercent = 100;
+      tempWeekPercent = 100;
+      tempDayPercent = 100;
+    } else {
+      tempTraingingPercent =
+        control.trainingPhase === "Inicial"
+          ? 0
+          : control.trainingPhase === "Intermedia"
+          ? 30
+          : control.trainingPhase === "Avanzada"
+          ? 70
+          : 100;
+      tempWeekPercent = control.activeWeek * 10;
+      tempDayPercent = control.activeDay * 20;
+    }
+    setPercent([tempTraingingPercent, tempWeekPercent, tempDayPercent]);
+    setInitializing(false)
+  };
+ 
+  useEffect(() => {
+    if (props.user !== undefined) {
+      console.warn("in effect");
+      setInitializing(true);
+      setPercents();
+     }else{
+      setInitializing(true);
+     }
+   }, []);
+   
   const filterRecord = (collection) => {
     let record: any = {};
     collection.docs.forEach((doc, index) => {
@@ -132,58 +183,6 @@ const GeneralProfileScreen = (props) => {
     return record;
   };
 
-  props.props.user.information.role === "paciente" ||
-  props.props.user.information.role === ""
-    ? (width = "42%")
-    : (width = "84%");
-  //console.log("rolee====",props.props)
-  if (
-    props.props.user.information.role === "paciente" ||
-    props.props.user.information.role === ""
-  ) {
-    trainingPhase = props.props.user.information.control.trainingPhase;
-    activeWeek = props.props.user.information.control.activeWeek;
-    activeDay = props.props.user.information.control.activeDay;
-  } else if (props.props.user.information.role === "companion") {
-    // console.log(props.activeDay)
-    trainingPhase = props.props.user.information.control.trainingPhase;
-    activeWeek = props.props.user.information.control.activeWeek;
-    activeDay = props.props.user.information.control.activeDay;
-  }
-
-  //console.log("weekkk----",activeWeek)
-  if (
-    parseInt(activeWeek.replace("week", ""), 10) == 1 &&
-    trainingPhase == "Inicial" &&
-    activeDay == 0
-  ) {
-    var trainingPhasePercentage = 0;
-    var activeWeekPercentage = 0;
-    var activeDayPercentage = 0;
-  } else {
-    var weekkk = String(parseInt(activeWeek.replace("week", "")) - 1);
-    var activeWeekPercentage = parseInt(weekkk, 10) * 10;
-    var activeDayPercentage = activeDay * 20;
-    console.warn("day---", activeDay);
-    var trainingPhasePercentage =
-      trainingPhase === "Inicial"
-        ? 0
-        : trainingPhase === "Intermedio"
-        ? 30
-        : trainingPhase === "Avanzada"
-        ? 70
-        : 100;
-  }
-  if (trainingPhasePercentage == 110) {
-    trainingPhasePercentage = 100;
-  }
-  if (activeWeekPercentage == 110) {
-    trainingPhasePercentage = 100;
-    activeWeekPercentage = 100;
-  }
-  if (activeDayPercentage == 110) {
-    activeDayPercentage = 100;
-  }
   const validateStartData = async () => {
     // Validacion para determinar si el acompanante ya inicio sesion
     // props.props.navigation.navigate("CustomizeRoutine", {
@@ -209,32 +208,32 @@ const GeneralProfileScreen = (props) => {
   };
 
   const validateEditData = async () => {
-    
     if (
       props.props.user.information.medical.size !== "" ||
       props.props.user.information.medical.perceivedForce !== ""
     ) {
       props.props.navigation.navigate("CustomizeRoutine", {
         btnText: "Guardar",
-      })
-    } else{
-      props.props.navigation.navigate("RecordTrainingData", {start: false});
-    } 
-
-  }
+      });
+    } else {
+      props.props.navigation.navigate("RecordTrainingData", { start: false });
+    }
+  };
 
   const validateExistenceOfData = () => {
     if (
       props.props.user.information.medical.size === "" ||
       props.props.user.information.medical.perceivedForce === ""
     ) {
-      props.props.navigation.navigate("RecordTrainingData", {start: true});
+      props.props.navigation.navigate("RecordTrainingData", { start: true });
     } else {
       props.props.navigation.navigate("CustomizeRoutine", {
         btnText: "Continuar",
       });
     }
   };
+  
+
   if (initializing)
     return (
       <View
@@ -266,6 +265,7 @@ const GeneralProfileScreen = (props) => {
       </View>
     );
   else {
+  
     return (
       <View style={styles.container}>
         {(props.props.user.information.role === "paciente" ||
@@ -419,19 +419,19 @@ const GeneralProfileScreen = (props) => {
               <Text
                 style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
               >
-                Fase {trainingPhase}
+                Fase {control.trainingPhase}
               </Text>
             </View>
             <View style={styles.progressSection_circle}>
               <AnimatedCircularProgress
-                size={vmin(23)}
+                size={vmin(20)}
                 width={vmin(2)}
-                fill={trainingPhasePercentage}
+                fill={percent[0]}
                 tintColor="#6979F8"
                 backgroundColor="rgba(228, 228, 228, 1)"
                 rotation={0}
               >
-                {(fill) => <Text>{trainingPhasePercentage}%</Text>}
+                {(fill) => <Text>{percent[0]}%</Text>}
               </AnimatedCircularProgress>
             </View>
           </View>
@@ -443,19 +443,19 @@ const GeneralProfileScreen = (props) => {
               <Text
                 style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
               >
-                Semana {(activeWeekPercentage + 10) / 10} de 10
+                Semana {control.activeWeek + 1} de 10
               </Text>
             </View>
             <View style={styles.progressSection_circle}>
               <AnimatedCircularProgress
-                size={vmin(23)}
+                size={vmin(20)}
                 width={vmin(2)}
-                fill={activeWeekPercentage}
+                fill={percent[1]}
                 tintColor="#6979F8"
                 backgroundColor="rgba(228, 228, 228, 1)"
                 rotation={0}
               >
-                {(fill) => <Text>{activeWeekPercentage}%</Text>}
+                {(fill) => <Text>{percent[1]}%</Text>}
               </AnimatedCircularProgress>
             </View>
           </View>
@@ -471,19 +471,19 @@ const GeneralProfileScreen = (props) => {
                     color: "rgba(153, 153, 153, 1)",
                   }}
                 >
-                  Dia {(activeDayPercentage + 20) / 20} de 5
+                  Dia {control.activeDay + 1} de 5
                 </Text>
               </View>
               <View style={styles.progressSection_circle}>
                 <AnimatedCircularProgress
-                  size={vmin(23)}
+                  size={vmin(20)}
                   width={vmin(2)}
-                  fill={activeDayPercentage}
+                  fill={percent[2]}
                   tintColor="#6979F8"
                   backgroundColor="rgba(228, 228, 228, 1)"
                   rotation={0}
                 >
-                  {(fill) => <Text>{activeDayPercentage}%</Text>}
+                  {(fill) => <Text>{percent[2]}%</Text>}
                 </AnimatedCircularProgress>
               </View>
             </View>
@@ -524,9 +524,10 @@ const GeneralProfileScreen = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("storeee---", store.DownloadReducer.ExerciseRoutineIndentifiers);
+  console.warn("storeee---", store.User.user.information.control);
   return {
     user: store.User.user,
+    control: store.User.user.information.control,
     connection: store.User.connection,
     donwloaded: store.DownloadReducer.ExerciseRoutineIndentifiers,
   };

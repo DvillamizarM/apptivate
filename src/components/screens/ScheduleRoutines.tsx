@@ -520,7 +520,7 @@ const ScheduleRoutines = (props) => {
         </View>
         <View style={styles.rowContainer}>
           <View style={styles.columnContainer}>
-            <Text style={styles.toggleTitle}>Desactivar programación</Text>
+            <Text style={styles.toggleTitle}>Desactivar alarmas</Text>
             {toggleDisableProgramming()}
           </View>
           <View style={styles.columnContainer}>

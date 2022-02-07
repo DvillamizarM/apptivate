@@ -209,8 +209,6 @@ class HomeScreen extends React.Component<Props> {
             );
             this.props.setUser(user2);
             const r = JSON.stringify(user2["information"]);
-          })
-          .then(() => {
             if (user2.information.token === "") {
               this.registerForPushNotificationsAsync();
             }
@@ -346,10 +344,6 @@ class HomeScreen extends React.Component<Props> {
   };
 
   logOut = async () => {
-    //this.props.navigation.navigate("Login");
-    //await firebase.auth.signOut();
-
-    // this.checkAsync();
     Alert.alert(
       "Cerrar Sesión",
       "¿Está seguro que quiere cerrar sesión? ",

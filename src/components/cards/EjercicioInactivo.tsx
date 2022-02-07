@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { connect } from "react-redux";
 
@@ -27,20 +28,6 @@ import Repeat from "react-native-vector-icons/FontAwesome";
 import Wathc from "react-native-vector-icons/Ionicons";
 import Play from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
-
-
-const SoundPlayer = async (audio) => {
-  const { sound } = await Audio.Sound.createAsync({ uri: audio });
-  
-  React.useEffect(()=>{
-    sound.unloadAsync(); 
-  },[sound])
-
-    console.log("Playing Sound");
-    sound.playAsync().then(()=>{
-      
-    });
-};
 
 interface Props {
   exercise: object[];
@@ -63,6 +50,9 @@ class EjercicioInactivo extends React.Component<Props> {
     min: 0,
     setMin: 0,
     setSec: 1,
+    imgLoading: false,
+    display: "",
+    video: null,
     description: "",
     materials: "",
     repetitions: 0,
@@ -251,6 +241,27 @@ class EjercicioInactivo extends React.Component<Props> {
     clearTimeout(this.state.mainTimer);
   };
 
+  async handlePlaySound(audio) {
+    this.setState({ playing: true });
+    const { sound } = await Audio.Sound.createAsync({ uri: audio });
+
+    new Promise((resolve, reject) => {
+      console.log("Playing Sound");
+      sound.playAsync();
+      console.warn("then");
+      setTimeout(() => {
+        resolve("foo");
+      }, 15000);
+    })
+      .then(() => {
+        sound.unloadAsync();
+        this.setState({ playing: false });
+      })
+      .catch((err) => {
+        Alert.alert("No se cargo el audio correctamente.");
+      });
+  }
+
   render() {
     return (
       <View style={styles.containerCard}>
@@ -293,7 +304,9 @@ class EjercicioInactivo extends React.Component<Props> {
                 : [styles.headerRightSection, { backgroundColor: "#e40404" }]
             }
           >
-            <Text style={{ fontSize: vmin(5), fontWeight: "bold", color: "#fff" }}>
+            <Text
+              style={{ fontSize: vmin(5), fontWeight: "bold", color: "#fff" }}
+            >
               {this.state.timer}
             </Text>
           </View>
@@ -316,10 +329,31 @@ class EjercicioInactivo extends React.Component<Props> {
               acompañante presente.
             </Text>
           ) : this.state.timerType === "Terminar Serie" ? (
-            this.state.gif && this.state.gif.includes("gif") ? (
+             this.state.gif && this.state.gif.includes("gif") ? (
               <Image
                 source={{ uri: this.state.gif }}
-                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+                onLoad={() => {
+                  this.setState({ imgLoading: true, display: "hidden" });
+                }}
+                onLoadEnd={() => {
+                  console.warn("entered gif load end");
+                  this.setState({ imgLoading: false, display: "flex" });
+                }}
+                style={
+                  this.state.imgLoading
+                    ? {
+                        width: "100%",
+                        display: "none",
+                        height: "100%",
+                        resizeMode: "contain",
+                      }
+                    : {
+                        width: "100%",
+                        display: "flex",
+                        height: "100%",
+                        resizeMode: "contain",
+                      }
+                }
               />
             ) : (
               <Video
@@ -327,6 +361,12 @@ class EjercicioInactivo extends React.Component<Props> {
                 resizeMode="stretch"
                 isLooping
                 usePoster
+                onLoad={() => {
+                  this.setState({ imgLoading: true, display: "flex" });
+                }}
+                onPlaybackStatusUpdate={(status) => {
+                  console.warn("status", status, "  ", this.state.info.gif);
+                }}
                 shouldPlay
                 style={{ width: "100%", height: "100%" }}
               />
@@ -334,8 +374,16 @@ class EjercicioInactivo extends React.Component<Props> {
           ) : (
             <Image
               source={require("../../assets/images/stop1.png")}
+              onLoad={() => {
+                this.setState({ imgLoading: false });
+              }}
               style={{ width: "100%", height: "100%", resizeMode: "contain" }}
             />
+          )}
+          {this.state.imgLoading ? (
+            <ActivityIndicator size="large" color="#6979f8" />
+          ) : (
+            <View></View>
           )}
         </View>
         <View style={styles.containerButtons}>
@@ -426,11 +474,15 @@ class EjercicioInactivo extends React.Component<Props> {
             style={styles.box2}
             disabled={this.state.playing}
             onPress={() => {
-              handlePlaySound(this.state.voz);
+              this.handlePlaySound(this.state.voz);
             }}
           >
             <View style={styles.iconContainer}>
-              <AntDesign name="sound" size={vmin(9)} color="#999999" />
+              {this.state.playing ? (
+                <ActivityIndicator size="large" color="#6979f8" />
+              ) : (
+                <AntDesign name="sound" size={vmin(9)} color="#999999" />
+              )}
             </View>
             <View style={styles.textContainer}>
               <Text style={{}}>Comando</Text>

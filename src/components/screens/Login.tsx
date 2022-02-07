@@ -28,14 +28,17 @@ export default function Login(props) {
       .signInWithEmailAndPassword(email, password)
       .then(() => {
         props.navigation.navigate("Home");
-        setLoading(false);
       })
       .catch((error) => {
-        if (error.code === "auth/invalid-email") {
-          Alert.alert("Correo Inválido");
+        console.warn("error code===", error.code)
+        if (error.code == "auth/user-not-found") {
+          Alert.alert("Usuario no encontrado. Vuelva a intentar.");
           setLoading(false);
+        }else if(error.code == "auth/wrong-password"){
+        Alert.alert("Contraseña Incorrecta. Vuelva a intentar.");
+        }else if (error.code == "auth/too-many-requests"){
+        Alert.alert("Usuario bloqueado por múltiples intentos fallidos de ingreso. Por favor recupere la cuenta para acceder.");
         }
-        Alert.alert("Usuario no encontrado.");
         setLoading(false);
       });
   };
@@ -127,6 +130,7 @@ export default function Login(props) {
                 setEmail(value);
               }}
               value={email}
+              autoCapitalize='none'
               keyboardType={"email-address"}
               placeholder={"jose@gmail.com"}
             />

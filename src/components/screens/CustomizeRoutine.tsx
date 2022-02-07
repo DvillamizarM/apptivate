@@ -298,7 +298,7 @@ function CustomizeRoutine(props) {
   if (loading) {
     return (
       <View
-        style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+        style={{ justifyContent: "center", height: "100%" }}
       >
         <ChargeScreen />
       </View>

@@ -441,7 +441,7 @@ class Ejercicios extends React.Component<Props> {
                       text: "ABANDONAR",
                       onPress: () =>
                         this.props.navigation.navigate("EndRoutine", {
-                          routineIsNotOver: true,
+                          routineIsNotOver: false,
                         }),
                     },
                   ],

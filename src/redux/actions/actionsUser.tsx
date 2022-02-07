@@ -16,6 +16,7 @@ export enum actionTypes {
   UPDATE_USER_CONFIGURATION = "UPDATE_USER_CONFIGURATION",
   UPDATE_USER_CONTROL = "UPDATE_USER_CONTROL",
   UPDATE_STATUS = "UPDATE_STATUS",
+  UPDATE_PERCEIVED_FORCE= "UPDATE_PERCEIVED_FORCE",
   // SET_PERSONAL
 }
 
@@ -28,6 +29,7 @@ export const actionsUser = {
   SHOW_TOUR3: (value) => action(actionTypes.SHOW_TOUR3, value),
   SHOW_TOUR4: (value) => action(actionTypes.SHOW_TOUR4, value),
   SHOW_TOUR5: (value) => action(actionTypes.SHOW_TOUR5, value),
+  UPDATE_PERCEIVED_FORCE:  (value) => action(actionTypes.UPDATE_PERCEIVED_FORCE, value),
   UPDATE_USER_MEDICAL: (value) =>
     action(actionTypes.UPDATE_USER_MEDICAL, value),
   UPDATE_USER_COMPANION: (value) =>

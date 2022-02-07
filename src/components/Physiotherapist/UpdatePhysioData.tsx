@@ -68,18 +68,21 @@ function UpdatePhysioData(props) {
   });
 
   useEffect(() => {
-    firebase.db
-      .collection("users")
-      .doc(props.user.uid)
-      .get()
-      .then((user_db: any) => {
-        setdata({ ...user_db.data().personal });
-        setLoading(false);
-        // props.navigation.navigate("Home");
-      })
-      .catch((e) => {
-        console.log("El error es ", e);
-      });
+    console.warn("prps", props.user);
+    setdata(props.user.information.personal);
+    setLoading(false);
+    // firebase.db
+    //   .collection("users")
+    //   .doc(props.user.uid)
+    //   .get()
+    //   .then((user_db: any) => {
+    //     setdata({ ...user_db.data().personal });
+    //     setLoading(false);
+    //     // props.navigation.navigate("Home");
+    //   })
+    //   .catch((e) => {
+    //     console.log("El error es ", e);
+    //   });
   }, []);
 
   const reauthenticate = (currentPassword) => {
@@ -91,43 +94,110 @@ function UpdatePhysioData(props) {
     return user.reauthenticateWithCredential(cred);
   };
 
-  const update = async () => {
-    // primero se actualiza el correo
-    await reauthenticate(data.password)
-      .then(() => {
-        var user: any = firebase.auth.currentUser;
-        user
-          .updateEmail(data.email)
-          .then(() => {
-            Alert.alert("Correo actualizado");
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    // Luego se actualiza la contraseña
-    if (data.newPassWord !== "") {
-      await reauthenticate(data.password)
-        .then(() => {
-          var user: any = firebase.auth.currentUser;
-          user
-            .updatePassword(data.newPassWord)
-            .then(() => {
-              Alert.alert("Contraseña Actualizada");
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+  const updateEmail = async () => {
+    const user = props.user.information.personal;
+    if (user.email !== data.email) {
+      console.warn("in update email===", user);
+      Alert.alert(
+        "Actualizar Correo ",
+        "¿Está seguro que quiere actualizar el correo?",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+            onPress: ()=>{
+              setLoading(false);
+            }
+          },
+          {
+            text: "Aceptar",
+            onPress: async () => {
+              await reauthenticate(data.password)
+                .then(() => {
+                  var user: any = firebase.auth.currentUser;
+                  user
+                    .updateEmail(data.email)
+                    .then(() => {
+                      Alert.alert("Correo actualizado");
+                      if (
+                        props.user.information.personal.name !== data.name ||
+                        props.user.information.personal.genero !==
+                          data.genero ||
+                        props.user.information.personal.email !== data.email ||
+                        props.user.information.personal.phone !== data.phone ||
+                        props.user.information.personal.id !== data.id
+                      ) {
+                        console.warn("else if");
+                        updateFirestore();
+                      }
+                    })
+                    .catch((error) => {
+                      console.log(error.code);
+                      Alert.alert("Error");
+                      setLoading(false);
+                    });
+                })
+                .catch((error) => {
+                  console.log(error.code);
+                  if (error.code == "auth/wrong-password")
+                    Alert.alert("Contraseña incorrecta");
+                  setLoading(false);
+                });
+            },
+          },
+        ],
+        { cancelable: false }
+      );
     }
+  };
 
+  const updatePassword = async () => {
+    if (data.newPassWord !== undefined && data.newPassWord !== "") {
+      console.warn("new password info===?  ", data.newPassWord);
+      Alert.alert(
+        "Actualizar Contraseña ",
+        "¿Está seguro que quiere actualizar la contraseña?",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+            onPress: ()=>{
+              setLoading(false);
+            }
+          },
+          {
+            text: "Aceptar",
+            onPress: async () => {
+              await reauthenticate(data.password)
+                .then(() => {
+                  var user: any = firebase.auth.currentUser;
+                  user
+                    .updatePassword(data.newPassWord)
+                    .then(() => {
+                      Alert.alert("Contraseña Actualizada");
+                      setLoading(false);
+                    })
+                    .catch((error) => {
+                      console.log(error.code);
+                      Alert.alert("Contraseña incorrecta");
+                      setLoading(false);
+                    });
+                })
+                .catch((error) => {
+                  console.log(error.code);
+                  if (error.code == "auth/wrong-password")
+                    Alert.alert("Contraseña incorrecta");
+                  setLoading(false);
+                });
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const updateFirestore = async () => {
     await firebase.db
       .collection("users")
       .doc(props.user.uid)
@@ -142,19 +212,21 @@ function UpdatePhysioData(props) {
       })
       .then((e) => {
         Alert.alert("Datos personales del usuario actualizados");
-
-        let newUser: any = firebase.auth.currentUser;
+        let newUser: any = props.user;
         newUser["information"]["personal"] = {
           name: data.name,
           phone: data.phone,
           email: data.email,
           id: data.id,
+          genero: data.genero,
         };
         props.setUser(newUser);
-        props.props.navigation.navigate("Home");
+        setLoading(false);
       })
-      .catch((e) => {
-        console.log("El error es ", e);
+      .catch((error) => {
+        console.log(error.code);
+        Alert.alert("Error");
+        setLoading(false);
       });
   };
 
@@ -293,6 +365,7 @@ function UpdatePhysioData(props) {
                 onChangeText={(value) => {
                   setdata({ ...data, email: value });
                 }}
+                autoCapitalize="none"
                 value={data.email}
                 keyboardType={"email-address"}
                 placeholder={"Dirección de correo electrónico"}
@@ -309,9 +382,30 @@ function UpdatePhysioData(props) {
                 value={data.genero}
               />
             </View>
-
+            <View
+              style={{
+                borderBottomWidth: 2,
+                width: "90%",
+                marginLeft: "5%",
+                marginRight: "5%",
+                marginTop: "5%",
+              }}
+            ></View>
+            <Text
+              style={{
+                width: "90%",
+                margin: "5%",
+                textAlign: "left",
+                fontSize: vmin(3),
+                fontWeight: "700",
+                color: "#800000",
+              }}
+            >
+              LLENAR EL CAMPO DE CONTRASEÑA UNICAMENTE SI QUIERE CAMBIAR EL
+              CORREO O LA CONTRASEÑA ACTUAL
+            </Text>
             <View style={styles.containerInput}>
-              <Text style={styles.headerInput}>Antigua Contraseña</Text>
+              <Text style={styles.headerInput}>Contraseña</Text>
               <Password
                 label={"Mínimo 8 caracteres"}
                 onChange={(value) => {
@@ -322,7 +416,27 @@ function UpdatePhysioData(props) {
                 value={data.password}
               />
             </View>
-
+            <View
+              style={{
+                borderBottomWidth: 2,
+                width: "90%",
+                marginLeft: "5%",
+                marginRight: "5%",
+              }}
+            ></View>
+            <Text
+              style={{
+                width: "90%",
+                margin: "5%",
+                textAlign: "left",
+                fontSize: vmin(3),
+                fontWeight: "700",
+                color: "#800000",
+              }}
+            >
+              LLENAR EL CAMPO DE CONTRASEÑA NUEVA UNICAMENTE SI QUIERE CAMBIAR
+              LA CONTRASEÑA ACTUAL
+            </Text>
             <View style={styles.containerInput}>
               <Text style={styles.headerInput}> Nueva Contraseña</Text>
               <Password
@@ -339,14 +453,73 @@ function UpdatePhysioData(props) {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  schema
-                    .validate(data)
-                    .then(() => {
-                      update();
-                    })
-                    .catch(function (err) {
-                      console.log(err.message);
-                    });
+                  console.warn("pressed", data.newPassWord);
+                  if (
+                    (data.newPassWord !== undefined &&
+                      data.password !== undefined) ||
+                    (data.email !== props.user.information.personal.email &&
+                      data.password !== undefined)
+                  ) {
+                    console.warn("if");
+                    schema
+                      .validate(data)
+                      .then(() => {
+                        console.warn("yup valid");
+                        setLoading(true);
+                        if (
+                          data.newPassWord &&
+                          data.email !== props.user.information.personal.email
+                        ) {
+                          setLoading(false);
+                          setdata({
+                            name: data.name,
+                            phone: data.phone,
+                            email: data.email,
+                            id: data.id,
+                            genero: data.genero,
+                            password: undefined,
+                            newPassWord: undefined,
+                          });
+                          Alert.alert(
+                            "No se puede modifcar correo y contraseña al mismo tiempo."
+                          );
+                        } else if (
+                          data.newPassWord !== undefined &&
+                          data.newPassWord !== ""
+                        ) {
+                          updatePassword();
+                        } else if (
+                          data.email !== props.user.information.personal.email
+                        )
+                          updateEmail();
+                      })
+                      .catch(function (err) {
+                        Alert.alert(err);
+                      });
+                  } else if (
+                    data.email !== props.user.information.personal.email &&
+                    data.password === undefined
+                  ) {
+                    Alert.alert(
+                      "Para actaulizar el correo debe digitar la contraseña actual en el campo de Contraseña."
+                    );
+                  } else if (
+                    data.newPassWord !== undefined &&
+                    data.password === undefined
+                  ) {
+                    Alert.alert(
+                      "Para actaulizar el correo debe digitar la contraseña actual en el campo de Contraseña."
+                    );
+                  } else if (
+                    props.user.information.personal.name !== data.name ||
+                    props.user.information.personal.genero !== data.genero ||
+                    props.user.information.personal.phone !== data.phone ||
+                    props.user.information.personal.id !== data.id
+                  ) {
+                    console.warn("else if");
+                    setLoading(true);
+                    updateFirestore();
+                  }
                 }}
               >
                 <Text style={{ color: "white" }}>

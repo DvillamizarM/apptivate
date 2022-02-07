@@ -219,12 +219,16 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.textHeader}>
-            El esfuerzo percibido del paciente es {selectedValue.perceivedForce}, y su IMC es{" "}
-            {selectedValue.imcCategory} por ende puede hacer entre el{" "}
-            {selectedValue.min}% y {selectedValue.max}% de las repeticiones.
+            {
+              selectedValue.perceivedForce !== "" ?
+           "El esfuerzo percibido del paciente es " + selectedValue.perceivedForce +
+           " y su IMC es " + selectedValue.imcCategory + " por ende puede hacer entre el " +
+            selectedValue.min + "% y " + selectedValue.max +"% de las repeticiones."
+            : "Usuario no tiene datos médicos registrados, por ende esta función no está disponible."
+             }
           </Text>
         </View>
-        <View style={styles.configurationContainer}>
+        <View  style={styles.configurationContainer}>
           <View style={styles.containerPercentajes}>
 
             <Text>Config. Actual {selectedValue.repetitionAmount}%</Text>
@@ -237,6 +241,7 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
               setData={pull_repData}
               placeholder={"Seleccionar"}
               height={40}
+            disabled={selectedValue.perceivedForce === ""}
               initialValue={selectedValue.repetitionAmount}
               list={selectedValue.range}
               percentajes={true}
@@ -249,10 +254,11 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
             <Picker
               width={"100%"}
               height={40}
+              disabled={selectedValue.perceivedForce === ""}
               placeholder={"00:00"}
               setData={pull_timeData}
               initialValue={time}
-              list={["0:00", "0:30", "1:00", "1:30", "2:00"]}
+              list={["0:30", "1:00", "1:30", "2:00"]}
             />
             {/* {unifiedTimeSlector()} */}
           </View>
@@ -262,6 +268,7 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
         <View style={styles.containerButton}>
           <TouchableOpacity
             style={styles.button}
+            disabled={selectedValue.perceivedForce === ""}
             onPress={() => {
               console.warn("reps----", selectedValue.repetitionAmount);
               if (

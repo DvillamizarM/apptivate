@@ -20,7 +20,7 @@ export const UserReducer = (
 ) => {
   switch (action.type) {
     case actionTypes.SET_USER:
-      console.warn("payload---", action.payload);
+      console.warn("user payload---", action.payload);
       return {
         ...state,
         user: action.payload,
@@ -73,12 +73,12 @@ export const UserReducer = (
       };
 
     case actionTypes.UPDATE_USER_MEDICAL:
-      console.warn("USER :", action.payload);
+      console.warn("usermedical redux :", action.payload);
 
       let user2: any = state.user;
       user2.information.medical = action.payload.medical;
       user2.information.control = action.payload.control;
-      console.log("++++++++-+ ------------- el valor del user es : ", user2);
+      console.log("medical and control redux  : ", user2);
       return {
         ...state,
         user: user2,
@@ -116,13 +116,24 @@ export const UserReducer = (
           ...state,
           user: user5,
         };
+        
+      case actionTypes.UPDATE_PERCEIVED_FORCE:
+        
+        let user6:any = state.user;
+        console.log("perceived force=====",user6.information.medical.perceivedForce, "  ", action.payload)
+        user6.information.medical.perceivedForce = action.payload;
+        
+        return {
+          ...state,
+          user: user6,
+        };
 
     case actionTypes.UPDATE_USER_CONTROL:
-      console.warn("USER :", action.payload);
+      console.warn("Redux COntrol Payload :", action.payload);
 
       user2 = state.user;
       user2.information.control = action.payload;
-      console.log("++++++++-+ ------------- el valor del user es : ", user2);
+      console.log("control redux update : ", user2);
       return {
         ...state,
         user: user2,

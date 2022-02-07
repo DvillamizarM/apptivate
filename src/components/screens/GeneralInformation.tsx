@@ -37,7 +37,7 @@ const GeneralInformation = (props) => {
     props.props.navigation.isFocused()
   );
   const [toggledState, setToggledState] = useState(1);
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState(-1);
   const {
     canStart, // a boolean indicate if you can start tour guide
     start, // a function to start the tourguide
@@ -354,7 +354,7 @@ const GeneralInformation = (props) => {
                 color="rgba(52, 152, 219, 1)"
               />
             </TouchableOpacity>
-          ) : !pending ? (
+          ) : pending !== index ? (
             <TouchableOpacity
               onPress={async () => {
                 //Alert.alert(title);
@@ -369,13 +369,12 @@ const GeneralInformation = (props) => {
                     {
                       text: "Descargar",
                       onPress: async () => {
-                        setPending(true);
+                        setPending(index);
                         downloadSection(
                           information[CurrentInformation].title,
                           element,
                           index
-                        );
-                        // setPending(false);
+                        ).then(()=> setPending(-1));
                         //console.log("information--------", element);
                       },
                     },
@@ -424,7 +423,7 @@ const GeneralInformation = (props) => {
     } else {
       return (
         <View
-          style={{ justifyContent: "center", height: "100%", marginTop: "5%" }}
+          style={{ justifyContent: "center", height: "100%"}}
         >
           <ChargeScreen />
         </View>

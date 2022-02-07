@@ -59,16 +59,16 @@ const renderUser = (user, props) => {
 
           <View style={userListStyles.progressSection_circle}>
             <AnimatedCircularProgress
-              size={vmin(28)}
+              size={vmin(25)}
               width={vmin(2)}
-              fill={PercentageOfCompletion}
+              fill={activeWeekPercentage-10}
               tintColor="#6979F8"
               backgroundColor="rgba(228, 228, 228, 1)"
               rotation={0}
             >
               {(fill) => {
                 console.log("fill---", PercentageOfCompletion);
-                return <Text>{fill}%</Text>;
+                return <Text>{activeWeekPercentage - 10}%</Text>;
               }}
             </AnimatedCircularProgress>
           </View>
@@ -108,7 +108,7 @@ const renderUser = (user, props) => {
               </View>
 
               <View style={userListStyles.column2}>
-                <Text style={userListStyles.text2}>90%</Text>
+                <Text style={userListStyles.text2}>{user.configuration.repetitionAmount} %</Text>
               </View>
             </View>
 

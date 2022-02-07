@@ -107,6 +107,12 @@ const UpdateMedicalData = (props) => {
             amputationPhase: data.amputationPhase,
             corporalMass: parseInt(data.weight) / parseInt(data.size),
           },
+          control: {
+            trainingPhase: props.user.information.control.trainingPhase,
+            activeWeek: props.user.information.control.activeWeek,
+            activeDay: props.user.information.control.activeDay,
+            record: props.user.information.control.record,
+          },
         });
         setLoading(false);
       });

@@ -32,6 +32,7 @@ function EndRoutine(props) {
     commentary: "",
     percivedEffort: props.user.information.medical.perceivedForce,
   });
+  console.warn(props.user.information.medical.perceivedForce);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -120,10 +121,14 @@ function EndRoutine(props) {
       console.log("El id es ", idRecord);
       if (form.endRoutine === "Si") {
         console.warn("in eyes");
-        await updateControl(idRecord);
+        updateControl(idRecord).then(() => {
+          props.setPerceivedForce(force);
+          props.navigation.navigate("ProfileScreen");
+        });
+      } else {
+        props.setPerceivedForce(force);
+        props.navigation.navigate("ProfileScreen");
       }
-      props.navigation.navigate("ProfileScreen");
-      setLoading(false);
     }
   };
 
@@ -135,18 +140,6 @@ function EndRoutine(props) {
     let activeDay = props.user.information.control.activeDay;
 
     let old_record = props.user.information.control.record || [];
-
-    console.log(
-      "Los antiguos cambios son trainingPhase",
-      trainingPhase,
-      " activeWeek ,",
-      activeWeek,
-      "activeDay",
-      activeDay,
-      old_record
-    );
-    // Inicial","Intermedia","Avanzada"
-
     let new_trainingPhase = "";
     let new_activeWeek = "";
     let new_activeDay = 0;
@@ -322,7 +315,8 @@ function EndRoutine(props) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.textHeader}>
-          Por favor registre el progreso que obtuve en la rutina.
+          Registre sus observaciones con respecto a la rutina. Incluya como se
+          sintío al realizar los ejercicios.
         </Text>
       </View>
       <View style={styles.configurationContainer}>
@@ -356,7 +350,7 @@ function EndRoutine(props) {
             onPress={() => {
               Alert.alert(
                 "Esfuerzo Percibido",
-                "Es una forma de clasificar la intensidad de las actividades físicas a través de las propias sensaciones que siente el individuo que realiza la actividad en cuestión. Para medir su esfuerzo percibido siéntese y levántese de una silla 10 veces y califique como se siente al finalizar. "
+                "Modifique su esfuerzo percibido al realizar los ejercicios. Es importante evaluar de manera objetiva la intensidad de la actividad física con base a las sensaciones presentes durante la rutina. "
               );
             }}
           >
@@ -428,6 +422,7 @@ function EndRoutine(props) {
                 flexWrap: "wrap",
               },
             ]}
+            placeholder="Detalle observaciones con respecto a sus avances durante la rutina."
             onChangeText={(value) => setForm({ ...form, commentary: value })}
             value={form.commentary}
           />
@@ -483,6 +478,7 @@ const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
   updateUserControl: (data) => dispatch(actionsUser.UPDATE_USER_CONTROL(data)),
   setUserMedical: (val) => dispatch(actionsUser.UPDATE_USER_MEDICAL(val)),
   saveEndRoutine: (val) => dispatch(actionsDownload.ADD_END_ROUTINE(val)),
+  setPerceivedForce: (val) => dispatch(actionsUser.UPDATE_PERCEIVED_FORCE(val)),
   setActivityControlNotificationId: (val) =>
     dispatch(actionsNotifications.NOTIFICATION_ACTIVITY_CONTROL(val)),
 });
@@ -501,7 +497,7 @@ const styles = StyleSheet.create({
     marginRight: "10%",
   },
   textHeader: {
-    fontSize: vmin(5),
+    fontSize: vmin(4.6),
   },
   titleText: {
     fontWeight: "bold",
