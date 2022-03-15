@@ -11,6 +11,8 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
+import * as FileSystem from "expo-file-system";
+
 
 import GeneralInformation from "./GeneralInformation";
 
@@ -29,13 +31,17 @@ var { vmin } = require("react-native-expo-viewport-units");
 
 function Repository(props) {
   const layout = useWindowDimensions();
+  const mounted = React.useRef(false);
+  //EXERCISE ROUTINE CACHER
+  const [protocols, setProtocols] = React.useState({});
 
   const [index, setIndex] = React.useState(0);
   const [activate, setActivation] = React.useState(true);
+
   const [routes] = React.useState([
     { key: "first", title: "General" },
     { key: "second", title: "Restricciones" },
-    { key: "third", title: "Rutina de Ejercicios" },
+    { key: "third", title: "Ejercicios" },
   ]);
   const renderScene = ({ route }) => {
     switch (route.key) {
@@ -44,35 +50,41 @@ function Repository(props) {
       case "second":
         return <Limiting props={props} />;
       case "third":
-        return <ExerciseRoutine props={props} />;
+        return (
+          <ExerciseRoutine
+            props={props}
+            mounted= {mounted}
+            protocols={protocols}
+            setProtocols={setProtocols}
+          />
+        );
       default:
         return null;
     }
   };
 
+
   React.useEffect(() => {
-    // console.warn("repo useeffect-?!!!-");
     props.setRepoIndex(index);
-    //setActivation
-  }, [index, props.showTour1, props.showTour2, props.showTour3]);
-  // console.warn("repo ====", props.repoIndex)
+  }, [index]);
+  
   return (
     <TabView
       navigationState={{ index, routes }}
       swipeEnabled={false}
       renderScene={renderScene}
       onIndexChange={setIndex}
-      lazy={true}
+      lazy
       initialLayout={{ width: layout.width, height: layout.height }}
       // style={{ backgroundColor: "red", height: 20 }}
       renderTabBar={(props) => (
         <TabBar
           {...props}
+
           renderLabel={({ route, color }) => (
             <ScalableText
               style={{
                 color: "#6979F8",
-                margin: 4,
                 fontSize: vmin(3.8),
                 textAlign: "center",
               }}
@@ -85,70 +97,12 @@ function Repository(props) {
             backgroundColor: "white",
             // alignItems: "center",
             // justifyContent: "center",
-            // height:vmin(15)
+            height:vmin(12)
           }}
         />
       )}
     />
   );
-  // return (
-  //   <View style={{ width: "100%", height: "100%" }}>
-  //     <View
-  //       style={{
-  //         width: "100%",
-  //         height: "8%",
-  //         flexDirection: "row",
-  //         backgroundColor: "white",
-  //       }}
-  //     >
-  //       <TouchableOpacity
-  //         style={{
-  //           width: "33%",
-  //           height: "100%",
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //         }}
-  //         onPress={() => setIndex(0)}
-  //       >
-  //         <Text>General</Text>
-  //       </TouchableOpacity>
-
-  //       <TouchableOpacity
-  //         style={{
-  //           width: "33%",
-  //           height: "100%",
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //         }}
-  //         onPress={() => setIndex(1)}
-  //       >
-  //         <Text>Rutina de Ejercicios</Text>
-  //       </TouchableOpacity>
-
-  //       <TouchableOpacity
-  //         style={{
-  //           width: "33%",
-  //           height: "100%",
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //         }}
-  //         onPress={() => setIndex(2)}
-  //       >
-  //         <Text>Limitantes</Text>
-  //       </TouchableOpacity>
-  //     </View>
-
-  //     <View style={{ width: "100%", height: "98%", flexDirection: "row" }}>
-  //       {index == 0 ? (
-  //         <GeneralInformation />
-  //       ) : index == 1 ? (
-  //         <ExerciseRoutine />
-  //       ) : (
-  //         <Limiting />
-  //       )}
-  //     </View>
-  //   </View>
-  // );
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {

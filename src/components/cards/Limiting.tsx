@@ -107,7 +107,7 @@ const Limiting = (props) => {
 
           <View style={styles.column2}>
             <Text style={[styles.percentages, { fontWeight: "bold" }]}>
-              Categoría
+              Siento el esfuerzo...
             </Text>
           </View>
 
@@ -120,14 +120,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/0.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>0</Text>
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Excesivamente Liviano:</Text>
+            <Text style={styles.description}>No siento esfuerzo</Text>
           </View>
 
           <View style={styles.column3}>
@@ -137,15 +138,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Text style={{fontWeight: 800}}>1</Text>
-            <Image
+            <Text style={{fontWeight: "800"}}>1</Text>
+            {/* <Image
               source={require("../../assets/images/1.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Liviano:</Text>
+            <Text style={styles.description}>Mínimo</Text>
           </View>
 
           <View style={styles.column3}>
@@ -155,14 +156,16 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+          <Text style={{fontWeight: "800"}}>2</Text>
+
+            {/* <Image
               source={require("../../assets/images/2.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Ni liviano ni pesado:</Text>
+            <Text style={styles.description}>Poco</Text>
           </View>
 
           <View style={styles.column3}>
@@ -172,14 +175,16 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+          <Text style={{fontWeight: "800"}}>3</Text>
+
+            {/* <Image
               source={require("../../assets/images/3.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Pesado:</Text>
+            <Text style={styles.description}>Moderado</Text>
           </View>
 
           <View style={styles.column3}>
@@ -189,10 +194,11 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/4.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>4</Text>
           </View>
 
           <View style={styles.column2}>
@@ -206,14 +212,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/5.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>5</Text>
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Excesivamente Pesado:</Text>
+            <Text style={styles.description}>Intolerable</Text>
           </View>
 
           <View style={styles.column3}>
@@ -278,7 +285,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>100%</Text>
+            <Text style={imc_styles.percentages}>{"100%"}</Text>
           </View>
         </View>
 
@@ -292,7 +299,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>100%</Text>
+            <Text style={imc_styles.percentages}>{"100%"}</Text>
           </View>
         </View>
 
@@ -306,7 +313,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>70% - 90%</Text>
+            <Text style={imc_styles.percentages}>{"70% - 90%"}</Text>
           </View>
         </View>
 
@@ -320,7 +327,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>60% - 70%</Text>
+            <Text style={imc_styles.percentages}>{"60% - 70%"}</Text>
           </View>
         </View>
 
@@ -334,7 +341,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>60% - 70%</Text>
+            <Text style={imc_styles.percentages}>{"60% - 70%"}</Text>
           </View>
         </View>
 
@@ -348,7 +355,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>50% - 60%</Text>
+            <Text style={imc_styles.percentages}>{"50% - 60%"}</Text>
           </View>
         </View>
 
@@ -362,7 +369,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>50% - 50%</Text>
+            <Text style={imc_styles.percentages}>{"50% - 50%"}</Text>
           </View>
         </View>
       </View>

@@ -25,6 +25,7 @@ import * as Updates from "expo-updates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
+import * as FileSystem from "expo-file-system";
 
 var { vmin } = require("react-native-expo-viewport-units");
 
@@ -167,8 +168,34 @@ class HomeScreen extends React.Component<Props> {
       .then((keys) => AsyncStorage.multiRemove(keys))
       .then(() => this.props.navigation.navigate("Login"));
   }
-  componentDidMount = () => {
+
+  removeInvasiveCache = async () => {
+    let dir: String[] = [];
+
     try {
+      dir = await FileSystem.readDirectoryAsync(
+        FileSystem.documentDirectory + "cache"
+      );
+
+      dir &&
+        console.log(
+          "🚀 ~ file: Home.tsx ~ line 176 ~ HomeScreen ~ removeInvasiveCache= ~ dir",
+          dir
+        );
+
+      dir &&
+        dir.length > 0 &&
+        (await FileSystem.deleteAsync(FileSystem.documentDirectory + "cache/"));
+    } catch {
+      (err) => console.log("no cached");
+    }
+  };
+
+  componentDidMount = () => {
+    console.warn("component did mount")
+    try {
+      this.removeInvasiveCache();
+      this.props.setRepoLevel("protesico")
       //para sincronizar las finalziaciones de rutina en almacenamiento local por falta de conexion internet
       if (!this.props.cachedEndRoutines.empty) {
         this.syncCachedEndRoutines(this.props.cachedEndRoutines);
@@ -180,6 +207,10 @@ class HomeScreen extends React.Component<Props> {
         resolve(firebase.auth.onAuthStateChanged(this.onAuthStateChanged));
       });
       temp.then(() => {
+        //
+        // pasar sincronizacion pàra aca ?????
+        //
+
         this.setState({ loading: false });
       });
       // }
@@ -732,6 +763,7 @@ const MapStateToProps = (store: MyTypes.ReducerState) => {
 const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
   setConnection: (value) => dispatch(actionsUser.SET_CONNECTION(value)),
   setUser: (val) => dispatch(actionsUser.SET_USER(val)),
+  setRepoLevel: (val) => dispatch(actionsUser.SET_REPOLEVEL(val)),
   updateUserControl: (data) => dispatch(actionsUser.UPDATE_USER_CONTROL(data)),
   clearCachedEndRoutines: (data) =>
     dispatch(actionsDownload.CLEAR_END_ROUTINE(data)),

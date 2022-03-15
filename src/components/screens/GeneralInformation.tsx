@@ -28,6 +28,7 @@ import firebase from "../../../database/firebase";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import ChargeScreen from "../Simple/ChargeScreen";
+import { Video } from "expo-av";
 
 const GeneralInformation = (props) => {
   const [information, setInformation] = useState([]);
@@ -186,33 +187,33 @@ const GeneralInformation = (props) => {
   //     eventEmitter.off("stepChange", handleOnStepChange);
   //   };
   // }, []);
-  useEffect(() => {
-    //
-    //console.warn("tour-----", props);
-    if (props.showTour1 && props.repoIndex === 0 && canStart) {
-      console.warn("in effect if");
-      start();
-      // console.warn("get current", getCurrentStep())
-    }
-  }, [canStart]);
+  // useEffect(() => {
+  //   //
+  //   //console.warn("tour-----", props);
+  //   if (props.showTour1 && props.repoIndex === 0 && canStart) {
+  //     console.warn("in effect if");
+  //     start();
+  //     // console.warn("get current", getCurrentStep())
+  //   }
+  // }, [canStart]);
 
-  useEffect(() => {
-    //  console.warn("third effect-----");
-    if (eventEmitter !== undefined) {
-      eventEmitter.on("start", handleOnStart);
-      eventEmitter.on("stop", () => {
-        console.warn("end");
-        stop;
-      });
-      eventEmitter.on("stepChange", handleOnStepChange);
+  // useEffect(() => {
+  //   //  console.warn("third effect-----");
+  //   if (eventEmitter !== undefined) {
+  //     eventEmitter.on("start", handleOnStart);
+  //     eventEmitter.on("stop", () => {
+  //       console.warn("end");
+  //       stop;
+  //     });
+  //     eventEmitter.on("stepChange", handleOnStepChange);
 
-      return () => {
-        eventEmitter.off("start", handleOnStart);
-        eventEmitter.off("stop", handleOnStop);
-        eventEmitter.off("stepChange", handleOnStepChange);
-      };
-    }
-  }, []);
+  //     return () => {
+  //       eventEmitter.off("start", handleOnStart);
+  //       eventEmitter.off("stop", handleOnStop);
+  //       eventEmitter.off("stepChange", handleOnStepChange);
+  //     };
+  //   }
+  // }, []);
 
   const NavigationButton = () => {
     return (
@@ -255,7 +256,7 @@ const GeneralInformation = (props) => {
   };
 
   const CardInformation = (title, element, index) => {
-    console.warn("multipp-----", element.multimedia);
+//  console.warn("multipp-----", element.multimedia);
     let description;
     function setDescription() {
       try {
@@ -282,10 +283,35 @@ const GeneralInformation = (props) => {
 
         {element.multimedia !== "" && element.multimedia !== "na" ? (
           <View style={styles.containerImage}>
-            <Image
+            {/* <Image
               source={{ uri: element.multimedia }}
               style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
+            /> */}
+            {element.multimedia.includes("gif") ? (
+              <Image
+                source={{ uri: element.multimedia }}
+                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+                // style={{
+                //   width: "100%",
+                //   height: "100%",
+                //   resizeMode: "cover",
+                //   borderRadius: 13,
+                // }}
+              />
+            ) : (
+              <Video
+                source={{ uri: element.multimedia }}
+                resizeMode="stretch"
+                isLooping
+                usePoster
+                shouldPlay
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 13,
+                }}
+              />
+            )}
           </View>
         ) : (
           <View></View>
@@ -374,7 +400,7 @@ const GeneralInformation = (props) => {
                           information[CurrentInformation].title,
                           element,
                           index
-                        ).then(()=> setPending(-1));
+                        ).then(() => setPending(-1));
                         //console.log("information--------", element);
                       },
                     },
@@ -422,9 +448,7 @@ const GeneralInformation = (props) => {
       );
     } else {
       return (
-        <View
-          style={{ justifyContent: "center", height: "100%"}}
-        >
+        <View style={{ justifyContent: "center", height: "100%" }}>
           <ChargeScreen />
         </View>
       );
@@ -455,7 +479,7 @@ const GeneralInformation = (props) => {
         // console.warn("level-----", level);
         if (level === "") {
           //no amputation level specified
-          console.warn("general info return element else");
+          // console.warn("general info return element else");
           return element;
         } else {
           //amputation level registered

@@ -316,12 +316,12 @@ function CustomizeRoutine(props) {
           {props.navigation.state.params.btnText === "Continuar" ? (
             <Text style={styles.textHeader}>
               ANTES DE INICIAR: Por favor verifica que la configuración de
-              intensidad de repeticiones y tiempo de reposo este acorde a sus
+              intensidad de repeticiones y tiempo de reposo este acorde a tus
               capacidades actuales.
             </Text>
           ) : (
             <Text style={styles.textHeader}>
-              Su esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC
+              Tu esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC
               es {selectedValue.imcCategory} por ende usted puede hacer entre el{" "}
               {selectedValue.min}% y {selectedValue.max}% de las repeticiones.
             </Text>

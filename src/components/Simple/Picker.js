@@ -12,6 +12,8 @@ import Icon from "react-native-vector-icons/FontAwesome";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 
 export default function Picker(props) {
+console.log("🚀 ~ file: Picker.js ~ line 15 ~ Picker ~ props", props.value)
+  
   let temp = "";
   let temp2 = "";
   props.initialValue ? (temp = props.initialValue) : (temp = props.placeholder);
@@ -43,44 +45,15 @@ export default function Picker(props) {
           setShow(false);
         }}
       >
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-              backgroundColor: "rgba(244,244,244,0.7)",
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "80%",
-              maxHeight: "50%",
-              borderRadius: 10,
-            }}
-          >
+        <View style={styles.modelMainView}>
+          <View style={styles.modelBeforScroll}>
             <ScrollView
               style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
             >
               {props.list.map((element, index) => {
                 return (
-                  <View
-                    key={element + index}
-                    style={{
-                      // position: "absolute",
-                      backgroundColor: "#ffffff",
-                      // borderRadius: 20,
-                      alignSelf: "center",
-                      width: "100%",
-                      height: vh(6),
-                    }}
-                  >
+                  <View key={element + index} style={styles.modelItem}>
                     {/* <ScrollView> */}
                     <View
                       style={{
@@ -154,7 +127,7 @@ export default function Picker(props) {
                   color: "#000000",
                 }}
               >
-                {value}
+                {props.value ? props.value : value}
                 {props.percentajes && value !== "Seleccionar" ? "%" : ""}
               </Text>
             </View>
@@ -210,5 +183,30 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     borderRadius: 4,
+  },
+  modelMainView: {
+    height: "100%",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(244,244,244,0.7)",
+  },
+  modelBeforScroll: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "80%",
+    maxHeight: "50%",
+    borderRadius: 10,
+  },
+  modelItem: {
+    // position: "absolute",
+    backgroundColor: "#ffffff",
+    // borderRadius: 20,
+    alignSelf: "center",
+    width: "100%",
+    height: vh(6),
   },
 });

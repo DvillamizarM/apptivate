@@ -233,7 +233,8 @@ export default function RegisterPhysiotherapist(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-
+              console.log("physio data +++==", data)
+              console.log("physio password +++==", passwords)
               if(passwords.password1 == passwords.password2){
                 schema
                 .validate(data)

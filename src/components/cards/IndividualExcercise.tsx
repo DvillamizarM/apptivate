@@ -95,14 +95,14 @@ class EjercicioInactivo extends React.Component<Props> {
             this.state.info.gif && this.state.info.gif.includes("gif") ? (
               <Image
                 source={{ uri: this.state.info.gif }}
-                onLoad={() => {
-                  console.warn("entered gif load start");
-                  this.setState({ imgLoading: true, display: "hidden" });
-                }}
-                onLoadEnd={() => {
-                  console.warn("entered gif load end");
-                  this.setState({ imgLoading: false, display: "flex" });
-                }}
+                // onLoad={() => {
+                //   console.warn("entered gif load start");
+                //   this.setState({ imgLoading: true, display: "hidden" });
+                // }}
+                // onLoadEnd={() => {
+                //   console.warn("entered gif load end");
+                //   this.setState({ imgLoading: false, display: "flex" });
+                // }}
                 style={
                   this.state.imgLoading
                     ? {
@@ -125,9 +125,9 @@ class EjercicioInactivo extends React.Component<Props> {
                 resizeMode="stretch"
                 isLooping
                 usePoster
-                onPlaybackStatusUpdate={(status) => {
-                  console.warn("status", status, "  ", this.state.info.gif);
-                }}
+                // onPlaybackStatusUpdate={(status) => {
+                //   console.warn("status", status, "  ", this.state.info.gif);
+                // }}
                 shouldPlay
                 style={{ width: "100%", height: "100%" }}
               />

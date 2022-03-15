@@ -6,6 +6,7 @@ export const initialState = {
   role: "",
   connection:  false,
   repoIndex: 0,
+  repoLevel: "protesico",
   showTour1: false,
   showTour2: false,
   showTour3: false,
@@ -39,6 +40,13 @@ export const UserReducer = (
         ...state,
         repoIndex: action.payload,
       };
+
+      case actionTypes.SET_REPOLEVEL:
+        console.warn("REPO LEVEL :", action.payload);
+        return {
+          ...state,
+          repoLevel: action.payload,
+        };
 
     case actionTypes.SHOW_TOUR1:
       console.warn("show tour 1 :", action.payload);

@@ -79,9 +79,8 @@ const stack = createStackNavigator(
         
         title: `Apptivate`,
         headerLeft: () => (
-          <View style={{ width: "100%"}}>
+        
             <Logo/>
-          </View>
         ),
         
         headerShown: true,
