@@ -37,35 +37,18 @@ import { NavBtn } from "../Simple/NavBtn";
 
 const ExerciseRoutine = (props) => {
   const [CurrentInformation, setCurrentInformation] = useState(0);
-  // const [level, setLevel] = useState("protesico");
   const level = props.level;
-  console.log(
-    "🚀 ~ file: ExerciseRoutine.tsx ~ line 40 ~ ExerciseRoutine ~  props.user.repoLevel",
-    props.level
-  );
   const [information, setInformation]: any = useState([]);
-
-  // const [newinfo, setnewinfo]: any = useState([]);
-
   const [loading, setLoading] = useState(true);
-  // const [pickerVal, setPickerVal] = useState("Protésico");
   const [exists, setExistence] = useState(false);
   const [pending, setPending] = useState(-1);
-
-  // const [cachedUris, setCachedUris] = useState([]);
-
   const [phases, setPhases]: any = useState([]);
 
   const organizePhases = (list) => {
-    console.log(
-      "🚀 ~ file: ExerciseRoutine.tsx ~ line 54 ~ organizePhases ~ list"
-      // list
-    );
     const tempPhase: any = [];
     Object.keys(list).forEach((phase: any) => {
       tempPhase.push({ title: list[phase].title, key: phase });
     });
-    console.log("🚀 organizePhases ~ tempPhase");
     setPhases(tempPhase);
   };
 
@@ -189,106 +172,109 @@ const ExerciseRoutine = (props) => {
   const cachePhase = async (currentPhase) => {
     const revisedExercises: any = [];
     const tempCache: any = [];
+    const levelId = currentPhase.title.includes("Semana") ? props.level : "";
+    console.log("line 193 ~ ~ currentPhase.title", currentPhase.title);
 
     await FileSystem.makeDirectoryAsync(
       FileSystem.documentDirectory + "cache",
       { intermediates: true }
     );
+    await Promise.all(
+      currentPhase.exercises.map(async (exercise, index) => {
+        console.log(" ~ levelId", levelId);
 
-    // new Promise((resolve) => {
-    //   resolve(
-    currentPhase.exercises.forEach(async (exercise, index) => {
-      const levelId = currentPhase.title.includes("Semana") ? props.level : "";
-      console.log(" ~ levelId", levelId);
+        const fileUri: string = exercise.gif.includes("gif")
+          ? `${FileSystem.documentDirectory + "cache/"}${
+              currentPhase.title + levelId + "gif" + index
+            }`
+          : `${FileSystem.documentDirectory + "cache/"}${
+              currentPhase.title + levelId + index
+            }`;
+        let audioUri: string = `${FileSystem.documentDirectory}${
+          exercise.routinePhase + currentPhase.phase + "Audio" + index
+        }`;
+        await FileSystem.downloadAsync(exercise.gif, fileUri);
+        await FileSystem.downloadAsync(exercise.voz, audioUri);
 
-      const fileUri: string = exercise.gif.includes("gif")
-        ? `${FileSystem.documentDirectory + "cache/"}${
-            currentPhase.title + levelId + "gif" + index
-          }`
-        : `${FileSystem.documentDirectory + "cache/"}${
-            currentPhase.title + levelId + index
-          }`;
-      let audioUri: string = `${FileSystem.documentDirectory}${
-        exercise.routinePhase + currentPhase.phase + "Audio" + index
-      }`;
-      await FileSystem.downloadAsync(exercise.gif, fileUri);
-      await FileSystem.downloadAsync(exercise.voz, audioUri);
+        let tempExercise = exercise;
+        tempExercise.gif = fileUri;
+        tempExercise.voz = audioUri;
+        tempCache.push(fileUri);
+        tempCache.push(audioUri);
+        revisedExercises.push(tempExercise);
+        // return tempExercise;
+      })
+    );
+    console.log(revisedExercises);
 
-      let tempExercise = exercise;
-      tempExercise.gif = fileUri;
-      tempExercise.voz = audioUri;
-      tempCache.push(fileUri);
-      tempCache.push(audioUri);
-      revisedExercises.push(tempExercise);
-
-      if (index + 1 === currentPhase.exercises.length) {
-        console.log("last exercise in cache");
-        let newInfo = information;
-        newInfo[CurrentInformation].exercises = revisedExercises;
-
-        if (levelId !== "") {
-          console.log("level has value  ");
-          setInformation(newInfo);
-          props.setProtocols({ ...props.protocols, [level]: newInfo });
-          setLoading(false);
-        } else {
-          console.log("level doesnt value  ");
-
-          let pre = props.protocols.preprotesico;
-          let pro = props.protocols.protesico;
-          pro[index].exercises = revisedExercises;
-          pre ? (pre[index].exercises = revisedExercises) : (pre = pro);
-          setInformation(newInfo);
-          props.setProtocols({ protesico: pro, preprotesico: pre });
-          setLoading(false);
-        }
-        console.log(
-          "🚀 ~ file: ExerciseRoutine.tsx ~ line 248 ~ currentPhase.exercises.forEach ~ newInfo"
-          // newInfo
-        );
-      }
+    revisedExercises.sort((a, b) => {
+      const numberA = a.gif.match(/\d+$/)[0];
+      const numberB = b.gif.match(/\d+$/)[0];
+      return numberA - numberB;
     });
-    //   );
-    // })
+    return revisedExercises;
+  };
+
+  const setCached = () => {
+    const levelId = information[CurrentInformation].title.includes("Semana")
+      ? props.level
+      : "";
+    cachePhase(information[CurrentInformation]).then((revisedExercises) => {
+      let newInfo = information;
+      newInfo[CurrentInformation].exercises = revisedExercises;
+
+      console.log(
+        "🚀 ~ file: ExerciseRoutine.tsx ~ line 232 ~ newPromise ~ revisedExercises",
+        revisedExercises[0]
+      );
+
+      // if (levelId !== "") {
+        console.log("level has value  ");
+        setInformation(newInfo);
+        props.setProtocols({ ...props.protocols, [level]: newInfo });
+        setLoading(false);
+      // } 
+      // else {
+      //   console.log("level doesnt have value");
+
+      //   const exerciseLength = newInfo[CurrentInformation].exercises.length;
+
+      //   let pre = props.protocols.preprotesico;
+      //   let pro = props.protocols.protesico;
+      //   console.log("line 251 ~  ~ pre", pro[0].exercises[0]);
+      //   pro[CurrentInformation].exercises = revisedExercises;
+      //   pre
+      //     ? (pre[CurrentInformation].exercises = revisedExercises)
+      //     : (pre = pro);
+      //   setInformation(newInfo);
+      //   props.setProtocols({ protesico: pro, preprotesico: pre });
+      //   setLoading(false);
+      // }
+    });
   };
 
   useEffect(() => {
-    console.log("effect level = ", level);
-    if (information && information.length === 0) {
-      console.log("useeefect information is empty ");
-      props.protocols[level] === undefined
-        ? getProtocol(level)
-        : setInformation(props.protocols[level]) &&
-          setPhases(props.protocols[level]);
-    } else {
-      let currentPhase: any = {};
-      currentPhase = information[CurrentInformation];
-      console.log(
-        "🚀 ~ file: ExerciseRoutine.tsx ~ line 266 ~ useEffect ~ currentPhase"
-        // currentPhase
-      );
-      if (currentPhase.exercises[0].gif.includes("firebase")) {
-        console.log("goona cache");
-        cachePhase(currentPhase);
+    if (loading) {
+      console.log("effect level = ", level);
+      if (information && information.length === 0) {
+        console.log("useeefect information is empty ");
+        props.protocols[level] === undefined
+          ? getProtocol(level)
+          : setInformation(props.protocols[level]) &&
+            setPhases(props.protocols[level]);
       } else {
-        console.log(
-          "🚀 ~ file: ExerciseRoutine.tsx ~ line 273 ~ useEffect ~ loading",
-          loading
-        );
-        loading && setLoading(false);
+        if (
+          information[CurrentInformation].exercises[0].gif.includes("firebase")
+        ) {
+          console.log("goona cache");
+          setCached();
+        } else {
+          console.log(" line 273 ~ useEffect ~ loading", loading);
+          loading && setLoading(false);
+        }
       }
     }
   }, [phases, CurrentInformation]);
-
-  // useEffect(()=>{
-  //   if(newinfo.length !== 0){
-  //     const newnew = newinfo;
-  //     console.log("cache then ");
-  //     setInformation(newnew);
-  //     setLoading(false);
-  //     setnewinfo([])
-  //   }
-  // },[newinfo])
 
   const downloadSection = async ({ sectionIndex, title, title2 }) => {
     const urls = getUrls(information[sectionIndex].exercises);

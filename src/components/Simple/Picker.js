@@ -70,7 +70,7 @@ console.log("🚀 ~ file: Picker.js ~ line 15 ~ Picker ~ props", props.value)
                           height: "100%",
                         }}
                         onPress={() => {
-                          console.warn("clicked====", element);
+                          console.log("clicked====", element);
                           props.setData(element, index);
                           setValue(element);
                           setShow(false);

@@ -42,7 +42,7 @@ export const UserReducer = (
       };
 
       case actionTypes.SET_REPOLEVEL:
-        console.warn("REPO LEVEL :", action.payload);
+        console.log("REPO LEVEL :", action.payload);
         return {
           ...state,
           repoLevel: action.payload,
