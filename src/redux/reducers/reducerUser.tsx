@@ -6,7 +6,7 @@ export const initialState = {
   role: "",
   connection:  false,
   repoIndex: 0,
-  repoLevel: "protesico",
+  repoLevel: "preprotesico",
   showTour1: false,
   showTour2: false,
   showTour3: false,

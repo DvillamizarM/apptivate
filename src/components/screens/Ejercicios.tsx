@@ -32,7 +32,7 @@ class Ejercicios extends React.Component<Props> {
     super(props);
   }
   state = {
-    currentPosition: 0,
+    currentPosition: 2,
     routineIDs: [],
     exercises: [],
     defaultSetups: {},
@@ -441,7 +441,7 @@ class Ejercicios extends React.Component<Props> {
                       text: "ABANDONAR",
                       onPress: () =>
                         this.props.navigation.navigate("EndRoutine", {
-                          routineIsNotOver: false,
+                          routineIsNotOver: true,
                         }),
                     },
                   ],

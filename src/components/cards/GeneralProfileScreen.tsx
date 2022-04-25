@@ -496,7 +496,7 @@ console.warn("props control===", props.props.user.information.control)
           props.props.user.information.role === "") &&
         props.props.user.information.control.activeWeek !== "week11" ? (
           <View style={styles.footerButtons}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.button2}
               onPress={() =>
                 props.props.navigation.navigate("ScheduleRoutines")
@@ -505,7 +505,7 @@ console.warn("props control===", props.props.user.information.control)
               <ScalableText style={{ color: "white", fontWeight: "bold" }}>
                 Configurar alarmas de la rutina semanal
               </ScalableText>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.button2}
               onPress={() => validateEditData()}
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
 
   button2: {
     width: "90%",
-    height: "40%",
+    height: "80%",
     marginBottom: "4%",
     backgroundColor: "#6979F8",
     justifyContent: "center",
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
 
   progressContainer: {
     width: "95%",
-    height: "66%",
+    height: "76%",
     justifyContent: "space-evenly",
     alignItems: "center",
     marginTop: "3%",
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   },
   footerButtons: {
     width: "100%",
-    height: "20%",
+    height: "10%",
     marginTop: "4%",
     justifyContent: "space-evenly",
     alignItems: "center",

@@ -161,9 +161,9 @@ export default function imcCalculator(props) {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                  const temp = (weight / Math.pow(size,2))*100;
-                  console.warn("preseed", temp, "    ",Math.pow(size,2), "       ", weight);
-                setIMC(temp*100);
+                  const imcFormula = (weight / Math.pow(size,2))*100;
+                  console.warn("preseed", imcFormula, "    ",Math.pow(size,2), "       ", weight);
+                setIMC(imcFormula*100);
               }}
             >
               <Text style={{ color: "#ffffff" }}>Calcular IMC</Text>

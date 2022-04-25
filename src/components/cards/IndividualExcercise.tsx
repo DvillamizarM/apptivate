@@ -249,8 +249,8 @@ class EjercicioInactivo extends React.Component<Props> {
               )}
             </View>
             <View style={styles.textContainer}>
-              <Text style={{}}>Comando</Text>
-              <Text style={{}}>de Voz</Text>
+              <Text style={{}}>Audio</Text>
+              <Text style={{}}>Guía</Text>
             </View>
           </TouchableOpacity>
         </View>

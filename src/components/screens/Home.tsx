@@ -195,7 +195,7 @@ class HomeScreen extends React.Component<Props> {
     console.warn("component did mount")
     try {
       this.removeInvasiveCache();
-      this.props.setRepoLevel("protesico")
+      this.props.setRepoLevel("preprotesico")
       //para sincronizar las finalziaciones de rutina en almacenamiento local por falta de conexion internet
       if (!this.props.cachedEndRoutines.empty) {
         this.syncCachedEndRoutines(this.props.cachedEndRoutines);

@@ -242,24 +242,26 @@ class EjercicioInactivo extends React.Component<Props> {
   };
 
   async handlePlaySound(audio) {
-    this.setState({ playing: true });
-    const { sound } = await Audio.Sound.createAsync({ uri: audio });
+    if (this.state.timerType === "Terminar Serie") {
+      this.setState({ playing: true });
+      const { sound } = await Audio.Sound.createAsync({ uri: audio });
 
-    new Promise((resolve, reject) => {
-      console.log("Playing Sound");
-      sound.playAsync();
-      console.warn("then");
-      setTimeout(() => {
-        resolve("foo");
-      }, 15000);
-    })
-      .then(() => {
-        sound.unloadAsync();
-        this.setState({ playing: false });
+      new Promise((resolve, reject) => {
+        console.log("Playing Sound");
+        sound.playAsync();
+        console.warn("then");
+        setTimeout(() => {
+          resolve("foo");
+        }, 15000);
       })
-      .catch((err) => {
-        Alert.alert("No se cargo el audio correctamente.");
-      });
+        .then(() => {
+          sound.unloadAsync();
+          this.setState({ playing: false });
+        })
+        .catch((err) => {
+          Alert.alert("No se cargo el audio correctamente.");
+        });
+    }
   }
 
   render() {
@@ -329,16 +331,16 @@ class EjercicioInactivo extends React.Component<Props> {
               acompañante presente.
             </Text>
           ) : this.state.timerType === "Terminar Serie" ? (
-             this.state.gif && this.state.gif.includes("gif") ? (
+            this.state.gif && this.state.gif.includes("gif") ? (
               <Image
                 source={{ uri: this.state.gif }}
-                onLoad={() => {
-                  this.setState({ imgLoading: true, display: "hidden" });
-                }}
-                onLoadEnd={() => {
-                  console.warn("entered gif load end");
-                  this.setState({ imgLoading: false, display: "flex" });
-                }}
+                // onLoad={() => {
+                //   this.setState({ imgLoading: true, display: "hidden" });
+                // }}
+                // onLoadEnd={() => {
+                //   console.warn("entered gif load end");
+                //   this.setState({ imgLoading: false, display: "flex" });
+                // }}
                 style={
                   this.state.imgLoading
                     ? {
@@ -364,9 +366,9 @@ class EjercicioInactivo extends React.Component<Props> {
                 onLoad={() => {
                   this.setState({ imgLoading: true, display: "flex" });
                 }}
-                onPlaybackStatusUpdate={(status) => {
-                  console.warn("status", status, "  ", this.state.info.gif);
-                }}
+                // onPlaybackStatusUpdate={(status) => {
+                //   console.warn("status", status, "  ", this.state.info.gif);
+                // }}
                 shouldPlay
                 style={{ width: "100%", height: "100%" }}
               />
@@ -474,6 +476,7 @@ class EjercicioInactivo extends React.Component<Props> {
             style={styles.box2}
             disabled={this.state.playing}
             onPress={() => {
+              // this.state.timerType !== "Iniciar Serie" &&
               this.handlePlaySound(this.state.voz);
             }}
           >
@@ -485,8 +488,8 @@ class EjercicioInactivo extends React.Component<Props> {
               )}
             </View>
             <View style={styles.textContainer}>
-              <Text style={{}}>Comando</Text>
-              <Text style={{}}>de Voz</Text>
+              <Text style={{}}>Audio</Text>
+              <Text style={{}}>Guía</Text>
             </View>
           </TouchableOpacity>
         </View>

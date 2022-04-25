@@ -55,9 +55,9 @@ const ExerciseRoutine = (props) => {
   const getProtocol = async (phase) => {
     let passed = 0;
     let list: any = [];
-    console.log(
-      "🚀 ~ file: ExerciseRoutine.tsx ~ line 71 ~ getProtocol ~ phase"
-      // phase
+    console.warn(
+      "🚀 ~ file: ExerciseRoutine.tsx ~ line 71 ~ getProtocol ~ phase",
+      phase
     );
     // const level = protocol[CurrentInformation].key;
     if (props.connection) {
@@ -68,13 +68,17 @@ const ExerciseRoutine = (props) => {
         .then((element) => {
           let data: any = element.data();
           console.log(
-            "🚀 ~ file: ExerciseRoutine.tsx ~ line 84 ~ .then ~ data"
+            "🚀 ~ file: ExerciseRoutine.tsx ~ line 84 ~ .then ~ data",
             // phase,
             // data.toString()
           );
 
           const otherList = Object.values(data).map(
             async (element: any, index) => {
+              console.warn(
+                "🚀 ~ file: ExerciseRoutine.tsx ~ line 78 ~ element",
+                element.title
+              );
               const trainingPhase =
                 props.user.information.control === undefined
                   ? ""
@@ -92,14 +96,16 @@ const ExerciseRoutine = (props) => {
                   exercises: [],
                 };
                 const promises = element.refs.map(async (ref, index) => {
+                console.log("🚀 ~ file: ExerciseRoutine.tsx ~ line 99 ~ promises ~ ref", ref)
                   await ref.get().then((res) => {
-                    // console.log("res.data() = ", res.data());
+                    console.log("res.data() = ", res.data());
                     info.push(res.data());
                   });
                   return info;
                 });
                 const finished = await Promise.all(promises).then(
                   (finished: Object) => {
+                    console.log("🚀 ~ file: ExerciseRoutine.tsx ~ line 108 ~ finished", finished)
                     temp.exercises = finished[0];
                     temp.phase === "" ||
                     temp.phase === trainingPhase ||
@@ -227,29 +233,10 @@ const ExerciseRoutine = (props) => {
         "🚀 ~ file: ExerciseRoutine.tsx ~ line 232 ~ newPromise ~ revisedExercises",
         revisedExercises[0]
       );
-
-      // if (levelId !== "") {
-        console.log("level has value  ");
-        setInformation(newInfo);
-        props.setProtocols({ ...props.protocols, [level]: newInfo });
-        setLoading(false);
-      // } 
-      // else {
-      //   console.log("level doesnt have value");
-
-      //   const exerciseLength = newInfo[CurrentInformation].exercises.length;
-
-      //   let pre = props.protocols.preprotesico;
-      //   let pro = props.protocols.protesico;
-      //   console.log("line 251 ~  ~ pre", pro[0].exercises[0]);
-      //   pro[CurrentInformation].exercises = revisedExercises;
-      //   pre
-      //     ? (pre[CurrentInformation].exercises = revisedExercises)
-      //     : (pre = pro);
-      //   setInformation(newInfo);
-      //   props.setProtocols({ protesico: pro, preprotesico: pre });
-      //   setLoading(false);
-      // }
+      console.log("level has value  ");
+      setInformation(newInfo);
+      props.setProtocols({ ...props.protocols, [level]: newInfo });
+      setLoading(false);
     });
   };
 
@@ -281,24 +268,29 @@ const ExerciseRoutine = (props) => {
     const audioUrls: any = getAudioUrls(information[sectionIndex].exercises);
     let items: any = [...information];
     title2 = title2 === "title2" ? "" : title2;
-
-    // console.warn("item---", items);
     await Promise.all(
       urls.map(async (element, index) => {
-        // console.warn("url---", element);
-        // console.warn("uri---", fileUri);
         const fileUri: string = `${FileSystem.documentDirectory}${
           title + title2 + index
         }`;
         let audioUri: string = `${FileSystem.documentDirectory}${
           title + title2 + "Audio" + index
         }`;
-        const downloadedFile: FileSystem.FileSystemDownloadResult =
-          await FileSystem.downloadAsync(element, fileUri);
+        await FileSystem.moveAsync({
+          from: `${items[sectionIndex].exercises[index].gif}`,
+          to: `${FileSystem.documentDirectory}${title + title2 + index}`,
+        });
+
+        // await FileSystem.downloadAsync(element, fileUri);
         if (audioUrls[index].length > 25) {
-          // console.warn("passed file download", audioUrls[index]);
-          const downloadedFile1: FileSystem.FileSystemDownloadResult =
-            await FileSystem.downloadAsync(audioUrls[index], audioUri);
+          // await FileSystem.downloadAsync(audioUrls[index], audioUri);
+
+          await FileSystem.moveAsync({
+            from: `${items[sectionIndex].exercises[index].voz}`,
+            to: `${FileSystem.documentDirectory}${
+              title + title2 + "Audio" + index
+            }`,
+          });
         } else {
           audioUri = "";
         }
@@ -309,11 +301,10 @@ const ExerciseRoutine = (props) => {
         };
         console.warn("downloaded all----", item);
         items[sectionIndex].exercises[index] = item;
-
-        setInformation(items);
       })
     )
       .then(() => {
+        setInformation(items);
         if (!props.previusIdentifiers.includes(title + title2)) {
           let sectionToSave = information[sectionIndex];
           // console.warn("section---", information[sectionIndex]);
@@ -357,8 +348,8 @@ const ExerciseRoutine = (props) => {
 
   const FirstSection = (info, sectionIndex) => {
     console.log(
-      "🚀 ~ file: ExerciseRoutine.tsx ~ line 306 ~ FirstSection ~ info"
-      // info
+      "🚀 ~ file: ExerciseRoutine.tsx ~ line 306 ~ FirstSection ~ info",
+      info
     );
 
     let title = info.phase !== "" ? info.phase : info.title;
@@ -510,7 +501,15 @@ const ExerciseRoutine = (props) => {
                   new Promise((resolve) => {
                     resolve(props.setRepoLevel(dataKey));
                   }).then(() => {
+                    console.log(
+                      "🚀 ~ file: ExerciseRoutine.tsx ~ line 518 ~ newPromise ~ props.protocols[dataKey]",
+                      props.protocols[dataKey]
+                    );
                     if (props.protocols[dataKey] === undefined) {
+                      console.warn(
+                        "🚀 ~ file: ExerciseRoutine.tsx ~ line 520 ~ newPromise ~ dataKey",
+                        dataKey
+                      );
                       getProtocol(dataKey).then(() => setLoading(false));
                     } else {
                       new Promise((resolve) =>
@@ -563,10 +562,10 @@ const ExerciseRoutine = (props) => {
 
     let key_e = item.index;
 
-    // console.warn(
-    //   "La multimeodoas s props que tenemos hata aca son:::::::::::::::::",
-    //   multimedia
-    // );
+    console.warn(
+      "La multimeodoas s props que tenemos hata aca son:::::::::::::::::",
+      multimedia
+    );
 
     return (
       <TouchableOpacity
