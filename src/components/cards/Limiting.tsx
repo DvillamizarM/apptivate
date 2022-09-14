@@ -22,47 +22,6 @@ import LightBulb from "react-native-vector-icons/FontAwesome";
 const Limiting = (props) => {
   const [show, setShow] = useState(false);
 
-  // const {
-  //   canStart, // a boolean indicate if you can start tour guide
-  //   start, // a function to start the tourguide
-  //   stop, // a function  to stopping it
-  //   eventEmitter, // an object for listening some events
-  // } = useTourGuideController();
-  // const handleOnStart = () => console.log("start");
-  // const handleOnStop = () => console.log("stop");
-  // const handleOnStepChange = (step) => {
-  //   console.log("step--", step);
-  //   if (step === undefined) {
-  //     props.updateShowTour2(false), stop;
-  //   } else {
-  //     console.log("step num=---", step.order);
-  //   }
-  //   console.log("stepChange");
-  // };
-  // useEffect(() => {
-  //   console.warn("in if start limiting -----", canStart);
-  //   console.warn("in if start showtour2 -----", props.showTour2);
-  //   console.warn("in if start repoIndex -----", props.repoIndex);
-  //   if (props.showTour2 && props.repoIndex === 1 && canStart) {
-  //     // 👈 test if you can start otherwise nothing will happen
-  //     console.warn("passed if");
-  //     start(6);
-  //   }
-  // }, [canStart]);
-
-  // useEffect(() => {
-  //   // console.warn("third effect-----");
-  //   eventEmitter.on("start", handleOnStart);
-  //   eventEmitter.on("stop", handleOnStop);
-  //   eventEmitter.on("stepChange", handleOnStepChange);
-
-  //   return () => {
-  //     eventEmitter.off("start", handleOnStart);
-  //     eventEmitter.off("stop", handleOnStop);
-  //     eventEmitter.off("stepChange", handleOnStepChange);
-  //   };
-  // }, []);
-
   return (
     <ScrollView style={styles.container}>
       <ImcCalculator show={show} setShow={setShow} />
@@ -74,11 +33,7 @@ const Limiting = (props) => {
       </View>
 
       <View style={styles.rowContainer}>
-        {/* <TourGuideZone
-          zone={6}
-          text="La información esta organizada por categoría. Con las flechas de los lados se puede mover por las categorías."
-          borderRadius={16}
-        > */}
+      
         <View style={styles.effortContainer}>
          
             <Text style={[styles.title2, {marginRight:"4%"}]}>Esfuerzo Percibido</Text>
@@ -107,7 +62,7 @@ const Limiting = (props) => {
 
           <View style={styles.column2}>
             <Text style={[styles.percentages, { fontWeight: "bold" }]}>
-              Categoría
+              Siento el esfuerzo...
             </Text>
           </View>
 
@@ -120,14 +75,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/0.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>0</Text>
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Excesivamente Liviano:</Text>
+            <Text style={styles.description}>No siento esfuerzo</Text>
           </View>
 
           <View style={styles.column3}>
@@ -137,15 +93,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Text style={{fontWeight: 800}}>1</Text>
-            <Image
+            <Text style={{fontWeight: "800"}}>1</Text>
+            {/* <Image
               source={require("../../assets/images/1.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Liviano:</Text>
+            <Text style={styles.description}>Mínimo</Text>
           </View>
 
           <View style={styles.column3}>
@@ -155,14 +111,16 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+          <Text style={{fontWeight: "800"}}>2</Text>
+
+            {/* <Image
               source={require("../../assets/images/2.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Ni liviano ni pesado:</Text>
+            <Text style={styles.description}>Poco</Text>
           </View>
 
           <View style={styles.column3}>
@@ -172,14 +130,16 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+          <Text style={{fontWeight: "800"}}>3</Text>
+
+            {/* <Image
               source={require("../../assets/images/3.png")}
               style={styles.imageContainer}
-            />
+            /> */}
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Pesado:</Text>
+            <Text style={styles.description}>Moderado</Text>
           </View>
 
           <View style={styles.column3}>
@@ -189,10 +149,11 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/4.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>4</Text>
           </View>
 
           <View style={styles.column2}>
@@ -206,14 +167,15 @@ const Limiting = (props) => {
 
         <View style={styles.row}>
           <View style={styles.column1}>
-            <Image
+            {/* <Image
               source={require("../../assets/images/5.png")}
               style={styles.imageContainer}
-            />
+            /> */}
+              <Text style={{fontWeight: "800"}}>5</Text>
           </View>
 
           <View style={styles.column2}>
-            <Text style={styles.description}>Excesivamente Pesado:</Text>
+            <Text style={styles.description}>Intolerable</Text>
           </View>
 
           <View style={styles.column3}>
@@ -278,7 +240,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>100%</Text>
+            <Text style={imc_styles.percentages}>{"100%"}</Text>
           </View>
         </View>
 
@@ -292,7 +254,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>100%</Text>
+            <Text style={imc_styles.percentages}>{"100%"}</Text>
           </View>
         </View>
 
@@ -306,7 +268,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>70% - 90%</Text>
+            <Text style={imc_styles.percentages}>{"70% - 90%"}</Text>
           </View>
         </View>
 
@@ -320,7 +282,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>60% - 70%</Text>
+            <Text style={imc_styles.percentages}>{"60% - 70%"}</Text>
           </View>
         </View>
 
@@ -334,7 +296,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>60% - 70%</Text>
+            <Text style={imc_styles.percentages}>{"60% - 70%"}</Text>
           </View>
         </View>
 
@@ -348,7 +310,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>50% - 60%</Text>
+            <Text style={imc_styles.percentages}>{"50% - 60%"}</Text>
           </View>
         </View>
 
@@ -362,7 +324,7 @@ const Limiting = (props) => {
           </View>
 
           <View style={imc_styles.column3}>
-            <Text style={imc_styles.percentages}>50% - 50%</Text>
+            <Text style={imc_styles.percentages}>{"50% - 50%"}</Text>
           </View>
         </View>
       </View>

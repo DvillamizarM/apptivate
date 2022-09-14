@@ -24,7 +24,6 @@ export const DownloadReducer = (
         return a.order - b.order;
       });
       previusIdentifiers.push(action.payload.title + action.payload.title2);
-      console.warn("ids---", previusIdentifiers);
       return {
         ...state,
         ExerciseRoutine: previusExercises,
@@ -43,7 +42,6 @@ export const DownloadReducer = (
       };
 
     case actionTypes.REMOVE_EXERCISE_ITEM:
-      console.warn("pyload--", action.payload);
       return {
         ...state,
         ExerciseRoutine: state.ExerciseRoutine.filter(
@@ -93,7 +91,6 @@ export const DownloadReducer = (
       };
 
     case actionTypes.ADD_END_ROUTINE:
-      console.warn("END ROUTINE :", action.payload);
       let ended: any = state.SavedEndRoutines;
       ended.push(action.payload);
       return {
@@ -102,7 +99,6 @@ export const DownloadReducer = (
       };
 
     case actionTypes.CLEAR_END_ROUTINE:
-      console.warn("END ROUTINE clae :", action.payload);
       let ended1 = [];
       return {
         ...state,

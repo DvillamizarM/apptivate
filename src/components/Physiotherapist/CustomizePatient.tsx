@@ -21,7 +21,6 @@ import ChargeScreen from "../Simple/ChargeScreen";
 
 function CustomizePatient({ props }) {
   const { userInformation } = props.props;
-console.warn("props protocolo customize", props);  
   const [selectedValue, setSelectedValue] = useState({
     min: 0,
     max: 0,
@@ -43,7 +42,6 @@ console.warn("props protocolo customize", props);
     "Excesivamente Pesado",
   ];
   const calculatePerceivedEffort = (category) => {
-    console.log("Parametro de fueza percivida", category);
     let min = 0;
     let max = 0;
 
@@ -88,7 +86,6 @@ console.warn("props protocolo customize", props);
   };
 
   const imcPercentaje = (imc) => {
-    console.log("El imc que llega como parametro es ;", imc);
     let min = 0;
     let max = 0;
     let category = "";
@@ -122,14 +119,6 @@ console.warn("props protocolo customize", props);
   };
 
   const calculatePercentajes = (user) => {
-    console.log(
-      "peso: ",
-      user.medical.weight,
-      "tama;o: ",
-      user.medical.size,
-      "Informacion completa: ",
-      user
-    );
     const imc = imcPercentaje(
       user.medical.weight /
         ((user.medical.size / 100) * (user.medical.size / 100))
@@ -139,19 +128,21 @@ console.warn("props protocolo customize", props);
       user.medical.perceivedForce
     );
 
-    let minimunAverage =(imc.min+perceivedEffort.min) / 2;
+    let minimunAverage = (imc.min + perceivedEffort.min) / 2;
     let maximunAverage = (imc.max + perceivedEffort.max) / 2;
-    console.log(minimunAverage% 10, "     ", maximunAverage% 10)
-minimunAverage % 10 == 5 ? minimunAverage -= 5 : minimunAverage = minimunAverage;
-maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
+    minimunAverage % 10 == 5
+      ? (minimunAverage -= 5)
+      : (minimunAverage = minimunAverage);
+    maximunAverage % 10 == 5
+      ? (maximunAverage -= 5)
+      : (maximunAverage = maximunAverage);
 
     let range: any = ["Seleccionar"];
     let difference = maximunAverage - minimunAverage;
 
-    for (let index = minimunAverage; index <= maximunAverage; index+=10) {
-        range.push(index);
+    for (let index = minimunAverage; index <= maximunAverage; index += 10) {
+      range.push(index);
     }
-    console.log("category----", imc.category);
     setSelectedValue({
       min: minimunAverage,
       max: maximunAverage,
@@ -169,12 +160,6 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
     setMinutes(user.configuration.restTimeMin);
     setTime(user.configuration.restTimeMin + ":" + sec);
     setLoading(false);
-
-    console.log("LLLLLLLLLLLLLLLLLLLos resultados son:", imc, perceivedEffort, {
-      min: minimunAverage,
-      max: maximunAverage,
-      repetitionAmount: user.configuration.repetitionAmount,
-    });
   };
 
   useEffect(() => {
@@ -182,30 +167,25 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
   }, []);
 
   const updateConfig = async () => {
-    console.log("uid---", userInformation.uid)
-      console.log("uid---", userInformation.uid)
-      await firebase.db
-        .collection("users")
-        .doc(userInformation.uid)
-        .update({
-          configuration: {
-            repetitionAmount:selectedValue.repetitionAmount,
-            restTimeMin:minutes,
-            restTimeSec: seconds,
-            repetitionMax: selectedValue.max,
-            repetitionMin: selectedValue.min,
-          },
-        });
+    await firebase.db
+      .collection("users")
+      .doc(userInformation.uid)
+      .update({
+        configuration: {
+          repetitionAmount: selectedValue.repetitionAmount,
+          restTimeMin: minutes,
+          restTimeSec: seconds,
+          repetitionMax: selectedValue.max,
+          repetitionMin: selectedValue.min,
+        },
+      });
   };
 
   const pull_repData = (data) => {
-    
-    setSelectedValue({ ...selectedValue, repetitionAmount: data })
-    console.warn("rep data pulled==========", data); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
+    setSelectedValue({ ...selectedValue, repetitionAmount: data });
   };
 
   const pull_timeData = (data) => {
-    console.warn("time data pulled==========", data); //
     setTime(data);
     let timeSelected = data.split(":");
     setMinutes(parseInt(timeSelected[0]));
@@ -213,24 +193,38 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
   };
 
   if (loading) {
-    return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.textHeader}>
-            {
-              selectedValue.perceivedForce !== "" ?
-           "El esfuerzo percibido del paciente es " + selectedValue.perceivedForce +
-           " y su IMC es " + selectedValue.imcCategory + " por ende puede hacer entre el " +
-            selectedValue.min + "% y " + selectedValue.max +"% de las repeticiones."
-            : "Usuario no tiene datos médicos registrados, por ende esta función no está disponible."
-             }
+            {selectedValue.perceivedForce !== ""
+              ? "El esfuerzo percibido del paciente es " +
+                selectedValue.perceivedForce +
+                " y su IMC es " +
+                selectedValue.imcCategory +
+                " por ende puede hacer entre el " +
+                selectedValue.min +
+                "% y " +
+                selectedValue.max +
+                "% de las repeticiones."
+              : "Usuario no tiene datos médicos registrados, por ende esta función no está disponible."}
           </Text>
         </View>
-        <View  style={styles.configurationContainer}>
+        <View style={styles.configurationContainer}>
           <View style={styles.containerPercentajes}>
-
             <Text>Config. Actual {selectedValue.repetitionAmount}%</Text>
           </View>
 
@@ -241,7 +235,7 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
               setData={pull_repData}
               placeholder={"Seleccionar"}
               height={40}
-            disabled={selectedValue.perceivedForce === ""}
+              disabled={selectedValue.perceivedForce === ""}
               initialValue={selectedValue.repetitionAmount}
               list={selectedValue.range}
               percentajes={true}
@@ -264,18 +258,15 @@ maximunAverage% 10 == 5 ? maximunAverage -= 5 : maximunAverage = maximunAverage;
           </View>
         </View>
 
-
         <View style={styles.containerButton}>
           <TouchableOpacity
             style={styles.button}
             disabled={selectedValue.perceivedForce === ""}
             onPress={() => {
-              console.warn("reps----", selectedValue.repetitionAmount);
               if (
                 selectedValue.repetitionAmount &&
                 selectedValue.repetitionAmount != "Seleccionar%"
               ) {
-                console.log("b4 update")
                 updateConfig();
               } else {
                 Alert.alert(

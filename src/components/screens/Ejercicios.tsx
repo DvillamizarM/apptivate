@@ -1,10 +1,8 @@
 import React from "react";
 import {
-  ScrollView,
   View,
   Text,
   StyleSheet,
-  Button,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
@@ -25,7 +23,6 @@ var { vmin } = require("react-native-expo-viewport-units");
 import StepIndicator from "react-native-step-indicator";
 import firebase from "../../../database/firebase";
 import Logo from "../Simple/Logo";
-import ChargeScreen from "../Simple/ChargeScreen";
 
 class Ejercicios extends React.Component<Props> {
   constructor(props) {
@@ -57,8 +54,7 @@ class Ejercicios extends React.Component<Props> {
   }
 
   alertChange = (text) => {
-    console.warn("in alert change", text);
-
+  
     this.setState({ showModal: true, modalText: text });
     // if(!this.state.loading){
     setTimeout(() => {
@@ -70,7 +66,6 @@ class Ejercicios extends React.Component<Props> {
   getRoutineList = async () => {
     let values: any = [];
     const level = this.props.user.information.medical.amputationPhase === "Protésico" ? "protesico" : "preprotesico";
-    console.warn(level)
     const userActiveWeek = this.props.user.information.control.activeWeek;
     const activeWeek = parseInt(userActiveWeek.replace(/\D/g, "")) + 2;
     await firebase.db
@@ -81,14 +76,12 @@ class Ejercicios extends React.Component<Props> {
         if (element.data() !== undefined) {
           const promises = Object.values(element.data()).map(
             (faseElement: any, index) => {
-              console.log("data in each ----", faseElement.order, activeWeek);
               if (
                 faseElement.title === "Calentamiento" ||
                 faseElement.title === "Estiramiento" ||
                  faseElement.order === activeWeek ||
                 faseElement.title === "Enfriamiento"
               ) {
-                console.log("passed  order", faseElement.setup);
                 let listInfo: any = {
                   idsList: faseElement.refs,
                   setupsList: faseElement.setup,
@@ -99,7 +92,6 @@ class Ejercicios extends React.Component<Props> {
                   values.sort(
                     (a, b) => parseFloat(a.order) - parseFloat(b.order)
                   );
-                  console.log("values====r---", values);
                   return values;
                 }
               }
@@ -110,8 +102,6 @@ class Ejercicios extends React.Component<Props> {
           finished = Object.values(finished).filter(function (element) {
             return element !== undefined;
           });
-
-          console.log("finished routine----", finished[0]);
 
           this.setState({
             values: finished[0],
@@ -129,7 +119,6 @@ class Ejercicios extends React.Component<Props> {
             }
           );
           const finished2: Object = await Promise.all(promises2);
-          console.log("phase list---", finished2);
           this.setState({
             exercises: finished2[0],
             setup: this.updateSetup(finished[0][position].setupsList),
@@ -142,10 +131,8 @@ class Ejercicios extends React.Component<Props> {
   getPhaseList = async (phase) => {
     let info: any = [];
     phase === 3 ? (phase = 1) : phase === 4 ? (phase = 3) : (phase = phase);
-    console.log("phase number--- ", this.state.values[phase]);
     const promises = this.state.values[phase].idsList.map(
       async (ref, index) => {
-        console.log("in promise mapp---", this.state.values[phase]);
         await ref.get().then((res) => {
           info.push(res.data());
         });
@@ -153,7 +140,6 @@ class Ejercicios extends React.Component<Props> {
       }
     );
     const finished: Object = await Promise.all(promises);
-    console.log("phase list---", finished);
     this.setState({
       exercises: finished[0],
       setup: this.updateSetup(this.state.values[phase].setupsList),
@@ -164,17 +150,13 @@ class Ejercicios extends React.Component<Props> {
   getExerciseOffline = (phase) => {
     phase === 3 ? (phase = 1) : phase === 4 ? (phase = 3) : (phase = phase);
     this.setState({ loading: true });
-    console.log("offflien phase---", phase);
     let exerciseList: any = [];
     let setup: any = {};
     let downloadedExercises = this.props.ExerciseRoutine;
     if (downloadedExercises !== undefined) {
-      console.warn("dowlonad-----", downloadedExercises);
       downloadedExercises.map((exercisess, index) => {
         if (index === phase) {
-          console.warn("map resutl----", exercisess);
           let currentList = exercisess.exercises;
-          console.warn("ucrueen--", currentList);
           currentList.map((current, index) => {
             let temp = {
               routinePhase: current.routinePhase,
@@ -189,7 +171,6 @@ class Ejercicios extends React.Component<Props> {
           setup = exercisess.setup;
         }
       });
-      console.log("exercise list--", exerciseList, setup);
       this.setState({
         exercises: exerciseList,
         // setup:setup ,
@@ -205,22 +186,14 @@ class Ejercicios extends React.Component<Props> {
     let newSetup = {};
     let aux = parseInt(setup.repeticiones);
     if (aux) {
-      console.log("if------", repetitionAmount);
       newSetup.repetitions = Math.round((repetitionAmount / 100) * aux);
-      console.log("after set if------", repetitionAmount);
     } else {
-      console.log("else");
       newSetup.repetitions = Math.round(repetitionAmount / 100);
     }
     newSetup.restTimeMin = restTimeMin;
     newSetup.restTimeSec = restTimeSec;
     newSetup.series = setup.series;
-    // console.log(
-    //   "setup---",
-    //   setup.repetitions,
-    //   "  |||| newSetup rep--- ",
-    //   newSetup.repetitions
-    // );
+   
     return newSetup;
   }
 
@@ -228,26 +201,20 @@ class Ejercicios extends React.Component<Props> {
     BackHandler.addEventListener("hardwareBackPress", this.handleBackButton);
     this.alertChange("start");
     if (this.props.connection) {
-      console.warn("did mount routine list");
       this.getRoutineList();
     } else {
-      console.warn("else---");
       this.getExerciseOffline(this.state.currentPosition);
     }
   };
 
   changeCurrentExercise = () => {
-    // console.log("oidsj--", this.state);
-    // console.warn("currents exercise---", this.state.currentExercise +1 , this.state.exercises.length - 1)
     if (this.state.currentExercise + 1 > this.state.exercises.length - 1) {
-      console.warn("in if current exercicse");
       this.alertChange("phase");
       this.changeCurrentPhase();
     } else if (
       this.state.currentExercise + 1 <=
       this.state.exercises.length - 1
     ) {
-      console.warn("in else current exercicse");
       this.alertChange("exercise");
       this.setState({ currentExercise: this.state.currentExercise + 1 });
     }
@@ -272,7 +239,6 @@ class Ejercicios extends React.Component<Props> {
         currentExercise: 0,
         loading: false,
       });
-      console.log("position  +1---", this.state.currentPosition + 1);
       this.props.connection
         ? this.getPhaseList(this.state.currentPosition + 1)
         : this.getExerciseOffline(this.state.currentPosition + 1);
@@ -391,7 +357,6 @@ class Ejercicios extends React.Component<Props> {
         </View>
       );
     } else {
-      // console.log("changnee----", Object.values(this.state.exercises));
       return (
         <View
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
@@ -441,7 +406,7 @@ class Ejercicios extends React.Component<Props> {
                       text: "ABANDONAR",
                       onPress: () =>
                         this.props.navigation.navigate("EndRoutine", {
-                          routineIsNotOver: false,
+                          routineIsNotOver: true,
                         }),
                     },
                   ],
@@ -485,8 +450,6 @@ class Ejercicios extends React.Component<Props> {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  // console.warn("exercise [rpos======= ", store.DownloadReducer.ExerciseRoutine);
-  // console.warn("user [rpos======= ", store.User.user);
   return {
     user: store.User.user,
     connection: store.User.connection,
@@ -499,17 +462,7 @@ export default connect(MapStateToProps, MapDispatchToProps)(Ejercicios);
 
 const styles = StyleSheet.create({
   screenContainer: { width: "100%", height: "100%", backgroundColor: "white" },
-  // header: {
-  //   width: "100%",
-  //   alignItems: "center",
-  //   backgroundColor: "peru",
-  //   height: "7%",
-  //   justifyContent: "center",
-  // },
-  // title: {
-  //   textAlign: "center",
-  //   fontWeight: "bold",
-  // },
+ 
   containerSteps: {
     backgroundColor: "white",
     borderRadius: 10,

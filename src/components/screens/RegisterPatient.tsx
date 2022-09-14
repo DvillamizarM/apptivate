@@ -70,7 +70,6 @@ const steps = (currentPosition, setCurrentPosition) => {
     if (nextPosition < currentPosition) {
       setCurrentPosition(nextPosition);
     } else {
-      console.log("No puedes avanzar hasta esa posicion");
       Alert.alert("No puedes avanzar hasta esa posición");
     }
   };
@@ -107,7 +106,6 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
 
   const checkData = () => {
     if (props.user.information.medical.amputationLevel != "") {
-      console.warn("cjheckdata---", props.user.information.medical);
       let medical = props.user.information.medical;
       setData({
         ...data,
@@ -140,7 +138,6 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
   }, []);
 
   const saveMedicalData = async () => {
-    console.warn("periced", data.perceivedForce);
     await firebase.db
       .collection("users")
       .doc(props.user.uid)
@@ -566,7 +563,6 @@ const MedicalData = ({ props, setCurrentPosition, currentPositionValue }) => {
 };
 
 const SaveCompanion = ({ props, setCurrentPosition }) => {
-  console.log("props-------", props.user.information.medical);
   const [data, setdata] = useState({
     email: "",
   });
@@ -610,21 +606,7 @@ const SaveCompanion = ({ props, setCurrentPosition }) => {
       .catch((error) => {
         console.error(error);
       });
-    // } else {
-    //   Alert.alert(
-    //     "Atencion",
-    //     "El correo " + data.email + " ya esta en uso",
-    //     [
-    //       {
-    //         text: "Cancelar",
-    //         onPress: () => {},
-    //         style: "cancel",
-    //       },
-    //     ],
-    //     { cancelable: false }
-    //   );
-    //   console.log("El correo " + data.email + " ya esta en uso");
-    // }
+   
   };
   return (
     <View
@@ -716,7 +698,6 @@ const Confirm = ({ props }) => {
 
 const RegisterPatient = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
-  console.log("register-----", props.user.information);
   return (
     <View style={styles.screenContainer}>
       <View style={styles.containerSteps}>
@@ -744,7 +725,6 @@ const RegisterPatient = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("mapstate patient register-----", store.User.user);
   return {
     user: store.User.user,
   };

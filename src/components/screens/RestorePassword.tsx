@@ -21,7 +21,6 @@ export default function RestorePassword(props) {
       .then(() => {
         // Password reset email sent!
         // ..
-        console.log("Se envio email de recuperacion");
         setSent(true);
       })
       .catch((error) => {

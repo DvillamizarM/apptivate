@@ -27,18 +27,15 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const GeneralProfileScreen = (props) => {
   const [initializing, setInitializing] = useState(false);
-  let trainingPhase = "";
-  let activeWeek = "";
-  let activeDay = 0;
-console.warn("props control===", props.props.user.information.control)
+  
   const [percent, setPercent] = useState([]);
   const [control, setControl] = useState({
     trainingPhase: props.props.user.information.control.trainingPhase,
-      activeWeek:
-        parseInt(
-          props.props.user.information.control.activeWeek.replace("week", "")
-        ) - 1,
-      activeDay: props.props.user.information.control.activeDay,
+    activeWeek:
+      parseInt(
+        props.props.user.information.control.activeWeek.replace("week", "")
+      ) - 1,
+    activeDay: props.props.user.information.control.activeDay,
   });
 
   let width = "";
@@ -50,7 +47,6 @@ console.warn("props control===", props.props.user.information.control)
   const [userInformation, setUserInformation] = useState({ loading: true });
   let info: any = {};
 
-  console.warn("props---", props.user.information);
 
   const getInformation = async () => {
     let patientIdentifier = props.props.user.uid;
@@ -76,7 +72,6 @@ console.warn("props control===", props.props.user.information.control)
   };
 
   const setPercents = async () => {
-    console.log("in percent info---", control);
     setControl({
       trainingPhase: props.user.information.control.trainingPhase,
       activeWeek:
@@ -105,27 +100,22 @@ console.warn("props control===", props.props.user.information.control)
       tempDayPercent = control.activeDay * 20;
     }
     setPercent([tempTraingingPercent, tempWeekPercent, tempDayPercent]);
-    setInitializing(false)
+    setInitializing(false);
   };
- 
+
   useEffect(() => {
     if (props.user !== undefined) {
-      console.warn("in effect");
       setInitializing(true);
       setPercents();
-     }else{
+    } else {
       setInitializing(true);
-     }
-   }, []);
-   
+    }
+  }, []);
+
   const filterRecord = (collection) => {
     let record: any = {};
     collection.docs.forEach((doc, index) => {
-      console.warn(
-        "Esta es la iteracion numerooooooooooooooooooooooooooooooooooooo",
-        index,
-        record
-      );
+  
       let currentDocument = {
         ...doc.data(),
         id: doc.id,
@@ -142,13 +132,9 @@ console.warn("props control===", props.props.user.information.control)
       }
       // Verificacion para saber si la fase existe
       if (record[trainingPhase]) {
-        console.log(
-          "Aqui la fase ya habia sido creada aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          record
-        );
+   
         //Verificacion si existe la semana
         if (record[trainingPhase][activeWeek]) {
-          console.table("Aqui la semana 1 ya existia ", record);
           //Verificacion si existe el dia
           if (record[trainingPhase][activeWeek][activeDay] != 0) {
             record[trainingPhase][activeWeek][activeDay].push({
@@ -164,7 +150,6 @@ console.warn("props control===", props.props.user.information.control)
         }
         // Si no existe la semana
         else {
-          console.log("La semana no existia ", record);
           record[trainingPhase][activeWeek] = [0, 0, 0, 0, 0, 0, 0];
           record[trainingPhase][activeWeek][activeDay] = [
             { ...currentDocument },
@@ -178,16 +163,12 @@ console.warn("props control===", props.props.user.information.control)
         record[trainingPhase][activeWeek][activeDay] = [{ ...currentDocument }];
       }
     });
-    console.log("======= El resuldato de la semana es :", record);
 
     return record;
   };
 
   const validateStartData = async () => {
-    // Validacion para determinar si el acompanante ya inicio sesion
-    // props.props.navigation.navigate("CustomizeRoutine", {
-    //   btnText: "Continuar",
-    // });
+
     if (
       props.props.user.information.role === "paciente" &&
       props.props.user.information.companionRef !== ""
@@ -198,9 +179,7 @@ console.warn("props control===", props.props.user.information.control)
     } else if (props.props.user.information.role === "") {
       validateExistenceOfData();
     } else {
-      console.log(
-        " -- - - --   No puedes empezar la rutina hasta que tu acompañante inicie sesión"
-      );
+
       Alert.alert(
         "No puedes empezar la rutina hasta que tu acompañante inicie sesión"
       );
@@ -232,7 +211,6 @@ console.warn("props control===", props.props.user.information.control)
       });
     }
   };
-  
 
   if (initializing)
     return (
@@ -265,7 +243,6 @@ console.warn("props control===", props.props.user.information.control)
       </View>
     );
   else {
-  
     return (
       <View style={styles.container}>
         {(props.props.user.information.role === "paciente" ||
@@ -278,7 +255,6 @@ console.warn("props control===", props.props.user.information.control)
                 { backgroundColor: "rgba(225, 126, 62,1)" },
               ]}
               onPress={() => {
-                console.warn("legnth----", props.donwloaded);
                 if (props.connection || props.donwloaded.length === 4) {
                   validateStartData();
                 } else {
@@ -294,26 +270,26 @@ console.warn("props control===", props.props.user.information.control)
               </Text>
             </TouchableOpacity>
             {props.connection &&
-            props.props.user.information.role === "paciente" ? (
-              <TouchableOpacity
-                onPress={() => props.props.navigation.navigate("ReportEvent")}
-                style={[
-                  styles.button,
-                  {
-                    width: width,
-                    backgroundColor: "white",
-                    borderColor: "#6979F8",
-                    borderWidth: vmin(0.3),
-                  },
-                ]}
-              >
-                <ScalableText style={{ color: "#6979F8", fontWeight: "bold" }}>
-                  Reportar Incidente
-                </ScalableText>
-              </TouchableOpacity>
-            ) : (
-              console.log("no")
-            )}
+              props.props.user.information.role === "paciente" && (
+                <TouchableOpacity
+                  onPress={() => props.props.navigation.navigate("ReportEvent")}
+                  style={[
+                    styles.button,
+                    {
+                      width: width,
+                      backgroundColor: "white",
+                      borderColor: "#6979F8",
+                      borderWidth: vmin(0.3),
+                    },
+                  ]}
+                >
+                  <ScalableText
+                    style={{ color: "#6979F8", fontWeight: "bold" }}
+                  >
+                    Reportar Incidente
+                  </ScalableText>
+                </TouchableOpacity>
+              )}
           </View>
         ) : (
           <View></View>
@@ -380,8 +356,6 @@ console.warn("props control===", props.props.user.information.control)
             });
 
             myPromise.then(() => {
-              console.warn("usring---", info);
-
               props.props.navigation.navigate("RoutineHistory", {
                 userInformation: info,
               });
@@ -426,7 +400,7 @@ console.warn("props control===", props.props.user.information.control)
               <AnimatedCircularProgress
                 size={vmin(20)}
                 width={vmin(2)}
-                fill={percent[0]}
+                fill={percent[0] ? percent[0] : 0}
                 tintColor="#6979F8"
                 backgroundColor="rgba(228, 228, 228, 1)"
                 rotation={0}
@@ -450,7 +424,7 @@ console.warn("props control===", props.props.user.information.control)
               <AnimatedCircularProgress
                 size={vmin(20)}
                 width={vmin(2)}
-                fill={percent[1]}
+                fill={percent[1] ? percent[1] : 0}
                 tintColor="#6979F8"
                 backgroundColor="rgba(228, 228, 228, 1)"
                 rotation={0}
@@ -459,7 +433,7 @@ console.warn("props control===", props.props.user.information.control)
               </AnimatedCircularProgress>
             </View>
           </View>
-          {props.props.user.information.control.activeWeek !== "week11" ? (
+          {props.props.user.information.control.activeWeek !== "week11" && (
             <View style={styles.progressSection}>
               <View style={styles.progressSection_texts}>
                 <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
@@ -478,7 +452,7 @@ console.warn("props control===", props.props.user.information.control)
                 <AnimatedCircularProgress
                   size={vmin(20)}
                   width={vmin(2)}
-                  fill={percent[2]}
+                  fill={percent[2] ? percent[2] : 0}
                   tintColor="#6979F8"
                   backgroundColor="rgba(228, 228, 228, 1)"
                   rotation={0}
@@ -487,44 +461,29 @@ console.warn("props control===", props.props.user.information.control)
                 </AnimatedCircularProgress>
               </View>
             </View>
-          ) : (
-            console.warn("nohtihn")
           )}
         </TouchableOpacity>
 
         {(props.props.user.information.role === "paciente" ||
           props.props.user.information.role === "") &&
-        props.props.user.information.control.activeWeek !== "week11" ? (
-          <View style={styles.footerButtons}>
-            <TouchableOpacity
-              style={styles.button2}
-              onPress={() =>
-                props.props.navigation.navigate("ScheduleRoutines")
-              }
-            >
-              <ScalableText style={{ color: "white", fontWeight: "bold" }}>
-                Configurar alarmas de la rutina semanal
-              </ScalableText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button2}
-              onPress={() => validateEditData()}
-            >
-              <ScalableText style={{ color: "white", fontWeight: "bold" }}>
-                Editar intensidad y tiempo de reposo
-              </ScalableText>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          console.log("gfd")
-        )}
+          props.props.user.information.control.activeWeek !== "week11" && (
+            <View style={styles.footerButtons}>
+              <TouchableOpacity
+                style={styles.button2}
+                onPress={() => validateEditData()}
+              >
+                <ScalableText style={{ color: "white", fontWeight: "bold" }}>
+                  Editar intensidad y tiempo de reposo
+                </ScalableText>
+              </TouchableOpacity>
+            </View>
+          )}
       </View>
     );
   }
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("storeee---", store.User.user.information.control);
   return {
     user: store.User.user,
     control: store.User.user.information.control,
@@ -573,7 +532,7 @@ const styles = StyleSheet.create({
 
   button2: {
     width: "90%",
-    height: "40%",
+    height: "80%",
     marginBottom: "4%",
     backgroundColor: "#6979F8",
     justifyContent: "center",
@@ -591,7 +550,7 @@ const styles = StyleSheet.create({
 
   progressContainer: {
     width: "95%",
-    height: "66%",
+    height: "76%",
     justifyContent: "space-evenly",
     alignItems: "center",
     marginTop: "3%",
@@ -600,7 +559,7 @@ const styles = StyleSheet.create({
   },
   footerButtons: {
     width: "100%",
-    height: "20%",
+    height: "10%",
     marginTop: "4%",
     justifyContent: "space-evenly",
     alignItems: "center",

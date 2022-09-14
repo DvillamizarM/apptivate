@@ -6,9 +6,7 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
-import { State } from "react-native-gesture-handler";
 //import { Picker } from "@react-native-picker/picker";
 import Picker from "../Simple/Picker";
 var { vmin } = require("react-native-expo-viewport-units");
@@ -47,7 +45,6 @@ function CustomizeRoutine(props) {
     "Excesivamente Pesado",
   ];
   const calculatePerceivedEffort = (category) => {
-    console.log("Parametro de fueza percivida", category);
     let min = 0;
     let max = 0;
 
@@ -92,7 +89,6 @@ function CustomizeRoutine(props) {
   };
 
   const imcPercentaje = (imc) => {
-    console.log("El imc que llega como parametro es ;", imc);
     let min = 0;
     let max = 0;
     let category = "";
@@ -126,7 +122,6 @@ function CustomizeRoutine(props) {
   };
 
   const calculatePercentajes = (user) => {
-    console.log("peso: ", user.medical.weight, "tama;o: ", user.medical.size);
     const imc = imcPercentaje(
       user.medical.weight /
         ((user.medical.size / 100) * (user.medical.size / 100))
@@ -150,7 +145,6 @@ function CustomizeRoutine(props) {
     for (let index = minimunAverage; index <= maximunAverage; index += 10) {
       range.push(index);
     }
-    console.log("category----", imc.category);
     setSelectedValue({
       min: minimunAverage,
       max: maximunAverage,
@@ -166,15 +160,9 @@ function CustomizeRoutine(props) {
 
     setSeconds(user.configuration.restTimeSec);
     setMinutes(user.configuration.restTimeMin);
-    console.warn("setting time--", user.configuration.restTimeMin + ":" + sec);
     setTime(user.configuration.restTimeMin + ":" + sec);
     setLoading(false);
 
-    console.log("LLLLLLLLLLLLLLLLLLLos resultados son:", imc, perceivedEffort, {
-      min: minimunAverage,
-      max: maximunAverage,
-      repetitionAmount: user.configuration.repetitionAmount,
-    });
   };
 
   const titleText = (user) => {
@@ -184,11 +172,9 @@ function CustomizeRoutine(props) {
   };
   const pull_repData = (data) => {
     setSelectedValue({ ...selectedValue, repetitionAmount: data });
-    console.warn("rep data pulled==========", data); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
   };
 
   const pull_timeData = (data) => {
-    console.warn("time data pulled==========", data); //
     setTime(data);
     let timeSelected = data.split(":");
     setMinutes(parseInt(timeSelected[0]));
@@ -196,9 +182,7 @@ function CustomizeRoutine(props) {
   };
 
   useEffect(() => {
-    console.warn("entered state setter ue effect");
     if (props.connection) {
-      console.log("checking database");
       firebase.db
         .collection("users")
         .doc(firebase.auth.currentUser?.uid)
@@ -213,53 +197,10 @@ function CustomizeRoutine(props) {
       calculatePercentajes(props.user.information);
       setLoading(false);
     }
-    console.warn("time----", time);
   }, []);
-
-  // useEffect(() => {
-  //   let sec = "";
-  //   console.warn("enter model use effect");
-  //   props.user.information.configuration.restTimeSec === 0
-  //     ? (sec = 0 + "" + props.user.information.configuration.restTimeSec)
-  //     : (sec = props.user.information.configuration.restTimeSec);
-  //   if (props.navigation.state.params.btnText == "Continuar") {
-  //     Alert.alert(
-  //       "Antes de comenzar: ",
-  //       "¿Quiere modifcar su configuración actual a la intensidad de repeticiones o tiempo de reposo? \n\nActualmente la configuración es: \nIntensidad - " +
-  //         props.user.information.configuration.repetitionAmount +
-  //         "% \nReposo - " +
-  //         props.user.information.configuration.restTimeMin +
-  //         ":" +
-  //         sec,
-  //       [
-  //         {
-  //           text: "Editar intensidad y reposo ",
-  //           onPress: () => {},
-  //         },
-  //         {
-  //           text: "Iniciar rutina",
-  //           onPress: () =>
-  //             props.navigation.navigate("Ejercicios", {
-  //               repetitionAmount: parseInt(
-  //                 props.user.information.configuration.repetitionAmount
-  //               ),
-  //               restTimeMin: parseInt(
-  //                 props.user.information.configuration.restTimeMin
-  //               ),
-  //               restTimeSec: parseInt(
-  //                 props.user.information.configuration.restTimeSec
-  //               ),
-  //             }),
-  //         },
-  //       ],
-  //       { cancelable: false }
-  //     );
-  //   }
-  // }, []);
 
   const updateConfig = async () => {
     if (props.connection) {
-      console.warn("inside updateconfig");
       await firebase.db
         .collection("users")
         .doc(firebase.auth.currentUser?.uid)
@@ -271,10 +212,7 @@ function CustomizeRoutine(props) {
           },
         })
         .then(() => {
-          console.warn(
-            "insdide then of updateconfig ",
-            selectedValue.repetitionAmount
-          );
+    
           props.updateConfiguration({
             repetitionAmount: selectedValue.repetitionAmount,
             restTimeMin: minutes,
@@ -316,12 +254,12 @@ function CustomizeRoutine(props) {
           {props.navigation.state.params.btnText === "Continuar" ? (
             <Text style={styles.textHeader}>
               ANTES DE INICIAR: Por favor verifica que la configuración de
-              intensidad de repeticiones y tiempo de reposo este acorde a sus
+              intensidad de repeticiones y tiempo de reposo este acorde a tus
               capacidades actuales.
             </Text>
           ) : (
             <Text style={styles.textHeader}>
-              Su esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC
+              Tu esfuerzo percibido es {selectedValue.perceivedForce}, y su IMC
               es {selectedValue.imcCategory} por ende usted puede hacer entre el{" "}
               {selectedValue.min}% y {selectedValue.max}% de las repeticiones.
             </Text>
@@ -368,7 +306,6 @@ function CustomizeRoutine(props) {
             style={styles.button}
             onPress={async () => {
               setLoading(true);
-              console.warn("reps----", selectedValue.repetitionAmount);
               if (
                 selectedValue.repetitionAmount !== 0 &&
                 (seconds !== 0 || minutes !== 0)
@@ -393,7 +330,6 @@ function CustomizeRoutine(props) {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("configu---", store.User.user.information.configuration);
   return {
     user: store.User.user,
     connection: store.User.connection,

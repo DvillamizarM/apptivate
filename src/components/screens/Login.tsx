@@ -30,7 +30,6 @@ export default function Login(props) {
         props.navigation.navigate("Home");
       })
       .catch((error) => {
-        console.warn("error code===", error.code)
         if (error.code == "auth/user-not-found") {
           Alert.alert("Usuario no encontrado. Vuelva a intentar.");
           setLoading(false);

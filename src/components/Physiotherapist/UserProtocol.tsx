@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   View,
@@ -15,7 +15,6 @@ import CustomizePatient from "./CustomizePatient";
 export default function UserProtocol(props) {
   const [navigationPosition, setnavigationPosition] = useState(0);
   const navigationTitles = ["Historial", "Personalización"];
-  console.warn("props protocolo customize", props); 
   const NavigationButton = () => {
     return (
       <View style={navigationButtonStyles.containerNavigationButton}>

@@ -104,7 +104,6 @@ export const NotificationReducer = (
       };  
 
       case actionTypes.UPDATE_NOTIFICATION_ID:
-        console.warn("update notifications =", action.payload)
         if(action.payload.length!=0){
           return {
           ...state,
@@ -113,14 +112,12 @@ export const NotificationReducer = (
         }
         
         case actionTypes.CLEAR_NOTIFICATION_ID:
-          console.warn("clear notifications ")
           return {
             ...state,
             scheduledNotificationIds: []
           };
          
       case actionTypes.PERSIST_NOTIFICATIONS:
-        console.warn("persist notifications payload=", action.payload)
         scheduledRoutines2 = state.scheduledRoutines;
         scheduledRoutines2[0].persist = action.payload;
         return {
@@ -129,7 +126,6 @@ export const NotificationReducer = (
         };
         
       case actionTypes.DISABLE_NOTIFICATIONS:
-        console.warn("disable notifications payload=", action.payload)
         scheduledRoutines2 = state.scheduledRoutines;
         scheduledRoutines2[0].disable = action.payload;
 

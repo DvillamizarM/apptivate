@@ -21,10 +21,7 @@ import { actionsUser } from "../../redux/actions/actionsUser";
 import { ScrollView } from "react-native-gesture-handler";
 
 function RoutineHistory(props) {
-  console.warn(
-    "pros===",
-    props.navigation.state.params.userInformation.loading
-  );
+
   const { userInformation } = props.navigation.state.params;
 
   const renderPhases = () => {

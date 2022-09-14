@@ -21,7 +21,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import ChargeScreen from "../Simple/ChargeScreen";
 
 const renderReport = (report, props) => {
-  console.log("Las props que llegan son :", report, " y ademas:", props);
   return (
     <TouchableOpacity
       key={report.id}
@@ -72,17 +71,14 @@ const renderReport = (report, props) => {
 const UserEventList = (props) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log("event list----",props.navigation.state.params.patientId);
 
   const getReports = async () => {
-    console.log("usidee---", props)
     let reportsProcessed: any = [];
     const collection = await firebase.db
       .collection("ReportedEvents")
       .where("userId", "==", props.navigation.state.params.patientId)
       .get()
       .then((querySnapshot) => {
-          console.warn("dta------",querySnapshot)
         reportsProcessed = querySnapshot.docs.map((doc) => {
           return {
             ...doc.data(),
@@ -90,8 +86,6 @@ const UserEventList = (props) => {
           };
         })
       });
-
-    console.log("Los ejercicios son", reportsProcessed);
 
     setReports(reportsProcessed);
     setLoading(false);

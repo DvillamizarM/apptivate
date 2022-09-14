@@ -6,7 +6,6 @@ import {
   View,
   Text,
   Image,
-  Button,
   TouchableOpacity,
   Alert,
   ScrollView,
@@ -16,17 +15,11 @@ import { connect } from "react-redux";
 
 import * as MyTypes from "../../redux/types/types";
 
-import IconCheck from "react-native-vector-icons/FontAwesome";
-
-import IconLoader from "react-native-vector-icons/FontAwesome";
-
 import { Audio, Video } from "expo-av";
 
 // Iconos para la seccion de informacion
 import Check from "react-native-vector-icons/FontAwesome";
 import Repeat from "react-native-vector-icons/FontAwesome";
-import Wathc from "react-native-vector-icons/Ionicons";
-import Play from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 
 interface Props {
@@ -64,10 +57,8 @@ class EjercicioInactivo extends React.Component<Props> {
   };
 
   startTimer = () => {
-    // console.log("El tiempo activo es ",this.state.activeTime)
     if (this.state.activeTime) {
       clearTimeout(this.state.mainTimer);
-      // console.log("dentro del if El tiempo activo es ",this.state.activeTime)
       this.setState(
         {
           sec: 1,
@@ -97,7 +88,6 @@ class EjercicioInactivo extends React.Component<Props> {
               diasbleButton: true,
             },
             () => {
-              console.log(this.state.setSec, "callback");
               this.setTimerView();
               this.countdown();
             }
@@ -156,9 +146,7 @@ class EjercicioInactivo extends React.Component<Props> {
 
   countdownActive = () => {
     this.setState({ timerType: "Terminar Serie" });
-    //  console.log("[countdownActive] El temporizador comenzo con:", this.state.sec,"segundos y " , this.state.min , " minu" )
     this.state.mainTimer = setInterval(() => {
-      //   console.log("Interval: ", this.state.sec,"segundos y " , this.state.min , " minu" )
       this.setTimerView();
       if (this.state.sec == 1 && this.state.min == 0) {
         clearInterval(this.state.mainTimer);
@@ -189,12 +177,8 @@ class EjercicioInactivo extends React.Component<Props> {
   }
 
   componentDidMount = async () => {
-    console.warn("exercisie----", this.props.exercise);
     if (this.props.exercise) {
-      // console.log(this.props.setup, "SETUP");
-      // SI tiene setup
       if (Object.values(this.props.setup).length > 0) {
-        //  console.log(this.props.setup.restTimeSec, "didmount inactivo");
         this.setState({
           series: this.props.setup.series,
           repetitions: this.props.setup.repetitions,
@@ -202,7 +186,6 @@ class EjercicioInactivo extends React.Component<Props> {
           setSec: this.props.setup.restTimeSec,
         });
       } else {
-        //  console.warn("inactivo didmount-----else");
         this.setState({
           series: null,
           repetitions: null,
@@ -211,11 +194,7 @@ class EjercicioInactivo extends React.Component<Props> {
         });
       }
 
-      // console.log("Las nuevas props de ejercicos son :", this.props.exercise);
-
       const res = this.props.exercise;
-
-      // console.log("--*inactivo*--->", res);
 
       let materialList = "";
       res.materials ? (materialList = res.materials) : (materialList = "");
@@ -232,8 +211,6 @@ class EjercicioInactivo extends React.Component<Props> {
         activeTime: activeTimeAux,
         materials: materialList,
       });
-    } else {
-      //  console.log(this.props.exercise, "------- UNDEFINED ----------");
     }
   };
 
@@ -242,24 +219,24 @@ class EjercicioInactivo extends React.Component<Props> {
   };
 
   async handlePlaySound(audio) {
-    this.setState({ playing: true });
-    const { sound } = await Audio.Sound.createAsync({ uri: audio });
+    if (this.state.timerType === "Terminar Serie") {
+      this.setState({ playing: true });
+      const { sound } = await Audio.Sound.createAsync({ uri: audio });
 
-    new Promise((resolve, reject) => {
-      console.log("Playing Sound");
-      sound.playAsync();
-      console.warn("then");
-      setTimeout(() => {
-        resolve("foo");
-      }, 15000);
-    })
-      .then(() => {
-        sound.unloadAsync();
-        this.setState({ playing: false });
+      new Promise((resolve, reject) => {
+        sound.playAsync();
+        setTimeout(() => {
+          resolve("foo");
+        }, 15000);
       })
-      .catch((err) => {
-        Alert.alert("No se cargo el audio correctamente.");
-      });
+        .then(() => {
+          sound.unloadAsync();
+          this.setState({ playing: false });
+        })
+        .catch((err) => {
+          Alert.alert("No se cargo el audio correctamente.");
+        });
+    }
   }
 
   render() {
@@ -329,16 +306,10 @@ class EjercicioInactivo extends React.Component<Props> {
               acompañante presente.
             </Text>
           ) : this.state.timerType === "Terminar Serie" ? (
-             this.state.gif && this.state.gif.includes("gif") ? (
+            this.state.gif && this.state.gif.includes("gif") ? (
               <Image
                 source={{ uri: this.state.gif }}
-                onLoad={() => {
-                  this.setState({ imgLoading: true, display: "hidden" });
-                }}
-                onLoadEnd={() => {
-                  console.warn("entered gif load end");
-                  this.setState({ imgLoading: false, display: "flex" });
-                }}
+           
                 style={
                   this.state.imgLoading
                     ? {
@@ -363,9 +334,6 @@ class EjercicioInactivo extends React.Component<Props> {
                 usePoster
                 onLoad={() => {
                   this.setState({ imgLoading: true, display: "flex" });
-                }}
-                onPlaybackStatusUpdate={(status) => {
-                  console.warn("status", status, "  ", this.state.info.gif);
                 }}
                 shouldPlay
                 style={{ width: "100%", height: "100%" }}
@@ -474,6 +442,7 @@ class EjercicioInactivo extends React.Component<Props> {
             style={styles.box2}
             disabled={this.state.playing}
             onPress={() => {
+              // this.state.timerType !== "Iniciar Serie" &&
               this.handlePlaySound(this.state.voz);
             }}
           >
@@ -485,8 +454,8 @@ class EjercicioInactivo extends React.Component<Props> {
               )}
             </View>
             <View style={styles.textContainer}>
-              <Text style={{}}>Comando</Text>
-              <Text style={{}}>de Voz</Text>
+              <Text style={{}}>Audio</Text>
+              <Text style={{}}>Guía</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -505,7 +474,7 @@ class EjercicioInactivo extends React.Component<Props> {
               <Text style={{ fontWeight: "bold" }}>Descripción: </Text>{" "}
               {this.state.description}
             </Text>
-            {this.state.materials != "" ? (
+            {this.state.materials != "" && (
               <Text
                 style={{
                   fontSize: vmin(4),
@@ -517,8 +486,6 @@ class EjercicioInactivo extends React.Component<Props> {
                 <Text style={{ fontWeight: "bold" }}>Materiales: </Text>{" "}
                 {this.state.materials}
               </Text>
-            ) : (
-              console.log("nothing")
             )}
             <View style={{ height: 25 }} />
           </ScrollView>
@@ -653,26 +620,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-/**
- * if(this.state.stop){
-        sec--;
-    console.log("timer "+this.state.timer)
-        console.log("countdown if"+sec)
-        if(sec == 0) {
-          console.log("countdown if sec 0 | ")
-          if (minute==0) {
-            console.log("countdown if min 0 | ")
-              clearTimeout(timer);
-              
-              this.setState({timer: "00:00"});
-              console.log("countdown end")
-            
-          }
-          minute--;
-          sec = 59;
-          console.log(minute+"|"+sec)
-          this.setState({timer: minute + ':' + sec});
-        }
-        timer = setTimeout(this.countdown(timer, minute, sec), 1000);
-        }
- */
+

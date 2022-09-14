@@ -22,9 +22,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import ChargeScreen from "../Simple/ChargeScreen";
 
 const PatientHistory = ( props ) => {
-  console.warn("props history----", props)
   const { userInformation } = props.navigation.state.params;
-console.log("record---", userInformation.record)
   const renderPhases = () => {
     const { record } = userInformation;
     let keyPhases = Object.keys(record);

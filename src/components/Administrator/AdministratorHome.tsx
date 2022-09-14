@@ -102,7 +102,6 @@ const CompanionHome = (props) => {
   };
 
   const renderReport = (UserProps, props) => {
-    //console.log("Las props que llegan son :", UserProps, " y ademas:", props);
     const { personal } = UserProps;
 
     if (loading) {

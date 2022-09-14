@@ -23,7 +23,6 @@ import ChargeScreen from "../Simple/ChargeScreen";
 
 const RoutineHistory = ({ props }) => {
   const { userInformation } = props.props;
-  console.log("record---", userInformation.record);
   const renderPhases = () => {
     const { record } = userInformation;
     let keyPhases = Object.keys(record);

@@ -95,7 +95,6 @@ const UpdataeCompanionData = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("mapstate patient register-----", store.User.user);
   return {
     user: store.User.user,
   };

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  TextInput,
   View,
   StyleSheet,
   Text,
@@ -12,13 +11,12 @@ import Icon from "react-native-vector-icons/FontAwesome";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 
 export default function Picker(props) {
+
   let temp = "";
-  let temp2 = "";
   props.initialValue ? (temp = props.initialValue) : (temp = props.placeholder);
   props.initialIndex ? (temp = props.list[props.initialIndex]) : (temp2 = 0);
   const [value, setValue] = React.useState(temp);
   const [show, setShow] = React.useState(false);
-  const [itemHeight, setItemHeight] = React.useState(0);
 
   // const icon = !visible ? "eye-slash" : "eye";
   const height = props.height;
@@ -36,51 +34,21 @@ export default function Picker(props) {
       <Modal
         animationType="slide"
         transparent={true}
-        onBackdropPress={() => console.log("Pressed")}
         visible={show}
         propagateSwipe={true}
         onRequestClose={() => {
           setShow(false);
         }}
       >
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-              backgroundColor: "rgba(244,244,244,0.7)",
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "80%",
-              maxHeight: "50%",
-              borderRadius: 10,
-            }}
-          >
+        <View style={styles.modelMainView}>
+          <View style={styles.modelBeforScroll}>
             <ScrollView
               style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
             >
               {props.list.map((element, index) => {
                 return (
-                  <View
-                    key={element + index}
-                    style={{
-                      // position: "absolute",
-                      backgroundColor: "#ffffff",
-                      // borderRadius: 20,
-                      alignSelf: "center",
-                      width: "100%",
-                      height: vh(6),
-                    }}
-                  >
+                  <View key={element + index} style={styles.modelItem}>
                     {/* <ScrollView> */}
                     <View
                       style={{
@@ -97,7 +65,6 @@ export default function Picker(props) {
                           height: "100%",
                         }}
                         onPress={() => {
-                          console.warn("clicked====", element);
                           props.setData(element, index);
                           setValue(element);
                           setShow(false);
@@ -154,7 +121,7 @@ export default function Picker(props) {
                   color: "#000000",
                 }}
               >
-                {value}
+                {props.value ? props.value : value}
                 {props.percentajes && value !== "Seleccionar" ? "%" : ""}
               </Text>
             </View>
@@ -210,5 +177,30 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     borderRadius: 4,
+  },
+  modelMainView: {
+    height: "100%",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(244,244,244,0.7)",
+  },
+  modelBeforScroll: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "80%",
+    maxHeight: "50%",
+    borderRadius: 10,
+  },
+  modelItem: {
+    // position: "absolute",
+    backgroundColor: "#ffffff",
+    // borderRadius: 20,
+    alignSelf: "center",
+    width: "100%",
+    height: vh(6),
   },
 });

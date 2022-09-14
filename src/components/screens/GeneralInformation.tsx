@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -21,52 +21,25 @@ import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
 import {
   TourGuideZone, // Main wrapper of highlight component
-  TourGuideZoneByPosition, // Component to use mask on overlay (ie, position absolute)
-  useTourGuideController, // hook to start, etc.
+  TourGuideZoneByPosition, // hook to start, etc.
 } from "rn-tourguide";
 import firebase from "../../../database/firebase";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import ChargeScreen from "../Simple/ChargeScreen";
+import { Video } from "expo-av";
 
 const GeneralInformation = (props) => {
   const [information, setInformation] = useState([]);
   const [CurrentInformation, setCurrentInformation] = useState(2);
   const [exists, setExistence] = useState(false);
-  const [isFocused, setIsFocused] = useState(
-    props.props.navigation.isFocused()
-  );
-  const [toggledState, setToggledState] = useState(1);
   const [pending, setPending] = useState(-1);
-  const {
-    canStart, // a boolean indicate if you can start tour guide
-    start, // a function to start the tourguide
-    stop, // a function  to stopping it
-    eventEmitter, // an object for listening some events
-    getCurrentStep,
-  } = useTourGuideController();
-
-  const handleOnStart = () => console.log("start");
-  const handleOnStop = () => console.log("stop");
-  const handleOnStepChange = (step) => {
-    console.log("step--", step);
-    if (step === undefined) {
-      props.updateShowTour1(false), stop;
-    } else {
-      console.log("step num=---", step.order);
-    }
-    console.log(`stepChange`);
-  };
 
   const getGeneralInformation = async () => {
     if (props.connection) {
-      console.log("propy==", props.repoIndex);
       const snapshot = await firebase.db.collection("generalInfo").get();
       let res: any = snapshot.docs.map((doc) => doc.data());
-      // console.warn("======", res);
       setInformation(res);
     } else {
-      //console.warn("props-----", props.generalInfo);
       setInformation(props.generalInfo);
     }
   };
@@ -75,8 +48,6 @@ const GeneralInformation = (props) => {
     let fileUri: string = "";
     if (element.multimedia !== "") {
       fileUri = `${FileSystem.documentDirectory}${title + index}`;
-      const downloadedFile: FileSystem.FileSystemDownloadResult =
-        await FileSystem.downloadAsync(element.multimedia, fileUri);
     } else {
       fileUri = "na";
     }
@@ -88,9 +59,7 @@ const GeneralInformation = (props) => {
       multimedia: fileUri,
       title: element.title,
     };
-    // console.warn("paso---", validateExists(title, index));
     if (!validateExists(title, index)) {
-      console.warn("in if =---", item);
       props.downloadInfo({ title, item });
       setExistence(!exists);
     }
@@ -112,19 +81,9 @@ const GeneralInformation = (props) => {
     }
     return location;
   }
-  const deleteMultimedia = async (uri) => {
-    try {
-      await FileSystem.deleteAsync(FileSystem.documentDirectory + uri);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const deleteInformation = async (title, index) => {
     const location = findElement(title, index);
-    console.warn("location----", location);
-    const uri = props.generalInfo[location[0]].content[location[1]].multimedia;
-    const dlete = await deleteMultimedia(uri);
     props.deleteInfo(location);
     setExistence(!exists);
   };
@@ -133,21 +92,14 @@ const GeneralInformation = (props) => {
     let result = false;
     let tempIds = props.generalInfoIds;
     let tempInfo = props.generalInfo;
-    // console.warn("valdiate tiele --", title, "---index---", index)
-    //console.warn("temp---", tempInfo)
     if (tempIds !== undefined && tempIds.includes(title)) {
       const modIndex = tempIds.indexOf(title);
-      // console.warn("index---", modIndex)
       let modInfo = tempInfo[modIndex];
-      // console.warn("modinfo---", modInfo.content)
       modInfo.content.forEach((element) => {
-        // console.warn("elemente id-- ", element.id)
         if (element.id === index) {
-          //console.warn("in if")
           result = true;
           return;
         }
-        //   console.warn("jumped if")
       });
     }
     return result;
@@ -156,7 +108,6 @@ const GeneralInformation = (props) => {
   useEffect(() => {
     let mounted = true;
     if (information.length === 0) {
-      //  console.warn("exists effect-----", exists);
       if (mounted) {
         getGeneralInformation();
       }
@@ -166,53 +117,6 @@ const GeneralInformation = (props) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.warn("second effect-----", canStart);
-  //   if (canStart) {
-  //     // 👈 test if you can start otherwise nothing will happen
-  //     start();
-  //   }
-  // }, [canStart]);
-
-  // useEffect(() => {
-  //   console.warn("third effect-----");
-  //   eventEmitter.on("start", handleOnStart);
-  //   eventEmitter.on("stop", handleOnStop);
-  //   eventEmitter.on("stepChange", handleOnStepChange);
-
-  //   return () => {
-  //     eventEmitter.off("start", handleOnStart);
-  //     eventEmitter.off("stop", handleOnStop);
-  //     eventEmitter.off("stepChange", handleOnStepChange);
-  //   };
-  // }, []);
-  useEffect(() => {
-    //
-    //console.warn("tour-----", props);
-    if (props.showTour1 && props.repoIndex === 0 && canStart) {
-      console.warn("in effect if");
-      start();
-      // console.warn("get current", getCurrentStep())
-    }
-  }, [canStart]);
-
-  useEffect(() => {
-    //  console.warn("third effect-----");
-    if (eventEmitter !== undefined) {
-      eventEmitter.on("start", handleOnStart);
-      eventEmitter.on("stop", () => {
-        console.warn("end");
-        stop;
-      });
-      eventEmitter.on("stepChange", handleOnStepChange);
-
-      return () => {
-        eventEmitter.off("start", handleOnStart);
-        eventEmitter.off("stop", handleOnStop);
-        eventEmitter.off("stepChange", handleOnStepChange);
-      };
-    }
-  }, []);
 
   const NavigationButton = () => {
     return (
@@ -255,7 +159,6 @@ const GeneralInformation = (props) => {
   };
 
   const CardInformation = (title, element, index) => {
-    console.warn("multipp-----", element.multimedia);
     let description;
     function setDescription() {
       try {
@@ -268,11 +171,6 @@ const GeneralInformation = (props) => {
     setDescription();
 
     let existsInDownloads = validateExists(title, index);
-    // console.warn("exists--------", exists);
-    const style = {
-      borderRadius: 10,
-      paddingBottom: 15,
-    };
 
     description.length > 1 ? description.shift() : "";
 
@@ -282,10 +180,30 @@ const GeneralInformation = (props) => {
 
         {element.multimedia !== "" && element.multimedia !== "na" ? (
           <View style={styles.containerImage}>
-            <Image
+            {/* <Image
               source={{ uri: element.multimedia }}
               style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-            />
+            /> */}
+            {element.multimedia.includes("gif") ? (
+              <Image
+                source={{ uri: element.multimedia }}
+                style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+            
+              />
+            ) : (
+              <Video
+                source={{ uri: element.multimedia }}
+                resizeMode="stretch"
+                isLooping
+                usePoster
+                shouldPlay
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 13,
+                }}
+              />
+            )}
           </View>
         ) : (
           <View></View>
@@ -357,7 +275,6 @@ const GeneralInformation = (props) => {
           ) : pending !== index ? (
             <TouchableOpacity
               onPress={async () => {
-                //Alert.alert(title);
                 Alert.alert(
                   "Descargar " + element.title,
                   "¿Está seguro que quiere descargar " + element.title + "?",
@@ -374,8 +291,7 @@ const GeneralInformation = (props) => {
                           information[CurrentInformation].title,
                           element,
                           index
-                        ).then(()=> setPending(-1));
-                        //console.log("information--------", element);
+                        ).then(() => setPending(-1));
                       },
                     },
                   ],
@@ -422,17 +338,12 @@ const GeneralInformation = (props) => {
       );
     } else {
       return (
-        <View
-          style={{ justifyContent: "center", height: "100%"}}
-        >
+        <View style={{ justifyContent: "center", height: "100%" }}>
           <ChargeScreen />
         </View>
       );
     }
   } else {
-    // console.warn("props====", props);
-    // console.warn("current inf-----", information[CurrentInformation]);
-
     let level = "";
     props.user.information.medical === undefined
       ? (level = "")
@@ -441,25 +352,12 @@ const GeneralInformation = (props) => {
       : props.user.information.medical.amputationLevel !== undefined
       ? (level = props.user.information.medical.amputationLevel)
       : (level = "");
-    // console.warn(
-    //   "params---------",
-    //   props.props.navigation.getParam("amputationLevel")
-    // );
-    // console.warn(
-    //   "user info---------",
-    //   props.user.information.medical.amputationLevel
-    // );
+  
     let leakedInformation = information[CurrentInformation].content.filter(
       (element) => {
-        // console.warn("element----", element);
-        // console.warn("level-----", level);
         if (level === "") {
-          //no amputation level specified
-          console.warn("general info return element else");
           return element;
         } else {
-          //amputation level registered
-          //  console.warn("in if -------", level);
           if (
             element.amputationLevel === "" ||
             element.amputationLevel === level
@@ -468,23 +366,6 @@ const GeneralInformation = (props) => {
           }
         }
 
-        // if (
-        //   (props.user.information.role = "paciente") ||
-        //   props.props.navigation.getParam("amputationLevel") !== undefined
-        // ) {
-        //   // console.log("else")
-        //   let level = "";
-        //   props.props.navigation.getParam("amputationLevel") !== undefined
-        //     ? (level = props.props.navigation.getParam("amputationLevel"))
-        //     : (level = props.user.information.medical.amputationLevel);
-        //   // console.warn("leve----", level);
-        //   return (
-        //     element.amputationLevel == "" || element.amputationLevel == level
-        //   );
-        // } else {
-        //   console.warn("general info return element else");
-        //   return element;
-        // }
       }
     );
     return (
@@ -503,22 +384,7 @@ const GeneralInformation = (props) => {
             height={"10%"}
           />
           <View style={styles.header}>
-            {/* <Text style={{ color: "rgba(34, 34, 34, 1)" }}>
-            Información Básica
-          </Text> */}
-            {/* <SegmentedControl
-              values={["Sin Prótesis", "Con Prótesis", "Ambos"]}
-              selectedIndex={toggledState}
-              style={{ height: "40%", width: "90%", marginTop: "2%" }}
-              activeFontStyle={{ color: "#000000", fontWeight: "bold" }}
-              onChange={(event) => {
-                console.warn(
-                  "index----",
-                  event.nativeEvent.selectedSegmentIndex
-                );
-                setToggledState(event.nativeEvent.selectedSegmentIndex);
-              }}
-            /> */}
+       
             <TourGuideZone
               zone={2}
               text="La información esta organizada por categoría. Con las flechas de los lados se puede mover por las categorías."
@@ -554,11 +420,6 @@ const GeneralInformation = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  //console.warn("mappp-----", store.User.user);
-  // console.warn("mappp ids-----", store.DownloadReducer.GeneralInfoIds);
-  // console.warn("mappp-----", store.DownloadReducer.GeneralInfo);
-  // console.warn("mappp ids-----", store.DownloadReducer.GeneralInfoIds);
-  // console.warn("show tour1-----", store.User.showTour1);
   return {
     connection: store.User.connection,
     user: store.User.user,
@@ -569,7 +430,7 @@ const MapStateToProps = (store: MyTypes.ReducerState) => {
   };
 };
 
-const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
+const MapDispatchToProps = (dispatch: Dispatch) => ({
   setConnection: (value) => dispatch(actionsUser.SET_CONNECTION(value)),
   updateShowTour1: (val) => dispatch(actionsUser.SHOW_TOUR1(val)),
   setRepoIndex: (val) => dispatch(actionsUser.SET_REPOINDEX(val)),

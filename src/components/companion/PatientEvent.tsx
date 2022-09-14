@@ -73,15 +73,8 @@ function PatientEvent(props) {
   }
 
   const saveFormReportEvent = async () => {
-    console.log(
-      "el formulario quedo",
-      form,
-      "El id del usuario es :",
-      props.navigation.state.params.uid
-    );
-
-    let idRecord = "";
-
+ 
+  
     if (!props.connection) {
       Alert.alert("Por favor escriba un comentario");
     } else {
@@ -91,69 +84,8 @@ function PatientEvent(props) {
         userName: props.user.information.personal.name,
         userPhone: props.user.information.personal.phone,
       });
-      idRecord = res.id;
-      console.log("El id es ", idRecord);
       props.navigation.navigate("Home");
-      // await updateControl(idRecord);
     }
-  };
-
-  const updateControl = async (idRecord) => {
-    // let trainingPhase = props.user.information.control.trainingPhase;
-    // let activeWeek = props.user.information.control.activeWeek;
-    // let activeDay = props.user.information.control.activeDay;
-    // let old_record = props.user.information.control.record || [];
-    // console.log(
-    //   "Los antiguos cambios son trainingPhase",
-    //   trainingPhase, " activeWeek ," ,
-    //   activeWeek, "activeDay" ,
-    //   activeDay,
-    //   old_record
-    // );
-    // // Inicial","Intermedia","Avanzada"
-    // let new_trainingPhase = "";
-    // let new_activeWeek = "";
-    // let new_activeDay = 0;
-    // if (activeDay + 1 == 5) {
-    //   new_activeDay = 0;
-    //   new_activeWeek =
-    //     "week" + (parseInt(activeWeek.replace("week", ""), 10)  -  (-1));
-    //   if (activeWeek == "week11") {
-    //     console.log("Finalizacion");
-    //     new_trainingPhase = "Finalizada";
-    //   } else if (parseInt(activeWeek.replace("week", ""), 10) <= 3) {
-    //     new_trainingPhase = "Inicial";
-    //   } else if (parseInt(activeWeek.replace("week", ""), 10) <= 7) {
-    //     new_trainingPhase = "Intermedia";
-    //   } else {
-    //     new_trainingPhase = "Avanzada";
-    //   }
-    // } else {
-    //   new_activeDay = activeDay + 1;
-    //    new_trainingPhase = trainingPhase;
-    //    new_activeWeek =activeWeek;
-    // }
-    // const aux = old_record.push(idRecord)
-    // console.log(idRecord,"Los nuevos cambios son", {
-    //   trainingPhase: new_trainingPhase,
-    //   activeDay: new_activeDay,
-    //   activeWeek: new_activeWeek,
-    //   record: old_record,
-    // });
-    // await firebase.db
-    //   .collection("users")
-    //   .doc(props.user.uid)
-    //   .update({
-    //     control: {
-    //       trainingPhase: new_trainingPhase,
-    //       activeDay: new_activeDay,
-    //       activeWeek: new_activeWeek,
-    //       record: old_record,
-    //     },
-    //   })
-    //   .then((e) => {
-    //     props.navigation.navigate("ProfileScreen");
-    //   });
   };
 
   useEffect(() => {

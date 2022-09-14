@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   View,
@@ -18,7 +18,6 @@ import UpdatePersonalData from "../Functional/UpdatePersonalData";
 export default function UpdateInfo(props) {
   const [navigationPosition, setnavigationPosition] = useState(0);
   const navigationTitles = ["Datos Personales", "Datos Médicos"];
-  console.log("props in update---", props);
   const NavigationButton = () => {
     return (
       <View style={navigationButtonStyles.containerNavigationButton}>

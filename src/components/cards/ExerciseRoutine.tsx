@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { Component, useCallback, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Image,
+  Modal,
 } from "react-native";
 
 import firebase from "../../../database/firebase";
@@ -30,37 +31,42 @@ import * as FileSystem from "expo-file-system";
 
 import NavigateNext from "react-native-vector-icons/MaterialIcons";
 import ChargeScreen from "../Simple/ChargeScreen";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Picker from "../Simple/Picker";
+import { NavBtn } from "../Simple/NavBtn";
 
 const ExerciseRoutine = (props) => {
-  const [information, setInformation] = useState([]);
   const [CurrentInformation, setCurrentInformation] = useState(0);
+  const level = props.level;
+  const [information, setInformation]: any = useState([]);
   const [loading, setLoading] = useState(true);
   const [exists, setExistence] = useState(false);
   const [pending, setPending] = useState(-1);
+  const [phases, setPhases]: any = useState([]);
 
-  const video = React.useRef(null);
+  const organizePhases = (list) => {
+    const tempPhase: any = [];
+    Object.keys(list).forEach((phase: any) => {
+      tempPhase.push({ title: list[phase].title, key: phase });
+    });
+    setPhases(tempPhase);
+  };
 
-  const protocol = [
-    { title: "Fase Preprotésica", key: "preprotesico" },
-    {
-      title: "Fase Protésica",
-      key: "protesico",
-    },
-  ];
-
-  const getProtocol = async () => {
+  const getProtocol = async (phase) => {
+    
     let passed = 0;
     let list: any = [];
-    const level = protocol[CurrentInformation].key;
-    if (props.connection && information.length !== 14) {
+    // const level = protocol[CurrentInformation].key;
+    if (props.connection) {
       await firebase.db
         .collection("protocol")
-        .doc(level)
+        .doc(phase)
         .get()
         .then((element) => {
           let data: any = element.data();
+
           const otherList = Object.values(data).map(
-            async (element: any, index) => {
+            async (element2: any, index) => {
               const trainingPhase =
                 props.user.information.control === undefined
                   ? ""
@@ -68,48 +74,47 @@ const ExerciseRoutine = (props) => {
                     props.user.information.control.trainingPhase !== ""
                   ? props.user.information.control.trainingPhase
                   : "";
-              if (element.refs.length > 0) {
+              if (element2.refs.length > 0) {
                 let info: any = [];
                 let temp = {
-                  title: element.title,
-                  phase: element.phase,
-                  setup: element.setup,
-                  order: element.order,
+                  title: element2.title,
+                  phase: element2.phase,
+                  setup: element2.setup,
+                  order: element2.order,
                   exercises: [],
                 };
-                const promises = element.refs.map(async (ref, index) => {
+                const promises = element2.refs.map(async (ref, index) => {
                   await ref.get().then((res) => {
                     info.push(res.data());
                   });
                   return info;
                 });
-                const finished = await Promise.all(promises).then(
-                  (finished: Object) => {
-                    temp.exercises = finished[0];
-                    temp.phase === "" || temp.phase === trainingPhase || trainingPhase === ""
-                      ? list.push(temp)
-                      : console.log("passed");
-                    console.warn("passed----", passed, " | ", list.length);
-                    if (
-                      (trainingPhase === "" && list.length === 13) ||
-                      (trainingPhase === "Avanzada" &&
-                        list.length === 7 - passed) ||
-                      (trainingPhase === "Intermedia" &&
-                        list.length === 6 - passed) ||
-                      (trainingPhase === "Inicial" &&
-                        list.length === 6 - passed)
-                    ) {
-                      console.log("exercise list---- ", list);
-                      list.sort(function (a, b) {
-                        return a.order - b.order;
-                      });
-                      setInformation(list);
-                      // setLoading(false);
-                    }
-                  }
-                );
+                await Promise.all(promises).then((finished: Object) => {
+                  temp.exercises = finished[0];
+                  (temp.phase === "" ||
+                    temp.phase === trainingPhase ||
+                    trainingPhase === "") &&
+                    list.push(temp);
+                 
+                  if (
+                    (trainingPhase === "" && list.length === 13) ||
+                    (trainingPhase === "Avanzada" &&
+                      list.length === 7 - passed) ||
+                    (trainingPhase === "Intermedia" &&
+                      list.length === 6 - passed) ||
+                    (trainingPhase === "Inicial" && list.length === 6 - passed)
+                  ) {
+                    list.sort(function (a, b) {
+                      return a.order - b.order;
+                    });
+                    setInformation(list);
+                    props.setProtocols({ ...props.protocols, [phase]: list });
+                    phases.length === 0 && organizePhases(list);
+                    // setLoading(false);
+                  } 
+                });
               } else {
-                if (trainingPhase === "" || trainingPhase === element.phase) {
+                if (trainingPhase === "" || trainingPhase === element2.phase) {
                   passed++;
                 }
               }
@@ -121,13 +126,12 @@ const ExerciseRoutine = (props) => {
         });
     } else if (!props.connection) {
       setInformation(props.ExerciseRoutine);
-      // setLoading(false);
     }
+    return list;
   };
 
   const getUrls = (items) => {
-    // console.log(items);
-    let urlList = [];
+    let urlList: any = [];
     items.forEach((element) => {
       urlList.push(element.gif);
     });
@@ -135,94 +139,117 @@ const ExerciseRoutine = (props) => {
   };
 
   const getAudioUrls = (items) => {
-    let urlList = [];
+    let urlList: any = [];
     items.forEach((element) => {
-      console.warn("voz====", items);
       urlList.push(element.voz);
     });
     return urlList;
   };
 
-  useEffect(() => {
-    let mounted = true;
-    // console.warn("in useEffect----", mounted);
-    if (mounted && information !== [] && loading) {
-      console.warn("entreed");
-      getProtocol().then(() => (loading ? setLoading(false) : console.log("")));
-    } else {
-      console.warn("info----- eff---", information);
-    }
-    return () => {
-      mounted = false;
-    };
-  }, [CurrentInformation]);
+  const cachePhase = async (currentPhase) => {
+    const revisedExercises: any = [];
+    const tempCache: any = [];
+    const levelId = currentPhase.title.includes("Semana") ? props.level : "";
 
-  const NavigationButton = () => {
-    return (
-      <View style={navigationStyles.containerNavigationButton}>
-        <TouchableOpacity
-          onPress={() => {
-            setLoading(true);
-            if (CurrentInformation - 1 >= 0) {
-              setCurrentInformation(CurrentInformation - 1);
-            } else if (CurrentInformation === 0) {
-              setCurrentInformation(1);
-            }
-          }}
-          style={navigationStyles.sideButton}
-        >
-          <Text style={[navigationStyles.whiteText, { fontSize: vmin(5) }]}>
-            {"<"}
-          </Text>
-        </TouchableOpacity>
-        <View style={navigationStyles.navigationButtonText}>
-          <Text style={navigationStyles.whiteText}>
-            {protocol[CurrentInformation].title}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={navigationStyles.sideButton}
-          onPress={() => {
-            setLoading(true);
-            if (CurrentInformation + 1 < protocol.length) {
-              setCurrentInformation(CurrentInformation + 1);
-            } else if (CurrentInformation === 1) {
-              setCurrentInformation(0);
-            }
-          }}
-        >
-          <Text style={[navigationStyles.whiteText, { fontSize: vmin(5) }]}>
-            {">"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+    await FileSystem.makeDirectoryAsync(
+      FileSystem.documentDirectory + "cache",
+      { intermediates: true }
     );
+    await Promise.all(
+      currentPhase.exercises.map(async (exercise, index) => {
+        const fileUri: string = exercise.gif.includes("gif")
+          ? `${FileSystem.documentDirectory + "cache/"}${
+              currentPhase.title + levelId + "gif" + index
+            }`
+          : `${FileSystem.documentDirectory + "cache/"}${
+              currentPhase.title + levelId + index
+            }`;
+        let audioUri: string = `${FileSystem.documentDirectory}${
+          exercise.routinePhase + currentPhase.phase + "Audio" + index
+        }`;
+        await FileSystem.downloadAsync(exercise.gif, fileUri);
+        await FileSystem.downloadAsync(exercise.voz, audioUri);
+
+        let tempExercise = exercise;
+        tempExercise.gif = fileUri;
+        tempExercise.voz = audioUri;
+        tempCache.push(fileUri);
+        tempCache.push(audioUri);
+        revisedExercises.push(tempExercise);
+        // return tempExercise;
+      })
+    );
+
+    revisedExercises.sort((a, b) => {
+      const numberA = a.gif.match(/\d+$/)[0];
+      const numberB = b.gif.match(/\d+$/)[0];
+      return numberA - numberB;
+    });
+    return revisedExercises;
   };
+
+  const setCached = () => {
+    const levelId = information[CurrentInformation].title.includes("Semana")
+      ? props.level
+      : "";
+    cachePhase(information[CurrentInformation]).then((revisedExercises) => {
+     
+      let newInfo = information;
+      newInfo[CurrentInformation].exercises = revisedExercises;
+
+      setInformation(newInfo);
+      props.setProtocols({ ...props.protocols, [level]: newInfo });
+      setLoading(false);
+    });
+  };
+
+  useEffect(() => {
+    if (loading) {
+      if (information && information.length === 0) {
+        props.protocols[level] === undefined
+          ? getProtocol(level)
+          : setInformation(props.protocols[level]) &&
+            setPhases(props.protocols[level]);
+      } else {
+        if (
+          information[CurrentInformation].exercises[0].gif.includes("firebase")
+        ) {
+          setCached();
+        } else {
+          loading && setLoading(false);
+        }
+      }
+    }
+  }, [phases, CurrentInformation]);
 
   const downloadSection = async ({ sectionIndex, title, title2 }) => {
     const urls = getUrls(information[sectionIndex].exercises);
-    const audioUrls = getAudioUrls(information[sectionIndex].exercises);
+    const audioUrls: any = getAudioUrls(information[sectionIndex].exercises);
     let items: any = [...information];
     title2 = title2 === "title2" ? "" : title2;
-
-    // console.warn("item---", items);
     await Promise.all(
       urls.map(async (element, index) => {
-        // console.warn("url---", element);
         const fileUri: string = `${FileSystem.documentDirectory}${
           title + title2 + index
         }`;
-        console.warn("uri---", fileUri);
         let audioUri: string = `${FileSystem.documentDirectory}${
           title + title2 + "Audio" + index
         }`;
+        await FileSystem.moveAsync({
+          from: `${items[sectionIndex].exercises[index].gif}`,
+          to: `${FileSystem.documentDirectory}${title + title2 + index}`,
+        });
 
-        const downloadedFile: FileSystem.FileSystemDownloadResult =
-          await FileSystem.downloadAsync(element, fileUri);
+        // await FileSystem.downloadAsync(element, fileUri);
         if (audioUrls[index].length > 25) {
-          // console.warn("passed file download", audioUrls[index]);
-          const downloadedFile1: FileSystem.FileSystemDownloadResult =
-            await FileSystem.downloadAsync(audioUrls[index], audioUri);
+          // await FileSystem.downloadAsync(audioUrls[index], audioUri);
+
+          await FileSystem.moveAsync({
+            from: `${items[sectionIndex].exercises[index].voz}`,
+            to: `${FileSystem.documentDirectory}${
+              title + title2 + "Audio" + index
+            }`,
+          });
         } else {
           audioUri = "";
         }
@@ -231,16 +258,13 @@ const ExerciseRoutine = (props) => {
           voz: audioUri,
           gif: fileUri,
         };
-        console.warn("downloaded all----", item);
         items[sectionIndex].exercises[index] = item;
-
-        setInformation(items);
       })
     )
       .then(() => {
+        setInformation(items);
         if (!props.previusIdentifiers.includes(title + title2)) {
           let sectionToSave = information[sectionIndex];
-          // console.warn("section---", information[sectionIndex]);
           props.addItemToExerciseRoutine({
             newExercise: sectionToSave,
             title,
@@ -263,7 +287,6 @@ const ExerciseRoutine = (props) => {
   };
 
   const deleteInformation = (sectionIndex, order, title, title2) => {
-    console.warn("exercise routine--", props.ExerciseRoutine[sectionIndex]);
     props.ExerciseRoutine.forEach(async (phase, index) => {
       if (phase.order === order) {
         phase.exercises.forEach(async (exercise) => {
@@ -283,15 +306,12 @@ const ExerciseRoutine = (props) => {
     let title = info.phase !== "" ? info.phase : info.title;
     let title2 = info.phase !== "" ? info.title : "";
 
-    console.log("info fisrt", info.exercises, info.title);
-
     let existsInDownloads = props.previusIdentifiers.includes(title + title2);
 
-    let exercises = [];
+    let exercises: any = [];
     info.exercises.forEach((element, index) => {
       if (element !== undefined) {
         let tempExercise = {};
-        console.log("exercise map === ", element);
         tempExercise["exerciseList"] = element;
         tempExercise["setup"] = info.setup;
         exercises.push(tempExercise);
@@ -300,21 +320,74 @@ const ExerciseRoutine = (props) => {
 
     return (
       <View style={FirstSectionStyles.container}>
-        <View style={FirstSectionStyles.rowContainer}>
-          <Text style={FirstSectionStyles.title}>{title}</Text>
-          <View style={FirstSectionStyles.iconContainer}>
-            {/* <NavigateNext name="navigate-next" size={vmin(7)} color="black" /> */}
+        <View style={{ alignItems: "center" }}>
+          <View style={FirstSectionStyles.rowContainer}>
+            <Text style={FirstSectionStyles.title}>
+              {title === "Inicial" ||
+              title === "Intermedia" ||
+              title === "Avanzada"
+                ? "Etapa: " + title
+                : title}
+            </Text>
+            <View style={FirstSectionStyles.iconContainer}>
+              {/* <NavigateNext name="navigate-next" size={vmin(7)} color="black" /> */}
 
-            {existsInDownloads ? (
-              <TouchableOpacity
-                style={FirstSectionStyles.downloadButton}
-                onPress={() => {
-                  // Alert.alert(" ALert on press ");
-                  if (props.connection) {
+              {existsInDownloads ? (
+                <TouchableOpacity
+                  style={FirstSectionStyles.downloadButton}
+                  onPress={() => {
+                    // Alert.alert(" ALert on press ");
+                    if (props.connection) {
+                      Alert.alert(
+                        "Eliminar " + title,
+                        "¿Está seguro que quiere eliminar la descarga de " +
+                          title +
+                          "?",
+                        [
+                          {
+                            text: "Cancelar",
+                            style: "cancel",
+                          },
+                          {
+                            text: "Eliminar",
+                            onPress: async () => {
+                              const dlete = await deleteInformation(
+                                sectionIndex,
+                                info.order,
+                                title,
+                                title2
+                              );
+                            },
+                          },
+                        ],
+                        { cancelable: false }
+                      );
+                    } else {
+                      Alert.alert(
+                        "Por favor conéctese al internet para eliminar."
+                      );
+                    }
+                  }}
+                >
+                  <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
+                    Descargado
+                  </Text>
+                  <MaterialIcons
+                    name="file-download-done"
+                    size={vmin(7)}
+                    color="rgba(52, 152, 219, 1)"
+                  />
+                </TouchableOpacity>
+              ) : pending !== sectionIndex ? (
+                <TouchableOpacity
+                  onPress={async () => {
+                    //Alert.alert(title);
                     Alert.alert(
-                      "Eliminar " + title,
-                      "¿Está seguro que quiere eliminar la descarga de " +
+                      "Descargar " + title,
+                      "¿Está seguro que quiere descargar " +
                         title +
+                        " " +
+                        title2 +
                         "?",
                       [
                         {
@@ -322,99 +395,90 @@ const ExerciseRoutine = (props) => {
                           style: "cancel",
                         },
                         {
-                          text: "Eliminar",
+                          text: "Descargar",
                           onPress: async () => {
-                            const dlete = await deleteInformation(
+                            setPending(sectionIndex);
+                            const download = await downloadSection({
                               sectionIndex,
-                              info.order,
                               title,
-                              title2
-                            );
+                              title2,
+                            });
+                            setPending(-1);
                           },
                         },
                       ],
                       { cancelable: false }
                     );
-                  } else {
-                    Alert.alert(
-                      "Por favor conéctese al internet para eliminar."
-                    );
-                  }
-                }}
-              >
-                <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
-                  Descargado
-                </Text>
-                <MaterialIcons
-                  name="file-download-done"
-                  size={vmin(7)}
-                  color="rgba(52, 152, 219, 1)"
-                />
-              </TouchableOpacity>
-            ) : pending !== sectionIndex ? (
-              <TouchableOpacity
-                onPress={async () => {
-                  //Alert.alert(title);
-                  Alert.alert(
-                    "Descargar " + title,
-                    "¿Está seguro que quiere descargar " +
-                      title +
-                      " " +
-                      title2 +
-                      "?",
-                    [
-                      {
-                        text: "Cancelar",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Descargar",
-                        onPress: async () => {
-                          setPending(sectionIndex);
-                          const download = await downloadSection({
-                            sectionIndex,
-                            title,
-                            title2,
-                          });
-                          setPending(-1);
-                        },
-                      },
-                    ],
-                    { cancelable: false }
-                  );
-                }}
-                style={FirstSectionStyles.downloadButton}
-              >
-                <Text style={{ color: "rgba(153, 153, 153, 1)" }}>
-                  Descargar
-                </Text>
-                <Download
-                  name="md-download-outline"
-                  size={vmin(7)}
-                  color="rgba(153, 153, 153, 1)"
-                />
-              </TouchableOpacity>
-            ) : (
-              <View style={{ flexDirection: "row" }}>
-                <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
-                  Descargando
-                </Text>
-                <ActivityIndicator size="small" color="rgba(52, 152, 219, 1)" />
-              </View>
-            )}
+                  }}
+                  style={FirstSectionStyles.downloadButton}
+                >
+                  <Text style={{ color: "rgba(153, 153, 153, 1)" }}>
+                    Descargar
+                  </Text>
+                  <Download
+                    name="md-download-outline"
+                    size={vmin(7)}
+                    color="rgba(153, 153, 153, 1)"
+                  />
+                </TouchableOpacity>
+              ) : (
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={{ color: "rgba(52, 152, 219, 1)" }}>
+                    Descargando
+                  </Text>
+                  <ActivityIndicator
+                    size="small"
+                    color="rgba(52, 152, 219, 1)"
+                  />
+                </View>
+              )}
+            </View>
           </View>
+          {(title === "Inicial" ||
+            title === "Intermedia" ||
+            title === "Avanzada") && (
+            <Picker
+              width={"90%"}
+              height={28}
+              // placeholder={"Protesico"}
+              setData={(itemValue, itemIndex) => {
+                if (level !== itemValue) {
+                  setLoading(true);
+                  const dataKey =
+                    itemValue === "Preprotésico" ? "preprotesico" : "protesico";
+                  new Promise((resolve) => {
+                    resolve(props.setRepoLevel(dataKey));
+                  }).then(() => {
+                    if (props.protocols[dataKey] === undefined) {
+                      getProtocol(dataKey).then(() => setLoading(false));
+                    } else {
+                      new Promise((resolve) =>
+                        resolve(setInformation(props.protocols[dataKey]))
+                      ).then(() => setLoading(false));
+                    }
+                  });
+                }
+              }}
+              // initialValue={"Protésico"}
+              value={level === "protesico" ? "Protésico" : "Preprotésico"}
+              list={["Protésico", "Preprotésico"]}
+            />
+          )}
         </View>
-
         <View>
           <View style={SecondSectionStyles.container}>
-            <Text style={SecondSectionStyles.title}>{title2}</Text>
+            {/* <Text style={SecondSectionStyles.title}>{title2}</Text> */}
 
-            <View>
+            <View style={{}}>
               <FlatList
-                horizontal
                 data={exercises}
                 renderItem={OverviewExercise}
-                style={{}}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingBottom: "5%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
                 keyExtractor={(item, index) => "overview" + index}
               />
             </View>
@@ -425,31 +489,10 @@ const ExerciseRoutine = (props) => {
     );
   };
 
-  const SecondSection = (element) => {
-    let title2 = element.phase !== "" ? "" : element.title;
-    let exerciseCollection = element.exercises;
-    return (
-      <View style={SecondSectionStyles.container}>
-        <Text style={SecondSectionStyles.title}>{title2}</Text>
-        <View>
-          <FlatList
-            horizontal
-            data={exerciseCollection}
-            renderItem={OverviewExercise}
-            style={{}}
-            keyExtractor={(item, index) => item.key}
-          />
-        </View>
-      </View>
-    );
-  };
-
   const OverviewExercise = (item) => {
-    console.warn("El item que llega al ejercicios es :", item.item);
     let value = item.item;
     let exercise = value.exerciseList;
-    // let day = exercise.day;
-    // let time = exercise.time;
+
     let multimedia = exercise.gif !== undefined ? exercise.gif : "hello";
     let materials = exercise.materials;
     let materialsBackground =
@@ -457,23 +500,20 @@ const ExerciseRoutine = (props) => {
 
     let key_e = item.index;
 
-    // console.warn(
-    //   "La multimeodoas s props que tenemos hata aca son:::::::::::::::::",
-    //   multimedia
-    // );
-
     return (
       <TouchableOpacity
         key={key_e + "e"}
         style={OverviewExerciseStyles.container}
         onPress={() => {
-          console.warn("exercise itro--", exercise);
           props.props.navigation.navigate("IndividualExcercise", {
             data: exercise,
             setup: value.setup,
           });
         }}
       >
+        <Text style={{ marginTop: "2%", fontWeight: "700" }}>
+          Ejercicio #{parseInt(item.index) + 1}
+        </Text>
         <View style={OverviewExerciseStyles.imageContainer}>
           {multimedia.includes("gif") ? (
             <Image
@@ -503,18 +543,20 @@ const ExerciseRoutine = (props) => {
         <View style={OverviewExerciseStyles.containerTexts}>
           {/* <Text style={OverviewExerciseStyles.title}>{day}</Text> */}
           {/* <Text style={OverviewExerciseStyles.subtitle}>{time}</Text> */}
-          <Text
+          {/* <Text
             style={[
               OverviewExerciseStyles.subtitle,
               { backgroundColor: materialsBackground },
             ]}
           >
             Materiales {materials ? "✅" : "❌"}
-          </Text>
+          </Text> */}
         </View>
       </TouchableOpacity>
     );
   };
+
+  // ============================================================ ui ============================
 
   if (loading) {
     return (
@@ -522,18 +564,32 @@ const ExerciseRoutine = (props) => {
         <ChargeScreen />
       </View>
     );
-  } else if (information.length !== 0) {
-    // console.warn("informacion--------", information);
+  } else if (information && information.length !== 0) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           {/* <Text> Coleccion de ejercicios. </Text> */}
-          {NavigationButton()}
+          {phases && (
+            <NavBtn
+              props={{
+                CurrentInformation,
+                setCurrentInformation,
+                phases,
+                setLoading,
+              }}
+            />
+          )}
+          {/* {NavigationButton()} */}
         </View>
 
-        <ScrollView style={styles.body}>
-          {information.map((aaa, index) => FirstSection(aaa, index))}
-        </ScrollView>
+        <View style={styles.body}>
+          {information &&
+            information[CurrentInformation] &&
+            phases &&
+            phases[CurrentInformation] &&
+            FirstSection(information[CurrentInformation], CurrentInformation)}
+          {/* {information.map((aaa, index) => FirstSection(aaa, index))} */}
+        </View>
       </View>
     );
   } else if (!props.connection) {
@@ -560,12 +616,9 @@ const ExerciseRoutine = (props) => {
   }
 };
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log(
-    "exercise rotone reducer-------",
-    store.DownloadReducer.ExerciseRoutine
-  );
   return {
     user: store.User.user,
+    level: store.User.repoLevel,
     connection: store.User.connection,
     previusIdentifiers: store.DownloadReducer.ExerciseRoutineIndentifiers,
     ExerciseRoutine: store.DownloadReducer.ExerciseRoutine,
@@ -577,6 +630,7 @@ const MapDispatchToProps = (dispatch: Dispatch, store: any) => ({
     dispatch(actionsDownload.ADD_ITEM_TO_EXERCISE_ROUTINE(data)),
   removeExercises: (data) =>
     dispatch(actionsDownload.REMOVE_EXERCISE_LIST(data)),
+  setRepoLevel: (val) => dispatch(actionsUser.SET_REPOLEVEL(val)),
   deleteExercise: (data) =>
     dispatch(actionsDownload.REMOVE_EXERCISE_ITEM(data)),
 });
@@ -591,7 +645,7 @@ const styles = StyleSheet.create({
 
   header: {
     width: "100%",
-    height: "10%",
+    height: "9%",
     // backgroundColor: "salmon",
 
     justifyContent: "space-evenly",
@@ -611,7 +665,7 @@ const navigationStyles = StyleSheet.create({
   containerNavigationButton: {
     width: "90%",
     flexDirection: "row",
-    marginTop: vmin(2),
+    // marginTop: vmin(2),
     height: "80%",
     borderRadius: 10,
     justifyContent: "center",
@@ -645,28 +699,35 @@ const navigationStyles = StyleSheet.create({
 const FirstSectionStyles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "white",
-    justifyContent: "space-evenly",
-    borderColor: "rgba(21, 21, 34, 1)",
-    borderBottomWidth: vmin(0.4),
-    paddingTop: "5%",
+    height: "100%",
+    // backgroundColor: "green",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    flexDirection: "column",
+    // borderColor: "rgba(21, 21, 34, 1)",
+    // borderBottomWidth: vmin(0.4),
+    // marginTop: vmin(-4),
     paddingBottom: "5%",
     paddingLeft: "2%",
+    // backgroundColor: "peru",
     paddingRight: "2%",
   },
   rowContainer: {
+    // marginTop: "1%",
     flexDirection: "row",
   },
   title: {
-    paddingLeft: vmin(1),
+    paddingLeft: "4%",
     fontWeight: "bold",
     width: "65%",
-    fontSize: vmin(4.3),
+    height: "auto",
+    fontSize: vmin(4.5),
   },
   iconContainer: {
     width: "35%",
     justifyContent: "center",
     alignItems: "flex-end",
+    // backgroundColor: "red",
   },
 
   downloadButton: {
@@ -674,20 +735,19 @@ const FirstSectionStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    // backgroundColor: "red",
   },
 });
 
 const SecondSectionStyles = StyleSheet.create({
   container: {
     width: "100%",
-    // backgroundColor: "peru",
     justifyContent: "space-evenly",
     padding: "3%",
+    paddingTop: "0%",
   },
 
   title: {
-    marginBottom: vmin(2),
+    // marginBottom: vmin(),
     fontWeight: "bold",
     fontSize: vmin(3),
     fontStyle: "italic",
@@ -696,10 +756,15 @@ const SecondSectionStyles = StyleSheet.create({
 
 const OverviewExerciseStyles = StyleSheet.create({
   container: {
-    width: vmin(42),
-    height: vmin(65),
-    // backgroundColor: "yellow",
-    marginRight: vmin(5),
+    width: vmin(90),
+    height: vmin(100),
+    borderStyle: "solid",
+    borderTopWidth: 2,
+    borderColor: "rgba(64,64,64,0.05)",
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#96a8fa11",
+    marginTop: vmin(4),
   },
 
   containerTexts: {
@@ -724,8 +789,10 @@ const OverviewExerciseStyles = StyleSheet.create({
 
   imageContainer: {
     overflow: "hidden",
-    width: "100%",
-    height: "80%",
+    maxWidth: "80%",
+    maxHeight: "90%",
+    width: "80%",
+    height: "90%",
     // backgroundColor: "green",
     borderRadius: 13,
     shadowColor: "#000",

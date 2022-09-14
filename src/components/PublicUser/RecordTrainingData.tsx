@@ -33,7 +33,6 @@ import { actionsUser } from "../../redux/actions/actionsUser";
 import ChargeScreen from "../Simple/ChargeScreen";
 
 const RecordTrainingData = (props) => {
-  console.log("Las props que llegan son", props);
   const [data, setData] = useState({
     perceivedForce: "",
     size: "",
@@ -53,8 +52,6 @@ const RecordTrainingData = (props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Las props que llegan son", props);
-
     firebase.db
       .collection("users")
       .doc(props.user.uid)
@@ -63,7 +60,6 @@ const RecordTrainingData = (props) => {
         setData({ ...user_db.data().medical });
         setCurrent(user_db.data().medical.amputationLevel);
         setCurrent1(user_db.data().medical.amputationPhase);
-        console.log("asdfasdfasdfasdfasdfasdfasdf", user_db.data().medical);
         setLoading(false);
       })
       .catch((e) => {
@@ -481,7 +477,6 @@ const RecordTrainingData = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("mapstate patient register-----", store.User.user);
   return {
     user: store.User.user,
   };

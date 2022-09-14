@@ -91,7 +91,6 @@ export default function RegisterPhysiotherapist(props) {
         if (error.code === "auth/invalid-email") {
           Alert.alert("Correo inválido!");
         }
-        console.error(error);
         setLoading(false);
       });
   };
@@ -203,37 +202,9 @@ export default function RegisterPhysiotherapist(props) {
          
         </View>
 
-          {/* <View style={styles.containerInput}>
-            <Text style={styles.headerInput}>Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={(value) => {
-                setdata({ ...data, password: value });
-                setPasswords({ ...passwords, password1: value });
-              }}
-              value={data.password}
-              placeholder={"Mínimo 8 caracteres"}
-              secureTextEntry
-            />
-          </View>
-
-          <View style={styles.containerInput}>
-            <Text style={styles.headerInput}>Confirmar Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={(value) => {
-                setPasswords({ ...passwords, password2: value });
-              }}
-              value={passwords.password2}
-              placeholder={"Mínimo 8 caracteres"}
-              secureTextEntry
-            />
-          </View> */}
-
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-
               if(passwords.password1 == passwords.password2){
                 schema
                 .validate(data)
@@ -243,10 +214,8 @@ export default function RegisterPhysiotherapist(props) {
                 })
                 .catch(function (err) {
                   Alert.alert(err);
-                  console.log(err);
                 });
               }else{
-                console.log("las contrasemas no coinciden.")
                 Alert.alert("Las contraseñas no coinciden.")
               }
             }}

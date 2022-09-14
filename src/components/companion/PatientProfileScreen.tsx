@@ -1,5 +1,5 @@
-import React, { Component, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 var { vmin } = require("react-native-expo-viewport-units");
 import {
@@ -20,20 +20,17 @@ import firebase from "../../../database/firebase";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const GeneralProfileScreen = (props) => {
-  console.warn("profile patient----------", props.navigation.state)
   let trainingPhase = "";
   let activeWeek = "";
   let activeDay = 0;
   let width = "";
-  const [userInformation, setUserInformation]: any = useState({ loading: true });
+  const [userInformation, setUserInformation]: any = useState({
+    loading: true,
+  });
   let info: any = {};
-  console.warn("props---",    props.navigation.state.params.uid);
   const getInformation = async () => {
-    let patientIdentifier =  props.navigation.state.params.uid;
-    console.log(
-      "{}{}{}{}P{}{}{}{}{}{}{}{}{}}el id del paciente que llegas es ",
-      patientIdentifier
-    );
+    let patientIdentifier = props.navigation.state.params.uid;
+  
     await firebase.db
       .collection("users")
       .doc(patientIdentifier)
@@ -41,7 +38,6 @@ const GeneralProfileScreen = (props) => {
       .then((user: any) => {
         info = user.data();
         info["loading"] = false;
-        console.log("La informaicon qudo asi ;", info);
       })
       .catch((e) => {
         // setLoading(false);
@@ -53,21 +49,14 @@ const GeneralProfileScreen = (props) => {
       .get();
 
     info["record"] = filterRecord(record);
-    console.log(
-      "La informacion es :::::::::::: :::::::::::: :::::::::::: :::::::::::: ::::::::::::",
-      info
-    );
+   
     setUserInformation(info);
   };
 
   const filterRecord = (collection) => {
     let record: any = {};
     collection.docs.forEach((doc, index) => {
-      console.warn(
-        "Esta es la iteracion numerooooooooooooooooooooooooooooooooooooo",
-        index,
-        record
-      );
+    
       let currentDocument = {
         ...doc.data(),
         id: doc.id,
@@ -84,13 +73,9 @@ const GeneralProfileScreen = (props) => {
       }
       // Verificacion para saber si la fase existe
       if (record[trainingPhase]) {
-        console.log(
-          "Aqui la fase ya habia sido creada aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          record
-        );
+       
         //Verificacion si existe la semana
         if (record[trainingPhase][activeWeek]) {
-          console.table("Aqui la semana 1 ya existia ", record);
           //Verificacion si existe el dia
           if (record[trainingPhase][activeWeek][activeDay] != 0) {
             record[trainingPhase][activeWeek][activeDay].push({
@@ -106,7 +91,6 @@ const GeneralProfileScreen = (props) => {
         }
         // Si no existe la semana
         else {
-          console.log("La semana no existia ", record);
           record[trainingPhase][activeWeek] = [0, 0, 0, 0, 0, 0, 0];
           record[trainingPhase][activeWeek][activeDay] = [
             { ...currentDocument },
@@ -120,20 +104,16 @@ const GeneralProfileScreen = (props) => {
         record[trainingPhase][activeWeek][activeDay] = [{ ...currentDocument }];
       }
     });
-    console.log("======= El resuldato de la semana es :", record);
 
     return record;
   };
 
   props.user.information.role == "paciente" ? (width = "42%") : (width = "84%");
-  //console.log("rolee====",props.props)
- 
-    // console.log(props.activeDay)
-    trainingPhase = props.navigation.state.params.trainingPhase;
-    activeWeek = props.navigation.state.params.activeWeek;
-    activeDay = props.navigation.state.params.activeDay;
- 
-  //console.log("weekkk----",activeWeek)
+
+  trainingPhase = props.navigation.state.params.trainingPhase;
+  activeWeek = props.navigation.state.params.activeWeek;
+  activeDay = props.navigation.state.params.activeDay;
+
   if (
     parseInt(activeWeek.replace("week", ""), 10) == 1 &&
     trainingPhase == "Inicial" &&
@@ -143,14 +123,17 @@ const GeneralProfileScreen = (props) => {
     var activeWeekPercentage = 0;
     var activeDayPercentage = 0;
   } else {
-    var weekkk = String(parseInt(activeWeek.replace("week", "")) - 1)
-    var activeWeekPercentage =
-      parseInt(weekkk, 10) * 10;
-      var activeDayPercentage = activeDay * 20;
-      console.warn("day---", activeDay)
+    var weekkk = String(parseInt(activeWeek.replace("week", "")) - 1);
+    var activeWeekPercentage = parseInt(weekkk, 10) * 10;
+    var activeDayPercentage = activeDay * 20;
     var trainingPhasePercentage =
-    parseInt(activeWeek.replace("week", "")) > 4 ? 30 : parseInt(activeWeek.replace("week", "")) > 7 ? 60 : parseInt(activeWeek.replace("week", "")) > 9 ? 90 : 0;
-    
+      parseInt(activeWeek.replace("week", "")) > 4
+        ? 30
+        : parseInt(activeWeek.replace("week", "")) > 7
+        ? 60
+        : parseInt(activeWeek.replace("week", "")) > 9
+        ? 90
+        : 0;
   }
   if (trainingPhasePercentage == 110) {
     trainingPhasePercentage = 100;
@@ -166,24 +149,26 @@ const GeneralProfileScreen = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.rowButtons}>
-        
-          <TouchableOpacity
-            onPress={() => props.navigation.navigate("PatientEvent", {uid: props.navigation.state.params.uid})}
-            style={[
-              styles.button,
-              {
-                width: width,
-                backgroundColor: "white",
-                borderColor: "#6979F8",
-                borderWidth: vmin(0.3),
-              },
-            ]}
-          >
-            <ScalableText style={{ color: "#6979F8", fontWeight:"bold" }}>
-              Reportar Incidente
-            </ScalableText>
-          </TouchableOpacity>
-       
+        <TouchableOpacity
+          onPress={() =>
+            props.navigation.navigate("PatientEvent", {
+              uid: props.navigation.state.params.uid,
+            })
+          }
+          style={[
+            styles.button,
+            {
+              width: width,
+              backgroundColor: "white",
+              borderColor: "#6979F8",
+              borderWidth: vmin(0.3),
+            },
+          ]}
+        >
+          <ScalableText style={{ color: "#6979F8", fontWeight: "bold" }}>
+            Reportar Incidente
+          </ScalableText>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -193,8 +178,6 @@ const GeneralProfileScreen = (props) => {
           });
 
           myPromise.then(() => {
-            console.warn("usring---",info);
-
             props.navigation.navigate("PatientHistory", {
               userInformation: info,
             });
@@ -255,7 +238,7 @@ const GeneralProfileScreen = (props) => {
             <Text
               style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
             >
-              Semana {(activeWeekPercentage+10) / 10} de 10
+              Semana {(activeWeekPercentage + 10) / 10} de 10
             </Text>
           </View>
           <View style={styles.progressSection_circle}>
@@ -279,7 +262,7 @@ const GeneralProfileScreen = (props) => {
             <Text
               style={{ fontSize: vmin(3.5), color: "rgba(153, 153, 153, 1)" }}
             >
-              Dia {(activeDayPercentage + 20 ) / 20} de 5
+              Dia {(activeDayPercentage + 20) / 20} de 5
             </Text>
           </View>
           <View style={styles.progressSection_circle}>
@@ -297,13 +280,13 @@ const GeneralProfileScreen = (props) => {
         </View>
       </TouchableOpacity>
 
-      {props.user.information.role == "paciente" ? (
+      {props.user.information.role == "paciente" && (
         <View style={styles.footerButtons}>
           <TouchableOpacity
             style={styles.button2}
             onPress={() => props.navigation.navigate("ScheduleRoutines")}
           >
-            <ScalableText style={{ color: "white" , fontWeight:"bold"}}>
+            <ScalableText style={{ color: "white", fontWeight: "bold" }}>
               Configurar alarmas de la rutina semanal
             </ScalableText>
           </TouchableOpacity>
@@ -315,20 +298,17 @@ const GeneralProfileScreen = (props) => {
               })
             }
           >
-            <ScalableText style={{ color: "white", fontWeight:"bold" }}>
+            <ScalableText style={{ color: "white", fontWeight: "bold" }}>
               Editar intensidad y tiempo de reposo
             </ScalableText>
           </TouchableOpacity>
         </View>
-      ) : (
-        console.log("gfd")
       )}
     </View>
   );
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("storeee---", store.DownloadReducer.ExerciseRoutineIndentifiers);
   return {
     user: store.User.user,
     connection: store.User.connection,
