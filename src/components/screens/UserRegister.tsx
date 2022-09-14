@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   View,
@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");
@@ -115,7 +114,6 @@ function UserRegister(props) {
             role: "",
             token: "",
           });
-        console.log("acaboooooooo user register");
 
         await reauthenticate(data.password)
           .then(() => {
@@ -134,144 +132,154 @@ function UserRegister(props) {
           setLoading(false);
           Alert.alert("Correo Inválido");
         }
-        console.error(error);
       });
   };
-  if (loading){
-  return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%" }}><ChargeScreen/></View>);}
-  else{return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.textHeader}>
-          Por favor ingrese todos los datos para el registro.
-        </Text>
+  if (loading) {
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <ChargeScreen />
       </View>
-      <ScrollView style={styles.scroll}>
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Nombre Completo</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(value) => {
-              setdata({ ...data, name: value });
-            }}
-            value={data.name}
-            placeholder={"Ingrese Nombres y Apellidos"}
-          />
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.textHeader}>
+            Por favor ingrese todos los datos para el registro.
+          </Text>
         </View>
+        <ScrollView style={styles.scroll}>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Nombre Completo</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(value) => {
+                setdata({ ...data, name: value });
+              }}
+              value={data.name}
+              placeholder={"Ingrese Nombres y Apellidos"}
+            />
+          </View>
 
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Documento de Identidad</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(value) => {
-              setdata({ ...data, id: value });
-            }}
-            value={data.id}
-            keyboardType={"number-pad"}
-            placeholder={"Tarjeta de Identidad o Cédula"}
-          />
-        </View>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Documento de Identidad</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(value) => {
+                setdata({ ...data, id: value });
+              }}
+              value={data.id}
+              keyboardType={"number-pad"}
+              placeholder={"Tarjeta de Identidad o Cédula"}
+            />
+          </View>
 
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Teléfono</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(value) => {
-              setdata({ ...data, phone: value });
-            }}
-            value={data.phone}
-            keyboardType={"phone-pad"}
-            placeholder={"Número telefónico celular"}
-          />
-        </View>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Teléfono</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(value) => {
+                setdata({ ...data, phone: value });
+              }}
+              value={data.phone}
+              keyboardType={"phone-pad"}
+              placeholder={"Número telefónico celular"}
+            />
+          </View>
 
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Correo Electrónico</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(value) => {
-              setdata({ ...data, email: value });
-            }}
-            value={data.email}
-            keyboardType={"email-address"}
-            placeholder={"Dirección de correo electrónico"}
-          />
-        </View>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Correo Electrónico</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(value) => {
+                setdata({ ...data, email: value });
+              }}
+              value={data.email}
+              keyboardType={"email-address"}
+              placeholder={"Dirección de correo electrónico"}
+            />
+          </View>
 
-        {/* Genero */}
+          {/* Genero */}
 
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Sexo</Text>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Sexo</Text>
 
-          <View style={[styles.repetitionInputContainer, {borderWidth:0}]}>
-          <Picker
+            <View style={[styles.repetitionInputContainer, { borderWidth: 0 }]}>
+              <Picker
                 width={"100%"}
                 height={40}
                 placeholder={"Seleccionar"}
-                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
-                setdata({ ...data, gender: itemValue })}
-                }
+                setData={(itemValue, itemIndex) => {
+                  setdata({ ...data, gender: itemValue });
+                }}
                 initialValue={"Seleccionar"}
                 list={["Seleccionar", "Femenino", "Masculino"]}
               />
+            </View>
           </View>
-        </View>
 
-        {/* Genero */}
+          {/* Genero */}
 
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Contraseña</Text>
-          <Password
-            label={"Mínimo 8 caracteres"}
-            onChange={(value) => {
-              setdata({ ...data, password: value });
-              setPasswords({ ...passwords, password1: value });
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Contraseña</Text>
+            <Password
+              label={"Mínimo 8 caracteres"}
+              onChange={(value) => {
+                setdata({ ...data, password: value });
+                setPasswords({ ...passwords, password1: value });
+              }}
+              width={"100%"}
+              height={40}
+              value={data.password}
+            />
+          </View>
+          <View style={styles.containerInput}>
+            <Text style={styles.headerInput}>Confirmar Contraseña</Text>
+            <Password
+              label={"Mínimo 8 caracteres"}
+              onChange={(value) => {
+                setPasswords({ ...passwords, password2: value });
+              }}
+              height={40}
+              width={"100%"}
+              value={passwords.password2}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              setLoading(true);
+              if (passwords.password1 == passwords.password2) {
+                schema
+                  .validate(data)
+                  .then(() => {
+                    signIn();
+                  })
+                  .catch(function (err) {
+                    setLoading(false);
+                    Alert.alert(err.message);
+                  });
+              } else {
+                setLoading(false);
+                Alert.alert("Las contraseñas no coinciden.");
+              }
             }}
-            width={"100%"}
-            height={40}
-            value={data.password}
-          />
-        </View>
-        <View style={styles.containerInput}>
-          <Text style={styles.headerInput}>Confirmar Contraseña</Text>
-          <Password
-            label={"Mínimo 8 caracteres"}
-            onChange={(value) => {
-              setPasswords({ ...passwords, password2: value });
-            }}
-            height={40}
-            width={"100%"}
-            value={passwords.password2}
-          />
-         
-        </View>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            setLoading(true);
-            if (passwords.password1 == passwords.password2) {
-              schema
-                .validate(data)
-                .then(() => {
-                  signIn();
-                })
-                .catch(function (err) {
-                  setLoading(false);
-                  Alert.alert(err.message);
-                  console.warn(err);
-                });
-            } else {
-              setLoading(false);
-              Alert.alert("Las contraseñas no coinciden.");
-            }
-          }}
-        >
-          <Text style={{ color: "white" }}>Registrar y Acceder</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
-  );}
+          >
+            <Text style={{ color: "white" }}>Registrar y Acceder</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    );
+  }
 }
 export default UserRegister;
 

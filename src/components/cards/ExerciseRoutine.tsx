@@ -53,12 +53,9 @@ const ExerciseRoutine = (props) => {
   };
 
   const getProtocol = async (phase) => {
+    
     let passed = 0;
     let list: any = [];
-    console.warn(
-      "🚀 ~ file: ExerciseRoutine.tsx ~ line 71 ~ getProtocol ~ phase",
-      phase
-    );
     // const level = protocol[CurrentInformation].key;
     if (props.connection) {
       await firebase.db
@@ -67,18 +64,9 @@ const ExerciseRoutine = (props) => {
         .get()
         .then((element) => {
           let data: any = element.data();
-          console.log(
-            "🚀 ~ file: ExerciseRoutine.tsx ~ line 84 ~ .then ~ data",
-            // phase,
-            // data.toString()
-          );
 
           const otherList = Object.values(data).map(
-            async (element: any, index) => {
-              console.warn(
-                "🚀 ~ file: ExerciseRoutine.tsx ~ line 78 ~ element",
-                element.title
-              );
+            async (element2: any, index) => {
               const trainingPhase =
                 props.user.information.control === undefined
                   ? ""
@@ -86,61 +74,47 @@ const ExerciseRoutine = (props) => {
                     props.user.information.control.trainingPhase !== ""
                   ? props.user.information.control.trainingPhase
                   : "";
-              if (element.refs.length > 0) {
+              if (element2.refs.length > 0) {
                 let info: any = [];
                 let temp = {
-                  title: element.title,
-                  phase: element.phase,
-                  setup: element.setup,
-                  order: element.order,
+                  title: element2.title,
+                  phase: element2.phase,
+                  setup: element2.setup,
+                  order: element2.order,
                   exercises: [],
                 };
-                const promises = element.refs.map(async (ref, index) => {
-                console.log("🚀 ~ file: ExerciseRoutine.tsx ~ line 99 ~ promises ~ ref", ref)
+                const promises = element2.refs.map(async (ref, index) => {
                   await ref.get().then((res) => {
-                    console.log("res.data() = ", res.data());
                     info.push(res.data());
                   });
                   return info;
                 });
-                const finished = await Promise.all(promises).then(
-                  (finished: Object) => {
-                    console.log("🚀 ~ file: ExerciseRoutine.tsx ~ line 108 ~ finished", finished)
-                    temp.exercises = finished[0];
-                    temp.phase === "" ||
+                await Promise.all(promises).then((finished: Object) => {
+                  temp.exercises = finished[0];
+                  (temp.phase === "" ||
                     temp.phase === trainingPhase ||
-                    trainingPhase === ""
-                      ? list.push(temp)
-                      : console.log(
-                          " in protocol not pushed temp passed",
-                          // temp,
-                          trainingPhase
-                        );
-                    // console.warn("passed----", passed, " | ", list.length);
-                    if (
-                      (trainingPhase === "" && list.length === 13) ||
-                      (trainingPhase === "Avanzada" &&
-                        list.length === 7 - passed) ||
-                      (trainingPhase === "Intermedia" &&
-                        list.length === 6 - passed) ||
-                      (trainingPhase === "Inicial" &&
-                        list.length === 6 - passed)
-                    ) {
-                      list.sort(function (a, b) {
-                        return a.order - b.order;
-                      });
-
-                      console.log("exercise list---- end");
-
-                      setInformation(list);
-                      props.setProtocols({ ...props.protocols, [phase]: list });
-                      phases.length === 0 && organizePhases(list);
-                      // setLoading(false);
-                    }
-                  }
-                );
+                    trainingPhase === "") &&
+                    list.push(temp);
+                 
+                  if (
+                    (trainingPhase === "" && list.length === 13) ||
+                    (trainingPhase === "Avanzada" &&
+                      list.length === 7 - passed) ||
+                    (trainingPhase === "Intermedia" &&
+                      list.length === 6 - passed) ||
+                    (trainingPhase === "Inicial" && list.length === 6 - passed)
+                  ) {
+                    list.sort(function (a, b) {
+                      return a.order - b.order;
+                    });
+                    setInformation(list);
+                    props.setProtocols({ ...props.protocols, [phase]: list });
+                    phases.length === 0 && organizePhases(list);
+                    // setLoading(false);
+                  } 
+                });
               } else {
-                if (trainingPhase === "" || trainingPhase === element.phase) {
+                if (trainingPhase === "" || trainingPhase === element2.phase) {
                   passed++;
                 }
               }
@@ -152,13 +126,11 @@ const ExerciseRoutine = (props) => {
         });
     } else if (!props.connection) {
       setInformation(props.ExerciseRoutine);
-      // setLoading(false);
     }
     return list;
   };
 
   const getUrls = (items) => {
-    // console.log(items);
     let urlList: any = [];
     items.forEach((element) => {
       urlList.push(element.gif);
@@ -169,7 +141,6 @@ const ExerciseRoutine = (props) => {
   const getAudioUrls = (items) => {
     let urlList: any = [];
     items.forEach((element) => {
-      console.warn("voz====", items);
       urlList.push(element.voz);
     });
     return urlList;
@@ -179,7 +150,6 @@ const ExerciseRoutine = (props) => {
     const revisedExercises: any = [];
     const tempCache: any = [];
     const levelId = currentPhase.title.includes("Semana") ? props.level : "";
-    console.log("line 193 ~ ~ currentPhase.title", currentPhase.title);
 
     await FileSystem.makeDirectoryAsync(
       FileSystem.documentDirectory + "cache",
@@ -187,8 +157,6 @@ const ExerciseRoutine = (props) => {
     );
     await Promise.all(
       currentPhase.exercises.map(async (exercise, index) => {
-        console.log(" ~ levelId", levelId);
-
         const fileUri: string = exercise.gif.includes("gif")
           ? `${FileSystem.documentDirectory + "cache/"}${
               currentPhase.title + levelId + "gif" + index
@@ -211,7 +179,6 @@ const ExerciseRoutine = (props) => {
         // return tempExercise;
       })
     );
-    console.log(revisedExercises);
 
     revisedExercises.sort((a, b) => {
       const numberA = a.gif.match(/\d+$/)[0];
@@ -226,14 +193,10 @@ const ExerciseRoutine = (props) => {
       ? props.level
       : "";
     cachePhase(information[CurrentInformation]).then((revisedExercises) => {
+     
       let newInfo = information;
       newInfo[CurrentInformation].exercises = revisedExercises;
 
-      console.log(
-        "🚀 ~ file: ExerciseRoutine.tsx ~ line 232 ~ newPromise ~ revisedExercises",
-        revisedExercises[0]
-      );
-      console.log("level has value  ");
       setInformation(newInfo);
       props.setProtocols({ ...props.protocols, [level]: newInfo });
       setLoading(false);
@@ -242,9 +205,7 @@ const ExerciseRoutine = (props) => {
 
   useEffect(() => {
     if (loading) {
-      console.log("effect level = ", level);
       if (information && information.length === 0) {
-        console.log("useeefect information is empty ");
         props.protocols[level] === undefined
           ? getProtocol(level)
           : setInformation(props.protocols[level]) &&
@@ -253,10 +214,8 @@ const ExerciseRoutine = (props) => {
         if (
           information[CurrentInformation].exercises[0].gif.includes("firebase")
         ) {
-          console.log("goona cache");
           setCached();
         } else {
-          console.log(" line 273 ~ useEffect ~ loading", loading);
           loading && setLoading(false);
         }
       }
@@ -299,7 +258,6 @@ const ExerciseRoutine = (props) => {
           voz: audioUri,
           gif: fileUri,
         };
-        console.warn("downloaded all----", item);
         items[sectionIndex].exercises[index] = item;
       })
     )
@@ -307,7 +265,6 @@ const ExerciseRoutine = (props) => {
         setInformation(items);
         if (!props.previusIdentifiers.includes(title + title2)) {
           let sectionToSave = information[sectionIndex];
-          // console.warn("section---", information[sectionIndex]);
           props.addItemToExerciseRoutine({
             newExercise: sectionToSave,
             title,
@@ -330,7 +287,6 @@ const ExerciseRoutine = (props) => {
   };
 
   const deleteInformation = (sectionIndex, order, title, title2) => {
-    console.warn("exercise routine--", props.ExerciseRoutine[sectionIndex]);
     props.ExerciseRoutine.forEach(async (phase, index) => {
       if (phase.order === order) {
         phase.exercises.forEach(async (exercise) => {
@@ -347,15 +303,8 @@ const ExerciseRoutine = (props) => {
   };
 
   const FirstSection = (info, sectionIndex) => {
-    console.log(
-      "🚀 ~ file: ExerciseRoutine.tsx ~ line 306 ~ FirstSection ~ info",
-      info
-    );
-
     let title = info.phase !== "" ? info.phase : info.title;
     let title2 = info.phase !== "" ? info.title : "";
-
-    // console.log("info fisrt", info.exercises, info.title);
 
     let existsInDownloads = props.previusIdentifiers.includes(title + title2);
 
@@ -363,7 +312,6 @@ const ExerciseRoutine = (props) => {
     info.exercises.forEach((element, index) => {
       if (element !== undefined) {
         let tempExercise = {};
-        // console.log("exercise map === ", element);
         tempExercise["exerciseList"] = element;
         tempExercise["setup"] = info.setup;
         exercises.push(tempExercise);
@@ -501,15 +449,7 @@ const ExerciseRoutine = (props) => {
                   new Promise((resolve) => {
                     resolve(props.setRepoLevel(dataKey));
                   }).then(() => {
-                    console.log(
-                      "🚀 ~ file: ExerciseRoutine.tsx ~ line 518 ~ newPromise ~ props.protocols[dataKey]",
-                      props.protocols[dataKey]
-                    );
                     if (props.protocols[dataKey] === undefined) {
-                      console.warn(
-                        "🚀 ~ file: ExerciseRoutine.tsx ~ line 520 ~ newPromise ~ dataKey",
-                        dataKey
-                      );
                       getProtocol(dataKey).then(() => setLoading(false));
                     } else {
                       new Promise((resolve) =>
@@ -550,11 +490,9 @@ const ExerciseRoutine = (props) => {
   };
 
   const OverviewExercise = (item) => {
-    // console.warn("El item que llega al ejercicios es :", item.item);
     let value = item.item;
     let exercise = value.exerciseList;
-    // let day = exercise.day;
-    // let time = exercise.time;
+
     let multimedia = exercise.gif !== undefined ? exercise.gif : "hello";
     let materials = exercise.materials;
     let materialsBackground =
@@ -562,17 +500,11 @@ const ExerciseRoutine = (props) => {
 
     let key_e = item.index;
 
-    console.warn(
-      "La multimeodoas s props que tenemos hata aca son:::::::::::::::::",
-      multimedia
-    );
-
     return (
       <TouchableOpacity
         key={key_e + "e"}
         style={OverviewExerciseStyles.container}
         onPress={() => {
-          console.warn("exercise itro--", exercise);
           props.props.navigation.navigate("IndividualExcercise", {
             data: exercise,
             setup: value.setup,
@@ -633,7 +565,6 @@ const ExerciseRoutine = (props) => {
       </View>
     );
   } else if (information && information.length !== 0) {
-    console.log("informacion--------", typeof information);
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -685,10 +616,6 @@ const ExerciseRoutine = (props) => {
   }
 };
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  // console.log(
-  //   "exercise rotone reducer-------",
-  //   store.DownloadReducer.ExerciseRoutine
-  // );
   return {
     user: store.User.user,
     level: store.User.repoLevel,

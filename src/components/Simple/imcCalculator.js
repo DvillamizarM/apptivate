@@ -13,7 +13,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 var { vmin } = require("react-native-expo-viewport-units");
 
 export default function imcCalculator(props) {
-  //     console.warn(props.modalVisible)
   const [weight, setWeight] = useState(0);
   const [size, setSize] = useState(0);
   const [imc, setIMC] = useState(0);
@@ -22,7 +21,6 @@ export default function imcCalculator(props) {
     <Modal
       animationType="slide"
       transparent={true}
-      onBackdropPress={() => console.log("Pressed")}
       visible={props.show}
       onRequestClose={() => {
         props.setShow(false);
@@ -162,7 +160,6 @@ export default function imcCalculator(props) {
               style={styles.button}
               onPress={() => {
                   const imcFormula = (weight / Math.pow(size,2))*100;
-                  console.warn("preseed", imcFormula, "    ",Math.pow(size,2), "       ", weight);
                 setIMC(imcFormula*100);
               }}
             >

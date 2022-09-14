@@ -31,10 +31,7 @@ function Repository(props) {
 
   const getInformation = async () => {
     let patientIdentifier = props.navigation.state.params.uid;
-    console.log(
-      "{}{}{}{}P{}{}{}{}{}{}{}{}{}}el id del paciente que llegas es ",
-      patientIdentifier
-    );
+   
     let info: any = {};
     await firebase.db
       .collection("users")
@@ -43,7 +40,6 @@ function Repository(props) {
       .then((user: any) => {
         info = user.data();
         info["loading"] = false;
-        console.log("La informaicon qudo asi ;", info);
       })
       .catch((e) => {
         // setLoading(false);
@@ -56,21 +52,14 @@ function Repository(props) {
 
     info["record"] = filterRecord(record);
     info["uid"] = props.navigation.state.params.uid
-    console.log(
-      "La informacion es :::::::::::: :::::::::::: :::::::::::: :::::::::::: ::::::::::::",
-      info
-    );
+   
     setUserInformation(info);
   };
 
   const filterRecord = (collection) => {
     let record: any = {};
     collection.docs.forEach((doc, index) => {
-      console.warn(
-        "Esta es la iteracion numerooooooooooooooooooooooooooooooooooooo",
-        index,
-        record
-      );
+
       let currentDocument = {
         ...doc.data(),
         id: doc.id,
@@ -87,13 +76,9 @@ function Repository(props) {
       }
       // Verificacion para saber si la fase existe
       if (record[trainingPhase]) {
-        console.log(
-          "Aqui la fase ya habia sido creada aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          record
-        );
+      
         //Verificacion si existe la semana
         if (record[trainingPhase][activeWeek]) {
-          console.table("Aqui la semana 1 ya existia ", record);
           //Verificacion si existe el dia
           if (record[trainingPhase][activeWeek][activeDay] != 0) {
             record[trainingPhase][activeWeek][activeDay].push({
@@ -109,7 +94,6 @@ function Repository(props) {
         }
         // Si no existe la semana
         else {
-          console.log("La semana no existia ", record);
           record[trainingPhase][activeWeek] = [0, 0, 0, 0, 0, 0, 0];
           record[trainingPhase][activeWeek][activeDay] = [
             { ...currentDocument },
@@ -123,7 +107,6 @@ function Repository(props) {
         record[trainingPhase][activeWeek][activeDay] = [{ ...currentDocument }];
       }
     });
-    console.log("======= El resuldato de la semana es :", record);
 
     return record;
   };

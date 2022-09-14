@@ -68,18 +68,9 @@ function UpdatePersonalData(props) {
   });
 
   useEffect(() => {
-    console.warn("prps", props.user);
     setdata(props.user.information.personal);
     setLoading(false);
-    // firebase.db
-    //   .collection("users")
-    //   .doc(props.user.uid)
-    //   .get()
-    //   .then((user_db: any) => {
-    //   })
-    //   .catch((e) => {
-    //     console.log("El error es ", e);
-    //   });
+  
   }, []);
 
   const reauthenticate = (currentPassword) => {
@@ -94,7 +85,6 @@ function UpdatePersonalData(props) {
   const updateEmail = async () => {
     const user = props.user.information.personal;
     if (user.email !== data.email) {
-      console.warn("in update email===", user);
       Alert.alert(
         "Actualizar Correo ",
         "¿Está seguro que quiere actualizar el correo?",
@@ -124,18 +114,15 @@ function UpdatePersonalData(props) {
                         props.user.information.personal.phone !== data.phone ||
                         props.user.information.personal.id !== data.id
                       ) {
-                        console.warn("else if");
                         updateFirestore();
                       }
                     })
                     .catch((error) => {
-                      console.log(error.code);
                       Alert.alert("Error");
                       setLoading(false);
                     });
                 })
                 .catch((error) => {
-                  console.log(error.code);
                   if (error.code == "auth/wrong-password")
                     Alert.alert("Contraseña incorrecta");
                   setLoading(false);
@@ -152,7 +139,6 @@ function UpdatePersonalData(props) {
 
   const updatePassword = async () => {
     if (data.newPassWord !== undefined && data.newPassWord !== "") {
-      console.warn("new password info===?  ", data.newPassWord);
       Alert.alert(
         "Actualizar Contraseña ",
         "¿Está seguro que quiere actualizar la contraseña?",
@@ -177,13 +163,11 @@ function UpdatePersonalData(props) {
                       setLoading(false);
                     })
                     .catch((error) => {
-                      console.log(error.code);
                       Alert.alert("Contraseña incorrecta");
                       setLoading(false);
                     });
                 })
                 .catch((error) => {
-                  console.log(error.code);
                   if (error.code == "auth/wrong-password")
                     Alert.alert("Contraseña incorrecta");
                   setLoading(false);
@@ -197,7 +181,6 @@ function UpdatePersonalData(props) {
   };
 
   const updateFirestore = async () => {
-    console.warn("in firebase update ", props);
 
     await firebase.db
       .collection("users")
@@ -227,7 +210,6 @@ function UpdatePersonalData(props) {
         setLoading(false);
       })
       .catch((error) => {
-        console.log(error.code);
         Alert.alert("Error");
         setLoading(false);
       });
@@ -376,18 +358,15 @@ function UpdatePersonalData(props) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              console.warn("pressed", data.newPassWord);
               if (
                 (data.newPassWord !== undefined &&
                   data.password !== undefined) ||
                 (data.email !== props.user.information.personal.email &&
                   data.password !== undefined)
               ) {
-                console.warn("if");
                 schema
                   .validate(data)
                   .then(() => {
-                    console.warn("yup valid");
                     setLoading(true);
                     if (
                       data.newPassWord &&
@@ -439,7 +418,6 @@ function UpdatePersonalData(props) {
                 props.user.information.personal.phone !== data.phone ||
                 props.user.information.personal.id !== data.id
               ) {
-                console.warn("else if");
                 setLoading(true);
                 updateFirestore();
               }

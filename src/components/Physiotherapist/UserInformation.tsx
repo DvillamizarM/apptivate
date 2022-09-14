@@ -1,22 +1,15 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
   Text,
-  Picker,
-  Image,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
 } from "react-native";
 
 var { vmin } = require("react-native-expo-viewport-units");
 
 // Iconos
-import StepIndicator from "react-native-step-indicator";
-import Add from "react-native-vector-icons/Ionicons";
-import Arrow from "react-native-vector-icons/MaterialIcons";
-import Check from "react-native-vector-icons/EvilIcons";
 
 // redux
 import { Dispatch } from "redux";
@@ -43,8 +36,7 @@ const medicalInformation = (userInformation) => {
   } else {
     let data = userInformation.medical;
     let data1 = userInformation.control;
-    console.log("Los datos medicos son :", data1.trainingPhase);
-
+   
     return (
       <View style={medicalStyles.containerMedicalData}>
         <View style={medicalStyles.containerInput}>
@@ -153,7 +145,6 @@ const personalInformation = (userInformation) => {
   } else {
     let companionEmail = userInformation.companionEmail;
     let data = userInformation.personal;
-    console.log(userInformation, " yy y y y yy y y y y y yy");
     return (
       <View style={personalInformationStyles.container}>
         <View style={personalInformationStyles.containerInput}>
@@ -280,14 +271,7 @@ const UserInformation = ({ props: props2 }) => {
     );
   };
 
-  console.log("Las props son ///////////////////////", props2);
-
   let { userInformation, props } = props2;
-
-  console.log(
-    "El user information es :::::::::::::::::::::::::",
-    userInformation
-  );
 
   return (
     <View style={styles.container}>

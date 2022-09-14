@@ -24,7 +24,6 @@ import ChargeScreen from "../Simple/ChargeScreen";
 
 function EndRoutine(props) {
   //
-  const [selectedValue, setSelectedValue] = useState("80");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = React.useState({
     endRoutine: "Seleccionar",
@@ -32,7 +31,6 @@ function EndRoutine(props) {
     commentary: "",
     percivedEffort: props.user.information.medical.perceivedForce,
   });
-  console.warn(props.user.information.medical.perceivedForce);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -118,9 +116,7 @@ function EndRoutine(props) {
           props.navigation.navigate("ProfileScreen");
         });
       idRecord = res.id;
-      console.log("El id es ", idRecord);
       if (form.endRoutine === "Si") {
-        console.warn("in eyes");
         updateControl(idRecord).then(() => {
           props.setPerceivedForce(force);
           props.navigation.navigate("ProfileScreen");
@@ -145,15 +141,13 @@ function EndRoutine(props) {
     let new_activeDay = 0;
 
     if (form.endRoutine == "Si") {
-      console.warn("entro a si");
       if (activeDay + 1 == 5) {
         new_activeDay = 0;
         new_activeWeek =
           "week" + (parseInt(activeWeek.replace("week", ""), 10) - -1);
 
         if (new_activeWeek == "week11") {
-          const list = await sendCompletion();
-          console.log("Finalizacion");
+         await sendCompletion();
           new_trainingPhase = "Finalizada";
         } else if (parseInt(new_activeWeek.replace("week", ""), 10) <= 3) {
           new_trainingPhase = "Inicial";
@@ -167,16 +161,7 @@ function EndRoutine(props) {
         new_trainingPhase = trainingPhase;
         new_activeWeek = activeWeek;
       }
-
-      const aux = old_record.push(idRecord);
-
-      console.log(idRecord, "Los nuevos cambios son", {
-        trainingPhase: new_trainingPhase,
-        activeDay: new_activeDay,
-        activeWeek: new_activeWeek,
-        record: old_record,
-      });
-
+      old_record.push(idRecord);
       await firebase.db
         .collection("users")
         .doc(props.user.uid)
@@ -195,7 +180,6 @@ function EndRoutine(props) {
             activeWeek: new_activeWeek,
             record: old_record,
           });
-          console.warn("new active week---", new_activeWeek);
         });
 
       // Cuando se termina la semana 10 el contador aumneta y queda "week11" esto siginifica que acabo el protocolo
@@ -249,7 +233,6 @@ function EndRoutine(props) {
 
   const askIfCompleted = () => {
     let routineIsNotOver = props.navigation.state.params.routineIsNotOver;
-    console.warn("routine is not over---", routineIsNotOver);
     if (loading) {
       return (
         <View
@@ -272,7 +255,6 @@ function EndRoutine(props) {
             height={40}
             placeholder={"Seleccionar"}
             setData={(itemValue, itemIndex) => {
-              console.warn("itenn====", itemValue);
               setForm({ ...form, endRoutine: itemValue });
             }}
             initialIndex={!routineIsNotOver ? 1 : 2}
@@ -465,7 +447,6 @@ function EndRoutine(props) {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log(store.User.user.information.medical.perceivedForce);
   return {
     activityControlNotificationId:
       store.NotificationReducer.activityControlNotificationId,

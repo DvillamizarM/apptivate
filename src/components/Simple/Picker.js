@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  TextInput,
   View,
   StyleSheet,
   Text,
@@ -12,15 +11,12 @@ import Icon from "react-native-vector-icons/FontAwesome";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 
 export default function Picker(props) {
-console.log("🚀 ~ file: Picker.js ~ line 15 ~ Picker ~ props", props.value)
-  
+
   let temp = "";
-  let temp2 = "";
   props.initialValue ? (temp = props.initialValue) : (temp = props.placeholder);
   props.initialIndex ? (temp = props.list[props.initialIndex]) : (temp2 = 0);
   const [value, setValue] = React.useState(temp);
   const [show, setShow] = React.useState(false);
-  const [itemHeight, setItemHeight] = React.useState(0);
 
   // const icon = !visible ? "eye-slash" : "eye";
   const height = props.height;
@@ -38,7 +34,6 @@ console.log("🚀 ~ file: Picker.js ~ line 15 ~ Picker ~ props", props.value)
       <Modal
         animationType="slide"
         transparent={true}
-        onBackdropPress={() => console.log("Pressed")}
         visible={show}
         propagateSwipe={true}
         onRequestClose={() => {
@@ -70,7 +65,6 @@ console.log("🚀 ~ file: Picker.js ~ line 15 ~ Picker ~ props", props.value)
                           height: "100%",
                         }}
                         onPress={() => {
-                          console.log("clicked====", element);
                           props.setData(element, index);
                           setValue(element);
                           setShow(false);

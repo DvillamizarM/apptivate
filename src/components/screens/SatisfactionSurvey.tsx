@@ -41,9 +41,6 @@ const SatisfactionSurvey = (props) => {
     idRecord = res.id;
     props.navigation.navigate("Home");
   };
-  useEffect(() => {
-    console.warn("survey effect");
-  }, []);
   return (
     <View style={styles.Contenedor}>
       <ScrollView

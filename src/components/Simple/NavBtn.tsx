@@ -10,10 +10,7 @@ import {
 var { vmin, vh } = require("react-native-expo-viewport-units");
 
 const NavViewSelector = ({ props }) => {
-  // console.log(
-  //   "🚀 ~ file: NavBtn.tsx ~ line 7 ~ NavViewSelector ~ props",
-  //   props
-  // );
+
   return (
     <Modal
       animationType="slide"
@@ -49,7 +46,6 @@ const NavViewSelector = ({ props }) => {
                         height: "100%",
                       }}
                       onPress={() => {
-                        console.warn("clicked====", element);
                         props.setCurrentInformation(element.key);
                         // setValue(element);
                         props.setShowNavSelect(false);
@@ -78,17 +74,14 @@ const NavViewSelector = ({ props }) => {
 };
 
 export const NavBtn = ({ props }) => {
-  // console.log("🚀 ~ file: NavBtn.js ~ line 73 ~ NavBtn ~ props", props);
   const [showNavSelect, setShowNavSelect] = useState(false);
   const CurrentInformation = props.CurrentInformation;
   const setCurrentInformation = props.setCurrentInformation;
   const phases = props.phases;
   const setLoading = props.setLoading;
 
-  // console.log("🚀 ~ file: NavBtn.tsx ~ line 78 ~ NavBtn ~ phases", phases);
 
   return (
-    // <View style={{ width: "auto", height: "auto" }}>
 
     <View style={navigationStyles.containerNavigationButton}>
       <NavViewSelector

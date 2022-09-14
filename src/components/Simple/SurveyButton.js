@@ -9,7 +9,6 @@ import {
 
 function SurveyButton(props) {
   const layout = useWindowDimensions();
-console.log("props survey btn---", props)
   return (
     <View
       style={{

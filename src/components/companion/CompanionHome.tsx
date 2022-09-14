@@ -24,11 +24,6 @@ import BookOutline from "react-native-vector-icons/Ionicons";
 
 import Dumbbell from "react-native-vector-icons/MaterialCommunityIcons";
 
-import User_o from "react-native-vector-icons/FontAwesome";
-
-import Download from "react-native-vector-icons/Ionicons";
-
-import Settings from "react-native-vector-icons/Ionicons";
 import ChargeScreen from "../Simple/ChargeScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -38,7 +33,6 @@ const CompanionHome = (props) => {
 
   useEffect(() => {
     getPatientInformation();
-    console.warn("patinet ingoo---", patientInformation)
   }, []);
 
   const getPatientInformation = async () => {
@@ -64,7 +58,6 @@ const CompanionHome = (props) => {
         <TouchableOpacity
           style={companionStyles.groupContainerBlue}
           onPress={() => {
-            console.log("roleee---", props.user);
             props.navigation.navigate("Repository", {
               amputationLevel: patientInformation.medical.amputationLevel,
             });
@@ -91,7 +84,6 @@ const CompanionHome = (props) => {
         <TouchableOpacity
           style={companionStyles.groupContainerOrange}
           onPress={() => {
-            //console.log(patientInformation.control.activeWeek);
             props.navigation.navigate("PatientProfileScreen", {
               uid: patientInformation.uid,
               trainingPhase: patientInformation.control.trainingPhase,
@@ -152,10 +144,7 @@ const CompanionHome = (props) => {
     return (<View style={{backgroundColor: "#ffffff", justifyContent:"center",height:"100%", width:"100%"}}><ChargeScreen/></View>);
   } else {
     if (patientInformation.uid) {
-      console.log(
-        "El id del paciente que tiene a cargo es ",
-        patientInformation
-      );
+     
       return (
         <View style={styles.container}>
           <View style={styles.header}>
@@ -258,7 +247,6 @@ const CompanionHome = (props) => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                console.warn("in")
                 props.navigation.navigate("UpdateCompanionInfo", {props:props})
               }}
             >
@@ -278,7 +266,6 @@ const CompanionHome = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log(store.User.user);
   return {
     user: store.User.user,
     connection: store.User.connection,

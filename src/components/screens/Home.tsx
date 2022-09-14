@@ -10,55 +10,25 @@ import {
   TouchableOpacity,
   Text,
   StatusBar,
-  ActivityIndicator,
   StyleSheet,
   Alert,
 } from "react-native";
-// import { fcmService } from "../../services/FCMService";
-// import { localNotificationService } from "../../services/LocalNotificationService";
 import { AppState } from "react-native";
-// import SplashScreen from 'react-native-splash-screen';
-
 import NetInfo from "@react-native-community/netinfo";
 import firebase from "../../../database/firebase";
-import * as Updates from "expo-updates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import * as FileSystem from "expo-file-system";
-
 var { vmin } = require("react-native-expo-viewport-units");
-
 import Login from "./Login";
-
-// iconos
-
 import NavigateNext from "react-native-vector-icons/MaterialIcons";
-
 import BookOutline from "react-native-vector-icons/Ionicons";
-
 import Dumbbell from "react-native-vector-icons/MaterialCommunityIcons";
-
 import User_o from "react-native-vector-icons/FontAwesome";
-
-import Download from "react-native-vector-icons/Ionicons";
-
-import Settings from "react-native-vector-icons/Ionicons";
-
-// Pantalla del acompananate
 import CompanionHome from "../companion/CompanionHome";
-
-// pantalla del fisioterapista
 import HomePhysiotherapist from "../Physiotherapist/HomePhysiotherapist";
-
-// pantalla del administrador
 import AdministratorHome from "../Administrator/AdministratorHome";
-import GeneralProfileScreen from "../cards/GeneralProfileScreen";
-import {
-  TourGuideZone, // Main wrapper of highlight component
-  TourGuideZoneByPosition, // Component to use mask on overlay (ie, position absolute)
-  useTourGuideController, // hook to start, etc.
-} from "rn-tourguide";
 import { actionsDownload } from "../../redux/actions/actionsDownload";
 import ChargeScreen from "../Simple/ChargeScreen";
 
@@ -123,7 +93,6 @@ class HomeScreen extends React.Component<Props> {
         });
       }
     } catch (error) {
-      //console.log(error);
     }
   };
   async sendPushNotification(token) {
@@ -153,11 +122,9 @@ class HomeScreen extends React.Component<Props> {
     users.docs.map((user) => this.sendPushNotification(user.data().token));
   }
   checkAsync() {
-    console.warn("checking");
     AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (error, stores) => {
         stores?.map((result, i, store) => {
-          console.log("saved data------", { [store[i][0]]: store[i][1] });
           return true;
         });
       });
@@ -178,12 +145,6 @@ class HomeScreen extends React.Component<Props> {
       );
 
       dir &&
-        console.log(
-          "🚀 ~ file: Home.tsx ~ line 176 ~ HomeScreen ~ removeInvasiveCache= ~ dir",
-          dir
-        );
-
-      dir &&
         dir.length > 0 &&
         (await FileSystem.deleteAsync(FileSystem.documentDirectory + "cache/"));
     } catch {
@@ -192,7 +153,6 @@ class HomeScreen extends React.Component<Props> {
   };
 
   componentDidMount = () => {
-    console.warn("component did mount")
     try {
       this.removeInvasiveCache();
       this.props.setRepoLevel("preprotesico")
@@ -207,9 +167,6 @@ class HomeScreen extends React.Component<Props> {
         resolve(firebase.auth.onAuthStateChanged(this.onAuthStateChanged));
       });
       temp.then(() => {
-        //
-        // pasar sincronizacion pàra aca ?????
-        //
 
         this.setState({ loading: false });
       });
@@ -224,7 +181,6 @@ class HomeScreen extends React.Component<Props> {
     if (user && user.email !== "") {
       // Si el usuario tiene una sesion activa se trae su informacion de la base de datos
       if (this.props.connection) {
-        console.warn("onAuthStateChanged");
         await firebase.db
           .collection("users")
           .doc(user.uid)
@@ -234,10 +190,7 @@ class HomeScreen extends React.Component<Props> {
             user2["uid"] = user.uid;
             user2["email"] = user.email;
             user2["information"] = data;
-            console.log(
-              "userr role in authstatechange----",
-              user2.information.role
-            );
+        
             this.props.setUser(user2);
             const r = JSON.stringify(user2["information"]);
             if (user2.information.token === "") {
@@ -293,7 +246,6 @@ class HomeScreen extends React.Component<Props> {
 
         if (new_activeWeek == "week11") {
           const list = await this.sendCompletion();
-          console.log("Finalizacion");
           new_trainingPhase = "Finalizada";
         } else if (parseInt(new_activeWeek.replace("week", ""), 10) <= 3) {
           new_trainingPhase = "Inicial";
@@ -436,7 +388,6 @@ class HomeScreen extends React.Component<Props> {
             style={styles.groupContainerOrange}
             onPress={() => {
               AsyncStorage.getItem("persist:root", (err, result) => {
-                console.warn("AsyncMap -- ", JSON.parse(result));
               });
               //  <GeneralProfileScreen props={props} />
               this.props.navigation.navigate("ProfileScreen", {
@@ -461,29 +412,11 @@ class HomeScreen extends React.Component<Props> {
           </TouchableOpacity>
         )}
 
-        {/* <TouchableOpacity
-          style={styles.groupContainer}
-          onPress={() => this.props.navigation.navigate("UpdatePatient")}
-        >
-          <View style={styles.containerIcon}>
-            <Settings name="settings-outline" size={vmin(10)} />
-          </View>
-
-          <View style={styles.containerText}>
-            <Text style={styles.tile1}>Actualizar Datos</Text>
-            <Text style={styles.tile2}>Cambiar datos personales</Text>
-          </View>
-
-          <View style={styles.arrowContainer}>
-            <NavigateNext name="navigate-next" size={vmin(7)} />
-          </View>
-        </TouchableOpacity> */}
       </View>
     );
   };
 
   patientRegisterBody = () => {
-    console.warn("patient register pbofy=---", this.props.user);
     return (
       <TouchableOpacity
         style={[

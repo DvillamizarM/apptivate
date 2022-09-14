@@ -1,8 +1,6 @@
 import * as React from "react";
 import {
   View,
-  useWindowDimensions,
-  Text,
   TouchableOpacity,
 } from "react-native";
 import { Dispatch } from "redux";
@@ -12,7 +10,6 @@ import { actionsUser } from "../../redux/actions/actionsUser";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 function infoButton(props) {
-  const layout = useWindowDimensions();
   if(props.user.role === "physiotherapist"){
     return (
       <View
@@ -24,17 +21,6 @@ function infoButton(props) {
         }}
         
       >
-        {/* <TouchableOpacity
-          onPress={() => props.updateShowTour(true)}
-          style={{
-            backgroundColor: "rgba(225, 126, 62,1)",
-            height: 100,
-            width: 100,
-            borderRadius: 20,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        > */}
         <TouchableOpacity
           style={{
             height: "80%",
@@ -87,7 +73,6 @@ function infoButton(props) {
 }
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("store--", store.User.user);
   return {
     repoIndex: store.User.repoIndex,
     user: store.User.user

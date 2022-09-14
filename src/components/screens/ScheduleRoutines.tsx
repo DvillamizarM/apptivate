@@ -107,14 +107,11 @@ const ScheduleRoutines = (props) => {
         };
       }
     });
-    console.warn("valid----", validAux)
     return validAux;
   };
   let filledSchedule = fillValidObject();
   useEffect(() => {
-    console.warn("use effect -----")
     setValidObject(filledSchedule);
-    console.warn("ampmnkeffect-=---",validObject["ampm" + 3])
   }, []);
   useEffect(()=>{},[validObject])
   const toggleKeepProgramming = () => {
@@ -132,7 +129,6 @@ const ScheduleRoutines = (props) => {
         Object.values(validObject).includes("Seleccionar")
       ) {
         printPendingNotifications();
-        console.log("alert");
         Alert.alert("Por favor seleccione todos los campos");
       } else {
         Alert.alert(
@@ -157,7 +153,6 @@ const ScheduleRoutines = (props) => {
                     );
                   });
                   promise.then(() => {
-                    console.warn(" if promise then");
                     printPendingNotifications();
                   });
                 } else {
@@ -166,11 +161,9 @@ const ScheduleRoutines = (props) => {
                   let remove = props.scheduledNotifications.flat();
                   let keep = remove.splice(0, validIds);
                   const myPromise = new Promise((resolve, reject) => {
-                    console.warn("remove ", remove, " keep ", keep);
                     resolve(cancelAllNotification(remove.flat()));
                   });
                   myPromise.then(() => {
-                    console.warn("else promise then");
                     printPendingNotifications();
                     props.setNotificationId(keep.flat());
                   });
@@ -220,7 +213,6 @@ const ScheduleRoutines = (props) => {
               props.persistNotification(false);
               if (!isEnabled) {
                 props.disableNotification(true);
-                //console.warn("scheduled cancel---", props.scheduledNotifications)
                 cancelAllNotification(props.scheduledNotifications.flat());
               } else {
                 if (
@@ -229,7 +221,6 @@ const ScheduleRoutines = (props) => {
                   Object.values(validObject).includes("Seleccionar")
                 ) {
                   printPendingNotifications();
-                  console.log("alert");
                   Alert.alert("Por favor seleccione todos los campos");
                 } else {
                   props.disableNotification(false);
@@ -239,12 +230,7 @@ const ScheduleRoutines = (props) => {
                   );
                 }
               }
-              console.warn(
-                "disable====",
-                props.scheduledRoutines[0].disable,
-                "///",
-                isEnabled
-              );
+            
             },
           },
         ],
@@ -277,7 +263,6 @@ const ScheduleRoutines = (props) => {
     }
   };
   const cancelAllNotification = async (ids) => {
-    console.warn("cancel ids---------", ids.flat());
     try {
       //await Notifications.cancelAllScheduledNotificationsAsync();
       for await (let element of ids.flat()) {
@@ -299,7 +284,6 @@ const ScheduleRoutines = (props) => {
     let ids: any = [];
     dates = dates.flat();
     let weekAux = parseInt(week);
-    //console.warn("schedule routine =======", dates);
     handleLocalNotification();
     const trigger = new Date(Date.now() + 1 * 60 * 1000);
     for await (let element of dates) {
@@ -321,7 +305,6 @@ const ScheduleRoutines = (props) => {
         }
       }
     }
-    console.warn("ids---------", ids);
     if (ids.length > 0) props.setNotificationId(ids.flat());
   };
   const scheduleAllNotifications = async (dates) => {
@@ -330,12 +313,7 @@ const ScheduleRoutines = (props) => {
     const nextWeek: number = parseInt("" + (activeWeek + 1));
     let active: number =
       props.scheduledNotifications.length == 0 ? activeWeek : nextWeek;
-    console.warn(
-      "active Week in schedule all   ++++++++",
-      active,
-      "length of scheduled notifs ++++",
-      props.scheduledNotifications.length
-    );
+   
     if (props.scheduledNotifications.length < 2) {
       for (let i = active; i <= 10; i++) {
         newDates.forEach((element, index) => {
@@ -343,7 +321,6 @@ const ScheduleRoutines = (props) => {
           newDate.setDate(element.getDate() + 7);
           newDates[index] = newDate;
         });
-        //console.warn("dates array----", newDates);
         allDates.push(newDates);
       }
       scheduleRoutineReminder(allDates, nextWeek);
@@ -407,7 +384,6 @@ const ScheduleRoutines = (props) => {
                           ...validObject,
                           [dayId]: itemIndex,
                         });
-                        console.warn("picker on set====", validObject["day" + index])
                       }}
                       initialIndex = {props.scheduledRoutines[0].exerciseList[index].weekDay}
                       list={[
@@ -442,11 +418,7 @@ const ScheduleRoutines = (props) => {
                       setData={(itemValue, itemIndex) => {
                         props.setHour({ index: index, hour: itemValue });
                         setValidObject({ ...validObject, [hourId]: itemValue });
-                        console.warn("time----",props.scheduledRoutines[0].exerciseList[index])
-                        //validObject["hour" + index] = itemIndex;
                       }
-
-                      // setData({ ...data, size: itemValue })
                       }
                       initialValue= {props.scheduledRoutines[0].exerciseList[index].hour}
                       list={[
@@ -484,12 +456,9 @@ const ScheduleRoutines = (props) => {
                       height={40}
                       placeholder={"--"}
                       setData={(itemValue, itemIndex) => {
-                        console.warn("setDat-----", itemValue)
                         props.setAmPm({ index: index, ampm: itemValue });
                         setValidObject({ ...validObject, [ampmId]: itemValue });
-                        //validObject["ampm" + index] = itemIndex;
-                      console.warn("ampmn-=---",validObject["ampm" + index])
-                      // setData({ ...data, weight: itemValue })
+                 
                       }}
                       initialValue={props.scheduledRoutines[0].exerciseList[index].ampm}
                       list={["--", "AM", "PM"]}
@@ -508,7 +477,6 @@ const ScheduleRoutines = (props) => {
 
   return (
     <View style={styles.container}>
-      {console.log("props", props)}
       <View style={styles.header}>
         <View style={{ height: "30%", width: "100%", marginBottom: "2%" }}>
           <Text
@@ -532,7 +500,6 @@ const ScheduleRoutines = (props) => {
 
       <ScrollView style={styles.body}>
         {props.scheduledRoutines.map((week, index) => {
-          console.log("-------> ", index);
           return (
             <View
               key={"id__" + index}
@@ -571,14 +538,12 @@ const ScheduleRoutines = (props) => {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            console.warn("validArray----", validObject);
             if (
               Object.values(validObject).includes(-1) ||
               Object.values(validObject).includes("--") ||
               Object.values(validObject).includes("Seleccionar")
             ) {
               printPendingNotifications();
-              console.log("alert");
               Alert.alert("Por favor seleccione todos los campos");
             } else {
               cancelAllNotification(props.scheduledNotifications);
@@ -600,7 +565,6 @@ const ScheduleRoutines = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.warn("scheduledRoutines-----", store.NotificationReducer);
   return {
     user: store.User.user,
     activityControlNotificationId:

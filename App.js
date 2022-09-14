@@ -41,7 +41,6 @@ const checkAsync = () => {
   AsyncStorage.getAllKeys((err, keys) => {
     AsyncStorage.multiGet(keys, (error, stores) => {
       stores?.map((result, i, store) => {
-        console.log("checkAsync------", [store[i][0]], store[i][1]);
         return true;
       });
     });
@@ -49,50 +48,9 @@ const checkAsync = () => {
 };
 
 const App = () => {
-//   const { canStart, start, eventEmitter } = useTourGuideController();
-//   const [step, setStep] = useState(0);
-//  const handleOnStart = () => console.log("start");
-//   const handleOnStepChange = (step) => {
-//     // if (step.order === 6) {
-//     //   setIndex(1)
-//     // }
-//     console.log(`stepChange`);
-//   };
   const style = {
     borderRadius: 10,
   };
-
-  // useEffect(() => {
-  //   console.warn("use effect app 1")
-  //   if (canStart && NavigatorService.getCurrentRoute() !== null) {
-  //     console.warn("passed both state and navigator")
-  //     start();
-  //   }
-  // }, [canStart, NavigatorService.getCurrentRoute()]); // we change this
-
-  // useEffect(() => {
-  //   console.warn("use effect app 2")
-  //   // we add this hook
-  //  // eventEmitter.on("stepChange", () => {});
-
-  //  if(eventEmitter!== undefined){   
-  //   eventEmitter.on("start", handleOnStart);
-  //   eventEmitter.on('stepChange', step => {
-  //     const s = step?step.order:0
-  //        console.log(`tutorial step ${s}`);
-  //        setStep(s)
-  //   })
-  //    eventEmitter.on("stop", () => {
-  //     // // When the tour for that screen ends, navigate to the next screen if it exists.
-  //     // const nextScreen = tour[NavigatorService.getCurrentRoute()];
-  //     // if (nextScreen) {
-  //     //   NavigatorService.navigate(nextScreen);
-  //     // }
-  //   });
-  //   return () => eventEmitter.off("*", null);
-  //  }
-    
-  // }, [eventEmitter]);
 
   return (
     <Provider store={store}>
@@ -121,12 +79,7 @@ const App = () => {
               },
             }}
           >
-            <Navegador
-              // ref={(navigatorRef) => {
-              //   console.warn("ref---",navigatorRef)
-              //   NavigatorService.setContainer(navigatorRef);
-              // }}
-            />
+            <Navegador />
           </TourGuideProvider>
         </SafeAreaProvider>
       </PersistGate>

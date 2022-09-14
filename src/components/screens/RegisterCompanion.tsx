@@ -103,7 +103,6 @@ export default function RegisterCompanion(props) {
       .update({
         companionRef: companion,
       })
-      .then((e) => console.log("se actualizo"))
       .catch((e) => console.log("Error actualizar ", e));
   };
 
@@ -304,7 +303,6 @@ export default function RegisterCompanion(props) {
                       })
                       .catch(function (err) {
                         Alert.alert(err);
-                        console.log(err);
                       });
                   } else {
                     Alert.alert("Las contraseñas no coinciden.");

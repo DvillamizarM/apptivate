@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, useWindowDimensions, Text } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -8,7 +8,6 @@ import { actionsUser } from "../../redux/actions/actionsUser";
 import ScalableText from "react-native-text"
 
 import GeneralProfileScreen from "../cards/GeneralProfileScreen";
-import ExerciseProfileScreen from "../cards/ExerciseProfileScreen";
 import ChargeScreen from "../Simple/ChargeScreen";
 
 const FirstRoute = (props) => <GeneralProfileScreen props={props} />;
@@ -17,7 +16,6 @@ var { vmin } = require("react-native-expo-viewport-units");
 //const SecondRoute = (props) => <ExerciseProfileScreen props={props} />;
 
 function TabViewExample(props) {
-  console.warn("profiel general==", props)
   const layout = useWindowDimensions();
 const name = props.user.information.personal.name;
   const [index, setIndex] = React.useState(0);
@@ -34,9 +32,7 @@ const name = props.user.information.personal.name;
 
 
   React.useEffect(() => {
-    console.warn("profile screen effect", props);
     if (props.user !== undefined) {
-      console.warn("profile screen effect not undefined");
       setLoading(false);
      }
    }, [loading]);
@@ -85,7 +81,6 @@ const name = props.user.information.personal.name;
 
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("store--", store.User.user)
   return {
     user: store.User.user,
   };

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as MyTypes from "../../redux/types/types";
 import { actionsUser } from "../../redux/actions/actionsUser";
-import firebase from "../../../database/firebase";
 
 import {
   View,
@@ -15,11 +14,9 @@ import {
 } from "react-native";
 var { vmin, vh } = require("react-native-expo-viewport-units");
 
-import { Slider } from "react-native-range-slider-expo";
 import Logowhatsapp from "react-native-vector-icons/Ionicons";
 
 function SingleUserEvent(props) {
-  console.log("las props de este componente son", props);
 
   const [form, setForm] = React.useState({
     eventType: "",
@@ -48,8 +45,6 @@ function SingleUserEvent(props) {
         form.userPhone
     );
   };
-
-  console.log("El formulario es;", form);
 
   if (form.loading) {
     return <Text>Cargando... </Text>;

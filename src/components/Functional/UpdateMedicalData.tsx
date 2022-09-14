@@ -4,24 +4,14 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
   Image,
   Alert,
 } from "react-native";
 var { vmin } = require("react-native-expo-viewport-units");
 import firebase from "../../../database/firebase";
 import { Slider } from "react-native-range-slider-expo";
-import StepIndicator from "react-native-step-indicator";
 import RadioButton from "expo-radio-button";
-import Picker from "../Simple/Picker";
-import Add from "react-native-vector-icons/Ionicons";
-
-import Arrow from "react-native-vector-icons/MaterialIcons";
-
-import Check from "react-native-vector-icons/EvilIcons";
 import LightBulb from "react-native-vector-icons/FontAwesome";
 
 // redux
@@ -33,7 +23,6 @@ import { actionsUser } from "../../redux/actions/actionsUser";
 import ChargeScreen from "../Simple/ChargeScreen";
 
 const UpdateMedicalData = (props) => {
-  console.log("Las props que llegan son", props);
   const [data, setData] = useState({
     perceivedForce: "",
     size: "",
@@ -54,26 +43,11 @@ const UpdateMedicalData = (props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.warn("Las props que llegan son", props.user.information.medical);
     setData(props.user.information.medical);
     setCurrent(props.user.information.medical.amputationLevel);
     setCurrent1(props.user.information.medical.amputationPhase);
     setLoading(false);
-    // firebase.db
-    //   .collection("users")
-    //   .doc(props.user.uid)
-    //   .get()
-    //   .then((user_db: any) => {
-    //     setData({ ...user_db.data().medical });
-    //     setCurrent(user_db.data().medical.amputationLevel);
-    //     setCurrent1(user_db.data().medical.amputationPhase);
-    //     setRehabPhase(user_db.data().control.trainingPhase)
-    //     console.warn("asdfasdfasdfasdfasdfasdfasdf", user_db.data().control.trainingPhase);
-    //     setLoading(false);
-    //   })
-    //   .catch((e) => {
-    //     console.log("El error es ", e);
-    //   });
+
   }, []);
 
   const saveMedicalData = async () => {
@@ -463,28 +437,7 @@ const UpdateMedicalData = (props) => {
               </View>
             </View>
           </View>
-          {/* <View
-            style={[
-              styles.containerInput,
-              { height: "8%", alignItems: "flex-start" },
-            ]}
-          >
-            <Text style={{ fontSize: vmin(4), fontWeight: "bold" }}>
-              Etapa de Rehabilitación
-            </Text>
-            <View style={[styles.repetitionInputContainer, { borderWidth: 0 }]}>
-              <Picker
-                width={"100%"}
-                height={40}
-                placeholder={"Seleccionar"}
-                setData={(itemValue, itemIndex) =>{console.warn("in set data---", itemValue )
-                  setData({ ...data, trainingPhase: itemValue }) }
-                }
-                initialValue={props.user.information.control.trainingPhase ? props.user.information.control.trainingPhase : "Seleccionar"}
-                list={["Seleccionar", "Inicial", "Intermedia", "Avanzada"]}
-              />
-            </View>
-          </View> */}
+
           <View
           // style={{ height: "12%", width: "100%", marginBottom: "100%" }}
           >
@@ -506,7 +459,6 @@ const UpdateMedicalData = (props) => {
 };
 
 const MapStateToProps = (store: MyTypes.ReducerState) => {
-  console.log("mapstate patient register-----", store.User.user);
   return {
     user: store.User.user,
   };

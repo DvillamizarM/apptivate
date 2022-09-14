@@ -38,14 +38,7 @@ const renderUser = (user, props) => {
   let activeDay = user.control.activeDay;
 
   let activeWeekPercentage = parseInt(activeWeek.replace("week", ""), 10) * 10;
-  let activeDayPercentage = activeDay * 2;
-  const PercentageOfCompletion = activeDayPercentage + activeWeekPercentage;
-  console.log("percetange week ", activeWeekPercentage);
-  console.log("percetange day ", activeDayPercentage);
-  console.log("percetange", PercentageOfCompletion);
-  // if(PercentageOfCompletion===110){
-  //   PercentageOfCompletion=100
-  // }
+
   return (
     <View key={user.uid} style={userListStyles.container}>
       <View style={userListStyles.header}>
@@ -67,7 +60,6 @@ const renderUser = (user, props) => {
               rotation={0}
             >
               {(fill) => {
-                console.log("fill---", PercentageOfCompletion);
                 return <Text>{activeWeekPercentage - 10}%</Text>;
               }}
             </AnimatedCircularProgress>
@@ -86,6 +78,7 @@ const renderUser = (user, props) => {
               </View>
 
               <View style={userListStyles.column2}>
+                {/* //fix this */}
                 <Text style={userListStyles.text2}>40</Text>
               </View>
             </View>
@@ -237,8 +230,6 @@ const HomePhysiotherapist = (props) => {
         uid: doc.id,
       };
     });
-
-    console.log("Los ejercicios son", exercisesProcessed);
 
     setUsers(exercisesProcessed);
     setLoading(false);

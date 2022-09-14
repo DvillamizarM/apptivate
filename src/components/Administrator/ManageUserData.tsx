@@ -4,9 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
-  Alert,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import Picker from "../Simple/Picker";
 var { vmin, vh } = require("react-native-expo-viewport-units");
@@ -27,7 +25,6 @@ function ManageUserData(props) {
   const [loading, setLoading] = React.useState(true);
   const [tokens, setTokens] = useState({});
 
-  //console.log("estado de role :", selectedValue.roleValue);
   const roleValues = {
     "Usuario público": "",
     Paciente: "paciente",
@@ -47,7 +44,6 @@ function ManageUserData(props) {
   const reversedRoleValues = objectFlip(roleValues);
 
   const getPhysioList = async () => {
-    // console.log("getting list of physio")
     let temp: any = [];
     temp.push("Seleccionar");
     await firebase.db
@@ -56,12 +52,9 @@ function ManageUserData(props) {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          // console.log("data---",doc.data().personal.email)
           temp.push(doc.data().personal.email);
-          //console.log("insnapshot",temp)
         });
         setPhysioList({ ...physioList, values: temp });
-        // console.log("in get list after setting",temp)
         return temp;
       })
       .catch((error) => {
@@ -70,14 +63,7 @@ function ManageUserData(props) {
   };
 
   const getReceiverTokens = async () => {
-    console.warn(
-      "user props",
-      UserProps.personal.email,
-      "    ",
-      UserProps.companionEmail,
-      "    ",
-      UserProps.physioEmail
-    );
+   
     let temp: any = [];
     await firebase.db
       .collection("users")
@@ -89,7 +75,6 @@ function ManageUserData(props) {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          console.log("doc data----", doc.data().token);
           temp.push(doc.data().token);
           sendPushNotification(doc.data().token);
         });
@@ -121,7 +106,6 @@ function ManageUserData(props) {
   }
 
   useEffect(() => {
-    //console.log("use effect")
 
     if (UserProps.role == "paciente") {
       setSelectedValue({
@@ -140,36 +124,11 @@ function ManageUserData(props) {
       });
       setLoading(false);
     }
-    // if(selectedValue.roleValue != "Paciente") {
-    //   setSelectedValue({
-    //     ...UserProps,
-    //     roleValue: reversedRoleValues[UserProps.role],
-    //   });setLoading(false)
-    //   //if(selectedValue.roleValue!="Paciente"){ console.log("in if not pacient"); setLoading(false)};
-    // }
-    // if (UserProps.role == "paciente"|| selectedValue.roleValue == "Paciente") {
-    //   console.log("use effect of role paciente")
-    //   let physio = ""
-    //   UserProps.physioEmail == "" ? physio = "Seleccionar" : physio = UserProps.physioEmail
-    //   setSelectedValue({
-    //     ...UserProps,
-    //     roleValue: reversedRoleValues[UserProps.role],
-    //     physioValue: physio,
-    //   });
-    //   getPhysioList().then(function (result) {
-    //     console.log("temp---", result)
-    //     setLoading(false);
-    //   });
-    // }
+   
   }, []);
 
   const updateConfig = async () => {
-    console.log(
-      "SE ACTUALIZARA EL ROL DEL USUARIO ",
-      selectedValue.uid,
-      selectedValue.roleValue,
-      roleValues[selectedValue.roleValue]
-    );
+   
     if (selectedValue.roleValue == "Paciente") {
       await firebase.db.collection("users").doc(selectedValue.uid).update({
         role: roleValues[selectedValue.roleValue],
@@ -190,7 +149,6 @@ function ManageUserData(props) {
           height={40}
           placeholder={"Seleccionar"}
           setData={(itemValue, itemIndex) => {
-            console.warn("in set data---", itemValue);
             setSelectedValue({ ...selectedValue, roleValue: itemValue });
           }}
           initialValue={selectedValue.roleValue}
@@ -211,7 +169,6 @@ function ManageUserData(props) {
     if (temp == undefined) {
       getPhysioList();
     } else {
-      //console.log("sleector-----", physioList.values);
       return (
         <View style={styles.repetitionInputContainer}>
           <Picker
@@ -219,7 +176,6 @@ function ManageUserData(props) {
             height={40}
             placeholder={"Seleccionar"}
             setData={(itemValue, itemIndex) => {
-              console.warn("in set data---", itemValue);
               setSelectedValue({ ...selectedValue, physioValue: itemValue });
             }}
             initialValue={selectedValue.physioValue}
@@ -274,18 +230,9 @@ function ManageUserData(props) {
             onPress={() => {
               setLoading(true);
               updateConfig().then(async function () {
-                console.log("update config then");
                 if (selectedValue.roleValue == "Paciente") {
                   const token = await getReceiverTokens();
-                  //tokens.then(function () {
-                  // console.log("reciever then", tokens);
-                  // if (tokens.values !== undefined) {
-                  //   console.log("get tokens if--", tokens.values);
-                  //   tokens.values.forEach((element) => {
-                  //     sendPushNotification(element);
-                  //   });
-                  // }
-                  //});
+                 
                 }
                 getUsers();
                 props.navigation.navigate("Home");
