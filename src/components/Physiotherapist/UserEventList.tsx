@@ -216,7 +216,7 @@ const reportStyles = StyleSheet.create({
   },
   container: {
     width: "90%",
-    height:"12%",
+    height:"auto",
     borderBottomWidth:1,
     borderRadius: 3,
     justifyContent:"space-evenly",
@@ -225,7 +225,7 @@ const reportStyles = StyleSheet.create({
     // shadowOpacity: 0.41,
     // shadowRadius: 3.11,
     // elevation: 0.5,
-    margin: "5%",
+    margin: "3%",
     // backgroundColor: "#CDD2FD",
   },
 });

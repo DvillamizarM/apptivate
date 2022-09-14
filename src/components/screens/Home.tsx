@@ -545,6 +545,7 @@ class HomeScreen extends React.Component<Props> {
             {this.props.connection && (
               <TouchableOpacity
                 style={styles.button}
+                
                 onPress={() => {
                   //  this.clearAllData()
                   this.props.navigation.navigate("UpdatePatient");

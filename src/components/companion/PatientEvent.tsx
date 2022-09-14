@@ -239,10 +239,11 @@ const styles = StyleSheet.create({
 
   sliderContainer: {
     height: vmin(16),
-    width: "100%",
-    marginLeft: "2%",
-    marginTop: "8%",
-    marginBottom: "8%",
+    width: "65%",
+    margin:"auto",
+    marginLeft: "18%",
+    marginTop: "-5%",
+    marginBottom:"10%",
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "salmon",

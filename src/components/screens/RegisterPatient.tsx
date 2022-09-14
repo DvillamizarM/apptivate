@@ -796,6 +796,7 @@ const styles = StyleSheet.create({
     marginRight: "5%",
     marginTop: vmin(1),
     marginBottom: "0%",
+    display:"flex",
     justifyContent: "space-evenly",
     alignItems: "center",
     // backgroundColor: "green",
@@ -928,10 +929,10 @@ const styles = StyleSheet.create({
 
   sliderContainer: {
     height: vmin(16),
-    width: "100%",
-    marginLeft: "2%",
-    marginTop: vmin(2),
-    marginBottom: "8%",
+    width: "65%",
+    marginLeft: "18%",
+    marginTop: "-5%",
+    marginBottom:"10%",
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "salmon",

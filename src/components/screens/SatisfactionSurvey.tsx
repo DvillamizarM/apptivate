@@ -255,9 +255,10 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     height: vmin(16),
-    width: "100%",
-    marginLeft: "2%",
-    //paddingTop: 4,
+    width: "65%",
+    // marginLeft: "10%",
+    marginTop: "-5%",
+    marginBottom:"10%",
     alignItems: "center",
     justifyContent: "center",
     //backgroundColor: "salmon",

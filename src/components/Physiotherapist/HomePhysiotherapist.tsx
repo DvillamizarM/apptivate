@@ -64,24 +64,22 @@ const renderUser = (user, props) => {
               }}
             </AnimatedCircularProgress>
           </View>
-
-          <Text style={userListStyles.textDate}>04 junio 2021</Text>
           <Text style={userListStyles.textProgress}>
             {user.control.trainingPhase}
           </Text>
         </View>
         <View style={userListStyles.rightSide}>
           <View style={userListStyles.table}>
-            <View style={userListStyles.row}>
+            {/* <View style={userListStyles.row}>
               <View style={userListStyles.column1}>
                 <Text style={userListStyles.text1}>Riesgo de Caida:</Text>
               </View>
 
               <View style={userListStyles.column2}>
-                {/* //fix this */}
+               
                 <Text style={userListStyles.text2}>40</Text>
               </View>
-            </View>
+            </View> */}
 
             <View style={userListStyles.row}>
               <View style={userListStyles.column1}>
@@ -534,8 +532,6 @@ const userListStyles = StyleSheet.create({
   headerTitle: {
     fontWeight: "bold",
     fontSize: vmin(5),
-    marginTop: "3%",
-    marginBottom: "5%",
   },
   headerSubtitle: { color: "#999999" },
   body: {

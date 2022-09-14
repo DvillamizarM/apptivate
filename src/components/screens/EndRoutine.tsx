@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "peru",
     width: "100%",
     height: "70%",
-
+display:"flex",
     // justifyContent: "center",
     alignItems: "center",
   },
@@ -517,10 +517,10 @@ const styles = StyleSheet.create({
 
   sliderContainer: {
     height: vmin(16),
-    width: "100%",
-    marginLeft: "2%",
-    marginTop: vmin(2),
-    marginBottom: "8%",
+    width: "65%",
+    marginLeft: "18%",
+    marginTop: "-12%",
+    marginBottom:"10%",
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "salmon",
